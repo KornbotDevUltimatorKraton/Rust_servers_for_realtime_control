@@ -1,0 +1,39 @@
+[Unit]
+Description=Roboreactor_server
+After=network.target
+Wants=network-online.target
+
+[Service]
+# Run as a simple service (not forking)
+Type=simple
+
+# User and group to run the service as
+User=roboticsdev
+Group=roboticsdev
+
+# The exact directory where your Rust project is located
+WorkingDirectory=/home/roboticsdev/Rust_servers/src
+
+# Command to start the application using cargo run
+ExecStart= /home/roboticsdev/.cargo/bin/cargo run --release
+#/usr/bin/cargo run --release
+
+# Always restart the service if it exits
+Restart=always
+
+# Wait 10 seconds before attempting to restart
+RestartSec=10
+
+# Direct output to the system journal
+StandardOutput=journal
+StandardError=journal
+
+# Identifier for logs
+SyslogIdentifier=rust-api
+
+# Environment variables (customize as needed)
+Environment="RUST_LOG=info"
+
+[Install]
+# Start the service when the system boots to multi-user mode
+WantedBy=multi-user.target
