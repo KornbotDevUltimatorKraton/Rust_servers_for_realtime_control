@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ToastJS Loading Notification Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        /* Optional: Add a spinner to your toast */
+        .toast-loading::after {
+            content: "⏳";
+            margin-left: 10px;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>ToastJS Loading Notification Example</h2>
+    <button onclick="startLoading()">Start Loading</button>
+    <button onclick="stopLoading()">Stop Loading</button>
+
+    <script>
+        let toastInstance = null;
+
+        // Function to Show Loading Toast
+        function startLoading() {
+            if (toastInstance) return; // Prevent multiple instances
+
+            toastInstance = Toastify({
+                text: "Loading... Please wait",
+                duration: -1, // Keep toast open indefinitely
+                close: false, // Disable manual close
+                gravity: "top", // top or bottom
+                position: "right", // left, center, or right
+                backgroundColor: "#FFA500", // Orange background for loading
+                stopOnFocus: true,
+                className: "toast-loading" // Apply spinner animation
+            }).showToast();
+        }
+
+        // Function to Stop Loading Toast
+        function stopLoading() {
+            if (toastInstance) {
+                toastInstance.hideToast(); // Hide the toast
+                toastInstance = null; // Clear the instance
+            }
+
+            // Optional: Show a success notification after loading
+            Toastify({
+                text: "Process Completed ✅",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#4CAF50",
+                stopOnFocus: true
+            }).showToast();
+        }
+
+        // Example Simulated Loading Process
+        async function simulatedProcess() {
+            startLoading(); // Show loading notification
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate 3-second task
+            stopLoading(); // Hide loading notification
+        }
+    </script>
+</body>
+</html>

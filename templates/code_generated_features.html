@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feature Tree</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+    <!--Input the parameters of the user-->
+    <input type="hidden" id="email" value={{userdata}}> 
+    <input type="hidden" id="encode_jwt" value="{{encodejwt}}">  
+    <style>
+      .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+          background-color: #fff;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 300px;
+      }
+
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+      }
+      .close2 {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+          color: black;
+          text-decoration: none;
+          cursor: pointer;
+      }
+  </style>
+</head>
+<body>
+
+  <h2>Feature Tree</h2>
+  <div id="jstree_demo"></div>
+
+  <!-- Modal for Editing -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Edit Node Details</h3>
+      <label for="com_device">Com Device:</label>
+      <input type="text" id="com_device" name="com_device">
+      <br><br>
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" name="quantity">
+      <br><br>
+      <label for="feature">Feature:</label>
+      <select id="feture" name="feature">
+        <option value="Non-select">Non-select</option>
+        <option value="Object detection">Object detection</option>
+        <option value="VIO">VIO</option>
+        <option value="Face recognition">Face recognition</option>
+        <option value="3D object detection">3D object detection</option>
+      </select>
+      <br><br>
+      <button id="saveChanges">Save Changes</button>
+      <button id="deleteNode" style="background-color: red; color: white;">Delete</button>
+    </div>
+  </div>
+ <!--Vision modal-->
+ <div id="regularModal" class="modal">
+  <div class="modal-content">
+    <span class="close2">&times;</span>
+    <h3>Edit Node Details</h3>
+    <label for="com_device">Com Device:</label>
+    <input type="text" id="com_device2" name="com_device">
+    <br><br>
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity2" name="quantity">
+    <br><br>
+    <button id="saveChanges2">Save Changes</button>
+    <button id="deleteNode2" style="background-color: red; color: white;">Delete</button>
+  </div>
+</div>
+  <script>
+    let selectedNodePath = ''; // Store the selected node's full path
+    let selectedNodeData = {}; // Store the selected node's data (com_device, quantity)
+    let parentProject = ''; // Store the parent project name
+    let currentcomp_dat = {}; //Get the current components feature dat 
+    let check_subcat = {}; // checking the sub category selected data 
+    var email = document.getElementById('email').value;
+   
+    // Function to build tree data from JSON payload
+    function buildTree(obj) {
+      const result = [];
+      for (let key in obj) {
+        if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+          const children = buildTree(obj[key]);
+          result.push({
+            text: key,
+            children: children
+          });
+        } else {
+          const nodeText = `${key}: ${obj[key]}`; // Construct the node text
+          result.push({ text: nodeText });
+        }
+      }
+      return result;
+    }
+
+    // Function to get the full path of the selected node
+    function getFullPath(node, treeInstance) {
+      const parents = treeInstance.get_path(node, '/'); // Get the path with '/' separator
+      return parents;
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+         //Main modal 
+    // Open modal and populate fields for editing
+    function openModal(nodeData, projectName) {
+      //Fetch current data of the selected parameters 
+      console.log("Node data pre-input: ",nodeData,projectName.split("/")[0],projectName);
+      console.log("Store node: ",projectName); //Get the data store node  Fetching current node selected to store feature data 
+      //Fetching current components data in feature 
+      
+      var emaildat = email; 
+      var project_name = projectName.split("/")[0]
+      var subcategory = projectName.split("/")[2]
+      var filename = projectName.split("/")[3] 
+      console.log("Components payload data: ",email,project_name,subcategory,filename);
+      currentcomp_dat = {}; //Clear the current components feature before fetching data 
+      fetch('/feature_currentcompdat', {
+          // Declare what type of data we're sending
+      headers: {
+            'Content-Type': 'application/json' 
+     },
+     // Specify the method
+     method: 'POST',
+     // A JSON payload
+     body: JSON.stringify({
+        "email": email,
+        "project_name":project_name,
+        "subcategory":subcategory,
+        "filename":filename
+        //"selectedFeature":selectedFeature
+     })
+    }).then(function (response) { // At this point, Flask has printed our JSON
+    return response.text();
+     }).then(function (text) {
+     console.log('POST response: ');
+     // Should be 'OK' if everything was successful 
+     var features_post = JSON.parse(text);
+     console.log("Feature selected post: ",features_post); 
+     //Fetching the current selected feature 
+     ///* 
+     fetch('/get_current_feature_processing', {
+       // Declare what type of data we're sending
+      headers: {
+             'Content-Type': 'application/json'
+      },
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+         "email": document.getElementById('email').value
+      })
+      }).then(function (response) { // At this point, Flask has printed our JSON
+      return response.text();
+      }).then(function (text) {
+      console.log('POST response: ');
+      // Should be 'OK' if everything was successful  
+      var curcomfeat = JSON.parse(text);
+      console.log("Current post com feature: ",curcomfeat);
+      });
+
+     fetch('/get_current_feature_processing', {
+       // Declare what type of data we're sending
+      headers: {
+             'Content-Type': 'application/json'
+      },
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+         "email": document.getElementById('email').value
+      })
+      }).then(function (response) { // At this point, Flask has printed our JSON
+      return response.text();
+      }).then(function (text) {
+      console.log('POST response: ');
+      // Should be 'OK' if everything was successful  
+      var curcomfeat = JSON.parse(text); //Get the current components feature data 
+      console.log("Current components selected: ",curcomfeat)
+      ///*
+      let project_name = Object.keys(curcomfeat)[0] //Get the project name 
+      let subcategory  = Object.keys(curcomfeat[project_name])[0]
+      let filename = Object.keys(curcomfeat[project_name][subcategory])[0]
+      console.log("Current components selected: ",project_name,subcategory,filename)
+      currentcomp_dat[email] = {} 
+      currentcomp_dat[email][project_name] = {} //Store the current selefect feature components 
+      currentcomp_dat[email][project_name][subcategory] = {} 
+      currentcomp_dat[email][project_name][subcategory][filename] = 'non'
+      console.log("Current component fetching: ",currentcomp_dat); 
+      check_subcat['subcat'] = subcategory; 
+      if(subcategory !='Vision_system'){
+            document.getElementById('editModal').style.display = "none";  
+            regModal(nodeData, projectName);
+      }
+      //*/
+      
+    });
+     //*/
+
+     });
+
+      fetch('/features_components')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const treeData = buildTree(data[email]);
+          var projectfeatures =  data[email];
+          console.log("Feature payload: ",projectfeatures)
+      var comDevdataqt = projectfeatures[project_name]['components'][subcategory][filename];
+      console.log("Components data: ",comDevdataqt);         
+      document.getElementById('editModal').style.display = "block";
+      document.getElementById('com_device').value = comDevdataqt['com_device'] //nodeData.com_device || '';
+      document.getElementById('quantity').value = comDevdataqt['Quantity']  //nodeData.quantity || '';
+      document.getElementById("feture").value = comDevdataqt['Feature']    //nodeData.feature || '';
+      document.getElementById('com_device2').value = comDevdataqt['com_device'] //nodeData.com_device || '';
+      document.getElementById('quantity2').value = comDevdataqt['Quantity'] 
+      parentProject = projectName.split("/")[0]; // Set the parent project name
+      
+      });
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //Regular modal data 
+    function regModal(nodeData, projectName) {
+      //Fetch current data of the selected parameters 
+      console.log("Node data pre-input: ",nodeData,projectName.split("/")[0],projectName);
+      console.log("Store node: ",projectName); //Get the data store node  Fetching current node selected to store feature data 
+      //Fetching current components data in feature 
+      fetch('/get_current_feature_processing', {
+       // Declare what type of data we're sending
+      headers: {
+             'Content-Type': 'application/json'
+      },
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+         "email": document.getElementById('email').value
+      })
+      }).then(function (response) { // At this point, Flask has printed our JSON
+      return response.text();
+      }).then(function (text) {
+      console.log('POST response: ');
+      // Should be 'OK' if everything was successful  
+      var curcomfeat = JSON.parse(text); //Get the current components feature data 
+      console.log("Current components selected: ",curcomfeat)
+      let project_name = Object.keys(curcomfeat)[0] //Get the project name 
+      let subcategory  = Object.keys(curcomfeat[project_name])[0]
+      let filename = Object.keys(curcomfeat[project_name][subcategory])[0]
+      console.log("Current components selected: ",project_name,subcategory,filename)
+      
+      console.log("Components payload data: ",email,project_name,subcategory,filename);
+      currentcomp_dat = {}; //Clear the current components feature before fetching data 
+      fetch('/feature_currentcompdat', {
+          // Declare what type of data we're sending
+      headers: {
+            'Content-Type': 'application/json' 
+      },
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+        "email": email,
+        "project_name":project_name,
+        "subcategory":subcategory,
+        "filename":filename
+        //"selectedFeature":selectedFeature
+      })
+      }).then(function (response) { // At this point, Flask has printed our JSON
+      return response.text();
+      }).then(function (text) {
+      console.log('POST response: ');
+      // Should be 'OK' if everything was successful 
+      var features_post = JSON.parse(text);
+      console.log("Feature selected post: ",features_post); 
+      //Fetching the current selected feature  
+       
+     });
+
+      fetch('/features_components')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const treeData = buildTree(data[email]);
+          var projectfeatures =  data[email];
+          console.log("Feature payload: ",projectfeatures)
+      var comDevdataqt = projectfeatures[project_name]['components'][subcategory][filename];
+      console.log("Components data: ",comDevdataqt);         
+      document.getElementById('regularModal').style.display = "block";
+      document.getElementById('com_device2').value = comDevdataqt['com_device'] //nodeData.com_device || '';
+      document.getElementById('quantity2').value = comDevdataqt['Quantity']  //nodeData.quantity || '';
+      parentProject = projectName.split("/")[0]; // Set the parent project name
+      
+      });
+    });
+   }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    document.getElementById("feture").addEventListener("change", function () {
+    const selectedFeature = this.value;
+    console.log("Selected Feature:",selectedFeature);
+    //Fetching the current selected feature
+    fetch('/get_current_feature_processing', {
+       // Declare what type of data we're sending
+      headers: {
+             'Content-Type': 'application/json'
+      },
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+         "email": document.getElementById('email').value
+      })
+      }).then(function (response) { // At this point, Flask has printed our JSON
+      return response.text();
+      }).then(function (text) {
+      console.log('POST response: ');
+      // Should be 'OK' if everything was successful  
+      var curcomfeat = JSON.parse(text); //Get the current components feature data 
+      console.log("Current components selected: ",curcomfeat)
+      let project_name = Object.keys(curcomfeat)[0] //Get the project name 
+      let subcategory  = Object.keys(curcomfeat[project_name])[0]
+      let filename = Object.keys(curcomfeat[project_name][subcategory])[0]
+      console.log("Current components selected: ",project_name,subcategory,filename)
+      currentcomp_dat[email] = {} 
+      currentcomp_dat[email][project_name] = {} //Store the current selefect feature components 
+      currentcomp_dat[email][project_name][subcategory] = {} 
+      currentcomp_dat[email][project_name][subcategory][filename] = selectedFeature
+      console.log("Post feature fetching: ",currentcomp_dat); 
+     //Post back fetching selected feature matching data 
+     fetch('/feature_currentcompdat', {
+       // Declare what type of data we're sending
+      headers: {
+             'Content-Type': 'application/json'
+      },
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+        "email": document.getElementById('email').value,
+        "project_name":project_name,
+        "subcategory":subcategory,
+        "filename":filename,
+        "feature":selectedFeature
+     })
+      }).then(function (response) { // At this point, Flask has printed our JSON
+      return response.text();
+      }).then(function (text) {
+      console.log('POST response: ');
+      // Should be 'OK' if everything was successful  
+       var post_currentcomp = JSON.parse(text); //Get the current components feature data 
+       console.log("Post feature fetching: ",post_currentcomp);
+       
+    });
+});
+  
+  });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Fetch JSON data from the backend
+      fetch('/features_components')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const treeData = buildTree(data[email]);
+          $('#jstree_demo').jstree({
+            'core': {
+              'data': treeData
+            }
+          });
+
+          // Handle node click event
+          $('#jstree_demo').on('select_node.jstree', function (e, data) {
+            const selectedNode = data.node.text;
+            const treeInstance = $.jstree.reference('#jstree_demo');
+            selectedNodePath = getFullPath(data.node, treeInstance); // Store the full path of the selected node
+            
+            // Extract com_device and quantity details from the selected node's text
+            const comDevice = extractNodeDetail(selectedNode, 'com_device');
+            const quantity = extractNodeDetail(selectedNode, 'Quantity');
+
+            selectedNodeData = {
+              com_device: comDevice,
+              quantity: quantity
+            };
+
+            // Determine the parent project name
+            const projectName = selectedNodePath; // Assuming the first element in the path is the project name
+            
+            // Open modal with pre-filled values
+            if (comDevice !== undefined || quantity !== undefined) {
+               
+                 openModal(selectedNodeData, projectName);
+                
+               
+            }
+          });
+
+          // Close modal
+          document.querySelector('.close').onclick = function() {
+            document.getElementById('editModal').style.display = "none";
+          };
+
+          document.querySelector('.close2').onclick = function() {
+             
+            document.getElementById('regularModal').style.display = "none";
+          };
+
+          // Save changes and send to backend
+          document.getElementById('saveChanges').onclick = function () {
+            const updatedData = {
+              com_device: document.getElementById('com_device').value,
+              quantity: document.getElementById('quantity').value
+             
+            };
+
+            // Send updated data back to the backend
+
+            fetch('/update-feature', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                'email': email,
+                'parent_project': parentProject, // Include the parent project name
+                'path': selectedNodePath, // Send full path for backend identification
+                'updated_data': updatedData
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Parent path directory: ', selectedNodePath);
+              console.log('Success:', data);
+              document.getElementById('editModal').style.display = "none"; // Close modal
+              location.reload(); // Refresh the page to get updated data
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+          };
+
+          document.getElementById('saveChanges2').onclick = function () {
+            const updatedData = {
+              com_device: document.getElementById('com_device2').value,
+              quantity: document.getElementById('quantity2').value
+             
+            };
+
+            // Send updated data back to the backend
+
+            fetch('/update-feature', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                'email': email,
+                'parent_project': parentProject, // Include the parent project name
+                'path': selectedNodePath, // Send full path for backend identification
+                'updated_data': updatedData
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Parent path directory: ', selectedNodePath);
+              console.log('Success:', data);
+              document.getElementById('regularModal').style.display = "none"; // Close modal
+              location.reload(); // Refresh the page to get updated data
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+          };
+          //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+          // Delete selected node
+          document.getElementById('deleteNode').onclick = function () {
+            // Send delete request to the backend
+            fetch('/delete-feature', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                'email': email,
+                'parent_project': parentProject, // Include the parent project name
+                'path': selectedNodePath // Send full path for backend identification
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Deleted:', data);
+              document.getElementById('editModal').style.display = "none"; // Close modal
+              location.reload(); // Refresh the page to reflect the deletion
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+          };
+          document.getElementById('deleteNode2').onclick = function () {
+            // Send delete request to the backend
+            fetch('/delete-feature', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                'email': email,
+                'parent_project': parentProject, // Include the parent project name
+                'path': selectedNodePath // Send full path for backend identification
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              console.log('Deleted:', data);
+              document.getElementById('regularModal').style.display = "none"; // Close modal
+              location.reload(); // Refresh the page to reflect the deletion
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+          };
+
+
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+
+
+    });
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Function to extract detail from node text
+    function extractNodeDetail(nodeText, detailName) {
+      if (nodeText.includes(detailName)) {
+        console.log("Node text data: ",nodeText);
+        return nodeText.split(': ')[1];
+      }
+      return undefined;
+    }
+  </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

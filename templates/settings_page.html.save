@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Roboreactor Profile </title>
+  <!--Write the parameters input for the current data input -->
+  <input type="hidden" id="datauser" value="{{userdata}}"> 
+  <input type="hidden" id="encoded_arg" value="{{encodeuser}}">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css'>
+<link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<!--<link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css'>-->
+<link rel="stylesheet" href="/static/dash_style.css">
+<link rel='stylesheet' href='//static.jstree.com/3.2.1/assets/dist/themes/default/style.min.css'>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.3.10/d3.min.js"></script>
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script>
+
+</head>
+<style>
+  body {font-family: Arial, Helvetica, sans-serif;}
+  
+  /* The Modal (background) */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  h1 {
+   font-size: 20px;
+   text-align: center;
+   margin: 20px 0 20px;
+ }
+ h1 small {
+   display: block;
+   font-size: 15px;
+   padding-top: 8px;
+   color: gray;
+ }
+ .avatar-upload {
+   position: relative;
+   max-width: 205px;
+   margin: 50px auto;
+ }
+ .avatar-upload .avatar-edit {
+   position: absolute;
+   right: 12px;
+   z-index: 1;
+   top: 10px;
+ }
+ .avatar-upload .avatar-edit input {
+   display: none;
+ }
+ .avatar-upload .avatar-edit input + label {
+   display: inline-block;
+   width: 34px;
+   height: 34px;
+   margin-bottom: 0;
+   border-radius: 100%;
+   background: #FFFFFF;
+   border: 1px solid transparent;
+   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+   cursor: pointer;
+   font-weight: normal;
+   transition: all 0.2s ease-in-out;
+ }
+ .avatar-upload .avatar-edit input + label:hover {
+   background: #f1f1f1;
+   border-color: #d6d6d6;
+ }
+ .avatar-upload .avatar-edit input + label:after {
+   content: "\f040";
+   font-family: 'FontAwesome';
+   color: #757575;
+   position: absolute;
+   top: 10px;
+   left: 0;
+   right: 0;
+   text-align: center;
+   margin: auto;
+ }
+ .avatar-upload .avatar-preview {
+   width: 192px;
+   height: 192px;
+   position: relative;
+   border-radius: 100%;
+   border: 6px solid #F8F8F8;
+   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+ }
+ .avatar-upload .avatar-preview > div {
+   width: 100%;
+   height: 100%;
+   border-radius: 100%;
+   background-size: cover;
+   background-repeat: no-repeat;
+   background-position: center;
+ }
+ 
+
+  </style>
+  <style>
+    /* Dropdown menu css */
+.dropdown-container {
+  position: relative;
+  max-width: 240px;
+}
+.dropdown-container .dropdown-toggle {
+  color: #000000;
+  background-color: #ffffff;
+  font-size: 17px;
+  padding: 18px 20px;
+  box-shadow: 0px 0px 4px -2px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: all ease-in-out 0.3s;
+}
+.dropdown-container .dropdown-toggle label {
+  cursor: pointer;
+  width: 100%;
+}
+.dropdown-container .dropdown-toggle:hover, .dropdown-container .dropdown-toggle:active, .dropdown-container .dropdown-toggle:focus {
+  background-color: #0979ce;
+  color: #ffffff;
+}
+.dropdown-container .dropdown-menu {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0px 0px 4px -2px rgba(0, 0, 0, 0.5);
+  margin-top: 17px;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  display: none;
+  background-color: #ffffff;
+  z-index: 10;
+}
+.dropdown-container .dropdown-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  z-index: 10;
+}
+.dropdown-container .dropdown-menu a {
+  text-decoration: none;
+  display: block;
+  color: #000000;
+  font-size: 15px;
+  padding: 16px 20px;
+  font-weight: 600;
+  box-shadow: 0px 0px 4px -2px rgba(0, 0, 0, 0.5);
+  transition: all ease-in-out 0.3s;
+}
+.dropdown-container .dropdown-menu a:hover, .dropdown-container .dropdown-menu a:active, .dropdown-container .dropdown-menu a:focus {
+  background-color: #0979ce;
+  color: #ffffff;
+}
+
+.dropdown-menu,
+.dropdown-toggle {
+  position: relative;
+}
+.dropdown-menu::before,
+.dropdown-toggle::before {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border: 5px solid;
+  border-top-color: rgba(0, 0, 0, 0);
+  border-left-color: rgba(0, 0, 0, 0);
+  margin-top: -2.5px;
+  background-color: rgba(0, 0, 0, 0);
+  transition: all ease-in-out 0.2s;
+}
+
+.dropdown-menu {
+  z-index: 10;
+  position: relative;
+}
+.dropdown-menu::before {
+  z-index: -1;
+  transform: rotate(-135deg);
+  top: -4px;
+  border-color: #ffffff;
+  box-shadow: 1px 1px 4px -2px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-open .dropdown-menu.dropdown-active {
+  display: block;
+}
+
+.dropdown-container.dropdown-open .dropdown-toggle {
+  background-color: #0979ce;
+  color: #ffffff;
+}
+.dropdown-container.dropdown-open .dropdown-toggle:before {
+  transform: rotate(-135deg);
+}
+
+.dropdown-bordered .dropdown-toggle {
+  border: 2px solid #000000;
+  border-radius: 10px;
+}
+.dropdown-bordered .dropdown-toggle:hover, .dropdown-bordered .dropdown-toggle:active, .dropdown-bordered .dropdown-toggle:focus {
+  background-color: #0979ce;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+.dropdown-bordered .dropdown-menu {
+  border: 2px solid #000000;
+  border-radius: 10px;
+}
+.dropdown-bordered .dropdown-menu::before {
+  border-color: #000000;
+}
+.dropdown-bordered .dropdown-menu a {
+  box-shadow: none;
+  border-bottom: 2px solid #000000;
+}
+.dropdown-bordered .dropdown-menu li:last-child a {
+  border-bottom: 0;
+}
+
+.dropdown-gradient .dropdown-toggle,
+.dropdown-gradient .dropdown-menu,
+.dropdown-gradient a {
+  background: #ff3131;
+  background: -moz-linear-gradient(262deg, #ff3131 11%, #5400ff 100%);
+  background: -webkit-linear-gradient(262deg, #ff3131 11%, #5400ff 100%);
+  background: linear-gradient(262deg, #ff3131 11%, #5400ff 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff3131",endColorstr="#5400ff",GradientType=1);
+  color: #ffffff;
+}
+.dropdown-gradient .dropdown-toggle::before {
+  color: #ffffff;
+}
+.dropdown-gradient .dropdown-menu a {
+  background: none;
+  box-shadow: none;
+  color: #ffffff;
+}
+.dropdown-gradient .dropdown-menu a:hover, .dropdown-gradient .dropdown-menu a:active, .dropdown-gradient .dropdown-menu a:focus {
+  background: #ff3131;
+  background: -moz-linear-gradient(66deg, #ff3131 11%, #5400ff 100%);
+  background: -webkit-linear-gradient(66deg, #ff3131 11%, #5400ff 100%);
+  background: linear-gradient(66deg, #ff3131 11%, #5400ff 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#ff3131",endColorstr="#5400ff",GradientType=1);
+}
+.dropdown-gradient .dropdown-menu::before {
+  box-shadow: none;
+  border-color: #ff3131;
+}
+
+.dropdown-solid .dropdown-toggle,
+.dropdown-solid .dropdown-menu {
+  background-color: #0979CE;
+  color: #ffffff;
+}
+.dropdown-solid .dropdown-menu a {
+  color: #ffffff;
+}
+.dropdown-solid .dropdown-menu a:hover, .dropdown-solid .dropdown-menu a:active, .dropdown-solid .dropdown-menu a:focus {
+  background-color: #ffffff;
+  color: #000000;
+}
+.dropdown-solid .dropdown-menu::before {
+  border-color: #0979CE;
+}
+  </style>
+  
+<!--Node color and style -->  
+<style>
+ .node {
+  cursor: pointer;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}   
+
+</style>
+<body>
+<!-- partial:index.partial.html -->
+<section>
+  <header>
+    <nav class="rad-navigation">
+      <div class="rad-logo-container">
+        <a href="#" class="rad-logo">Roboreactor</a>
+        <a href="#" class="rad-toggle-btn pull-right"><i class="fa fa-bars"></i></a>
+      </div>
+      <!--
+      <div class="rad-top-nav-container">
+        <ul class="links">
+          <li>
+            <a class="rad-menu-item" href="#"><i class="fa fa-comment-o"></i></a>
+          </li>
+          <li class="rad-dropdown"><a class="rad-menu-item" href="#"><i class="fa fa-envelope-o"><span class="rad-menu-badge">3</span></i></a>
+            <ul class="rad-dropmenu-item">
+              <li class="rad-dropmenu-header"><a href="#">Your Notifications</a></li>
+              <li class="rad-notification-item">
+                <a class="rad-notification-content" href="#">
+
+                </a>
+              </li>
+              <li class="rad-dropmenu-footer"><a href="#">See all notifications</a></li>
+            </ul>
+          </li>
+          <li class="rad-dropdown"><a class="rad-menu-item" href="#"><i class="fa fa-bell-o"><span class="rad-menu-badge">49</span></i></a>
+            <ul class="rad-dropmenu-item">
+              <li class="rad-dropmenu-header"><a href="#">Your Alerts</a></li>
+              <li class="rad-notification-item">
+                <a class="rad-notification-content" href="#">
+                </a>
+              </li>
+              <li class="rad-dropmenu-footer"><a href="#">See all alerts</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>-->
+    </nav>
+  </header>
+</section>
+<aside>
+  <nav class="rad-sidebar">
+    <ul>
+      <li>
+        <a onclick="dashboardsensor();" class="inbox">
+          <i class="fa fa-dashboard"><span class="icon-bg rad-bg-success"></span></i>
+          <span class="rad-sidebar-item">Sensor dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a onclick="API_key_auth();">
+          <i class="fa fa-key">
+						<span class="icon-bg rad-bg-danger"></span>
+					</i>
+          <span class="rad-sidebar-item">API keys</span>
+        </a>
+        
+      </li>
+      
+      <li><a onclick="Codegendat();" class="done"><i class="fa fa-code"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Code Generator</span></a></li>
+            <li><a onclick="urdf_wizard();" class="done"><i class="fa fa-cube"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">URRDF Wizard</span></a></li>
+            <li><a onclick="navigation_system();" class="snooz"><i class="fa fa-cubes"><span class="icon-bg rad-bg-primary"></span></i><span class="rad-sidebar-item">Navigation systems</span></a></li>
+            <li><a onclick="motion_controller_dash();" class="done"><i class="fa fa-wifi fa-beat"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Motion controller</span></a></li>
+            <li><a onclick="manufacturing_account_dash();" class="done"><i class="fa fa-gear"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Manufacturing AAI</span></a></li>
+            <li><a onclick="settings_dash();"><i class="fa fa-wrench"><span class="icon-bg rad-bg-violet"></span></i><span class="rad-sidebar-item">Settings</span></a></li>
+    </ul>
+  </nav>
+</aside>
+<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+<script src='//static.jstree.com/3.2.1/assets/dist/jstree.js'></script>
+<main>
+  <section>
+    <div class="rad-body-wrapper">
+      <div class="container-fluid">
+        <div class="row">
+
+ 
+     <div class="col-lg-4 col-md-6 col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Edit your profile</h3>
+        </div>
+        <div class="panel-body">
+             <div id="bubbleplots">
+              <div class="avatar-upload" >
+      
+                <div class="avatar-edit">
+                    <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
+                    <label for="imageUpload"></label>
+                </div>
+                
+                <div class="avatar-preview">
+                    <div id="imagePreview" style="background-image: url('');">
+                    </div>
+                </div>
+                <!--Get the input from the text input and fetch data back from javascript to backend python instead-->
+                <h> First name </h>
+                <input type="text" tabindex="0" id="firstname" name="firstname" placeholder="Your firstname"> 
+                <h> Last name </h>
+                <input type="text" tabindex="0" id="lastname" placeholder="Your lastname"> 
+                <h> E-mail</h>
+                <input type="text" tabindex="0" id="email" placeholder="Your email" > 
+                <h> Password</h>
+                <input type="password" tabindex="0" id="password" placeholder="Your password">
+                <h> Address</h>
+                <input type="text" tabindex="0" id="address" placeholder="Your address">
+                
+        
+                <ul>
+                  <li><input type="checkbox" onclick="myFunction()"> Show Password</li>
+                </ul> 
+                <ul>
+                  <button type="submit" onclick="save_edited_data();" class="btn btn-primary btn-block btn-sm"> Save edit</button> <!--Save the data of the edited profile -->
+                </ul>
+              </div>
+              
+                   
+            </div>
+         </div>
+         </div>
+       </div>  
+      </div>
+      </div>
+
+      <div class="col-lg-4 col-md-6 col-xs-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Select your project</h3>
+          </div>
+          <div class="panel-body">
+               
+               <div class="bubbleplot" data-num="8">
+                
+
+                <select  id="selectProject">   
+                <option>Choose project</option>
+            
+           </select>
+         <!--Add the project category here -->
+         <div id="node_project"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+        
+      
+
+
+     </div>
+    </div>
+    </div>
+  </section>
+</main>
+<!-- partial -->
+  <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js'></script>
+<!--<script src='//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js'></script>-->
+<script  src="/static/script_dash.js"></script>
+
+<script type="text/javascript">
+    var user_account = document.getElementById('datauser').value; 
+    console.log(user_account) // Using the email to extract the list of the selected project from the settings function 
+    var user_encode = document.getElementById('encoded_arg').value; 
+    console.log(user_encode);
+    var id_generate_project = []; //Store the id project generated 
+    var project_order = {}; 
+    var data_trans;
+    retrive_customer();
+    var select = document.getElementById("selectProject");
+    var options = [];
+    options.push("Non-select");
+    for(var i = 0; i < options.length; i++) {
+         var opt = options[i];
+         var el = document.createElement("option");
+         el.textContent = opt;
+         el.value = opt;
+         select.appendChild(el);
+    }
+    select.addEventListener("change", function () {
+    var selectedValue = select.value;
+    console.log("Selected value: " + selectedValue);
+    // Change the real-time data response to the robot connected into the platform 
+    if(selectedValue != 'Non-select'){
+               //Send the data to the back-end
+               //Get the current project name send to the back-end in json data  
+                // POST
+                fetch('/project_classification')
+    .then(function (response) {
+        return response.text();
+    }).then(function (text1) {
+        console.log('GET response text:');
+        var data_classification = JSON.parse(text1); // Print the greeting as text
+        console.log(data_classification);
+        console.log('current email',user_account);
+        project_items = data_classification[user_account]; 
+        console.log('items list2',project_items);
+         // Getting the generated list of the json project  
+        var ty =0; 
+        for(ty > 0;ty < project_items['category'].length;ty++){
+   
+                      console.log(project_items['category'][ty]['title']);     
+                      project_order[String(project_items['category'][ty]['title'])] = project_items['category'][ty]['items'];                                                   
+        }
+    });
+              fetch('/current_project', {
+                 // Declare what type of data we're sending
+                headers: { 
+                       'Content-Type': 'application/json'
+               },
+              // Specify the method
+              method: 'POST', 
+             // A JSON payload
+             body: JSON.stringify({
+                     "email":user_account,"project_name":selectedValue
+             })
+             }).then(function (response) { // At this point, Flask has printed our JSON
+             return response.text();
+             }).then(function (text) {
+             console.log('POST response: ');
+             // Should be 'OK' if everything was successful         
+             console.log(text);
+             console.log(project_order[selectedValue]); 
+             notify_data(text);
+             //Running the function of the node generator function here 
+             var pubs = project_order[selectedValue];  //Getting the json value reorder function 
+             //Get the feature function of the json structure generated the data from the project node 
+             
+             project_node_view_tree(pubs)
+            });
+
+    }
+    //Fetch the data of the project category at the back-end 
+    var data_trans;
+    delete options[0];
+    if(selectedValue == 'Non-select'){
+    fetch('/project_classification')
+    .then(function (response) {
+        return response.text();
+    }).then(function (text) {
+        console.log('GET response text:');
+        var data_classification = JSON.parse(text); // Print the greeting as text
+        console.log(data_classification);
+        console.log('current email',user_account);
+        project_items = data_classification[user_account]; 
+        console.log('items list',project_items);
+         // Getting the generated list of the json project  
+       
+        var wr = 0;
+        for(wr >=0;wr <= project_items['category'].length-1;wr++){
+          try{
+              //console.log(String(wr),project_items['category'][wr]);   
+              //Parent_node 
+              console.log("Project_title ",project_items['category'][wr]['title']," Project_items ",project_items['category'][wr]["items"]);
+              id_generate_project.push({"id":String(project_items['category'][wr]['title']),"parent":"#","text":String(project_items['category'][wr]["title"])});
+            
+              if(options.includes(String(project_items['category'][wr]['title'])) != true){
+                       var opt = options[wr];
+                       var el = document.createElement("option");
+                       el.textContent = opt;
+                       el.value = opt;
+                       select.appendChild(el);
+                       options.push(String(project_items['category'][wr]['title']));
+                       
+              }
+              
+              //Child data of the project 
+              var dr = 0; 
+ 
+              
+              for(dr >=0; dr <=project_items['category'][wr]['items'].length-1;dr++){
+                       console.log("Child node"+String(dr),project_items['category'][wr]['items'][dr],String(JSON.stringify(project_items['category'][wr]['items'][dr])).split(" ")[0].split(" ")[0].split(":")[1]); 
+                       Child_node = project_items['category'][wr]['items'][dr],String(JSON.stringify(project_items['category'][wr]['items'][dr])).split(" ")[0].split(" ")[0].split(":")[1];
+                       id_generate_project.push({"id":String(project_items['category'][wr]['title'])+"_"+String(dr),"parent":String(project_items['category'][wr]['title']),"text":String(JSON.stringify(Child_node)).split(" ")[0].split(" ")[0].split(":")[1]});
+              }
+         
+              console.log(id_generate_project);
+             
+            }
+         catch(err){
+              console.log("Out of range");
+         }
+        }
+        console.log("Current project",id_generate_project);
+        var wc = 0;
+        for(wc >=0;wc <= id_generate_project.length-1;wc++ ){
+                   console.log("Current project "+String(wc),id_generate_project[wc]);
+                   if(wc == id_generate_project.length-1){
+                      //jsonData = [{"id": "Roboreactor_devian_2", "parent": "#", "text": "Roboreactor_devian_2"}, {"id": "Roboreactor_devian_2_0", "parent": "Roboreactor_devian_2", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_2_1", "parent": "Roboreactor_devian_2", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_2_2", "parent": "Roboreactor_devian_2", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_2_3", "parent": "Roboreactor_devian_2", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_3", "parent": "#", "text": "Roboreactor_devian_3"}, {"id": "Roboreactor_devian_3_0", "parent": "Roboreactor_devian_3", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_3_1", "parent": "Roboreactor_devian_3", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_3_2", "parent": "Roboreactor_devian_3", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_3_3", "parent": "Roboreactor_devian_3", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_4", "parent": "#", "text": "Roboreactor_devian_4"}, {"id": "Roboreactor_devian_4_0", "parent": "Roboreactor_devian_4", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_4_1", "parent": "Roboreactor_devian_4", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_4_2", "parent": "Roboreactor_devian_4", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_4_3", "parent": "Roboreactor_devian_4", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_5", "parent": "#", "text": "Roboreactor_devian_5"}, {"id": "Roboreactor_devian_5_0", "parent": "Roboreactor_devian_5", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_5_1", "parent": "Roboreactor_devian_5", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_5_2", "parent": "Roboreactor_devian_5", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_5_3", "parent": "Roboreactor_devian_5", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_6", "parent": "#", "text": "Roboreactor_devian_6"}, {"id": "Roboreactor_devian_6_0", "parent": "Roboreactor_devian_6", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_6_1", "parent": "Roboreactor_devian_6", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_6_2", "parent": "Roboreactor_devian_6", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_6_3", "parent": "Roboreactor_devian_6", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_7", "parent": "#", "text": "Roboreactor_devian_7"}, {"id": "Roboreactor_devian_7_0", "parent": "Roboreactor_devian_7", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_7_1", "parent": "Roboreactor_devian_7", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_7_2", "parent": "Roboreactor_devian_7", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_7_3", "parent": "Roboreactor_devian_7", "text": "\"Stepper_motor_5"}]
+                      console.log("Current project new list",id_generate_project); 
+                      data_trans = [id_generate_project];                           
+                   }
+        } 
+        
+        
+
+      });
+    }
+    });
+
+    function retrive_customer(){
+            //Retrive the data 
+            fetch('/retrieve_customer_data', {
+                // Declare what type of data we're sending
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+               // Specify the method
+               method: 'POST',
+                // A JSON payload
+               body: JSON.stringify({
+                              "Email": user_encode
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+          return response.text();
+          }).then(function (text) {
+
+          console.log('POST response: ');
+                // Should be 'OK' if everything was successful
+                var ret_data = JSON.parse(text);
+                var first_name = ret_data['first_name']; 
+                var last_name = ret_data['last_name']; 
+                var Email_data = ret_data['e_mail']; 
+                var password_dat = ret_data['password']; 
+                var address = ret_data['address'];
+                document.getElementById('firstname').value  = first_name; 
+                document.getElementById('lastname').value =  last_name; 
+                document.getElementById('email').value = Email_data; 
+                document.getElementById('password').value = password_dat; 
+                document.getElementById('address').value = address; 
+         });
+
+    }
+    function save_edited_data(){
+
+               console.log("Save edited data");
+               var first_name = document.getElementById('firstname').value   
+               var last_name = document.getElementById('lastname').value 
+               var Email_data =  document.getElementById('email').value 
+               var password_dat =  document.getElementById('password').value 
+               var address =  document.getElementById('address').value 
+               fetch('/save_edited_profile', {
+                   // Declare what type of data we're sending
+                    headers: { 
+                               'Content-Type': 'application/json'
+                    },
+                  // Specify the method
+                  method: 'POST',
+                 // A JSON payload
+                 body: JSON.stringify({
+                    "firstname": first_name,"lastname":last_name,"email":Email_data,"password":password_dat,"address":address 
+                 })
+               }).then(function (response) { // At this point, Flask has printed our JSON
+               return response.text();
+              }).then(function (text) {
+               console.log('POST response: ');
+                     // Should be 'OK' if everything was successful
+                console.log(text);
+
+              });
+                
+    }
+      function notify_data(text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-right",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           toastr.success(text);
+      }
+      //Extract the project name from the settings list to get the 
+      //Using the current project data fetch input selection from the 
+      function Codegendat(){
+         window.location.href = "https://roboreactor.com/CodeGenerator/"+user_encode;
+      }
+      function dashboardsensor(){
+        window.location.href = "https://roboreactor.com/dashboard_profile/"+user_encode;
+      }  
+      function API_key_auth(){
+           window.location.href = "https://roboreactor.com/Api_keys/"+user_encode; 
+      }
+      function urdf_wizard(){
+    
+                window.location.href = "https://roboreactor.com/urdf_creator/"+user_encode;      
+      }
+      function navigation_system(){
+                
+                window.location.href = "https://roboreactor.com/navigation_systems/"+user_encode;
+      }
+      function motion_controller_dash(){
+                      
+                 window.location.href = "https://roboreactor.com/motion_controller/"+user_encode;      
+      }
+      function manufacturing_account_dash(){
+         
+                 window.location.href = "https://roboreactor.com/Manufacturing_assist/"+user_encode;  
+      }
+
+      function settings_dash(){
+                
+                 window.location.href = "https://roboreactor.com/settings/"+user_encode;
+      }
+</script>
+<script type="text/javascript">
+           //Function reordering of the code node features 
+            
+</script>
+<script type="text/javascript">
+
+     //Call this function to generate the node view tree  
+     function project_node_view_tree(pubs){
+var diameter = 600;
+var margin = {top: 20, right: 60, bottom: 20, left: 60},
+    width = diameter,
+    height = diameter;
+    
+var i = 0,
+    duration = 350,
+    root;
+
+// Adjust the initial position of the root node to shift it to the right
+//var rootX = (-width / 10); // Change this value to shift the origin node to the right
+var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+var rootX = screenWidth < 768 ? -width / 4 : 0; // Adjust values as needed
+var tree = d3.layout.tree()
+    .size([360, diameter / 2 - 80])
+    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 10) / a.depth; });
+
+var diagonal = d3.svg.diagonal.radial()
+    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+      
+var svg = d3.select("#node_project")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + (diameter / 2 + rootX) + "," + diameter / 2 + ")");
+      
+root = pubs;
+root.x0 = height / 2;
+root.y0 = 0;
+  
+//root.children.forEach(collapse); // start with all children collapsed
+update(root);
+
+d3.select(self.frameElement).style("height", "600px");  
+
+function update(source) {
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root),
+      links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * 80; });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter any new nodes at the parent's previous position.
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      //.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+      .on("click", click);
+
+  nodeEnter.append("circle")
+      .attr("r", 1e-6)
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeEnter.append("text")
+      .attr("x", 10)
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")
+      //.attr("transform", function(d) { return d.x < 180 ? "translate(0)" : "rotate(180)translate(-" + (d.name.length * 8.5)  + ")"; })
+      .text(function(d) { return d.name; })
+      .style("fill-opacity", 1e-6);
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+
+  nodeUpdate.select("circle")
+      .attr("r", 4.5)
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeUpdate.select("text")
+      .style("fill-opacity", 1)
+      .attr("transform", function(d) { return d.x < 180 ? "translate(0)" : "rotate(180)translate(-" + (d.name.length + 50)  + ")"; });
+
+  // TODO: appropriate transform
+  var nodeExit = node.exit().transition()
+      .duration(duration)
+      //.attr("transform", function(d) { return "diagonal(" + source.y + "," + source.x + ")"; })
+      .remove();
+
+  nodeExit.select("circle")
+      .attr("r", 1e-6);
+
+  nodeExit.select("text")
+      .style("fill-opacity", 1e-6);
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d) {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+      });
+
+  // Transition links to their new position.
+  link.transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+      .duration(duration)
+      .attr("d", function(d) {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+      })
+      .remove();
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  
+  update(d);
+}
+
+// Collapse nodes
+function collapse(d) {
+  if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+}
+
+}
+     
+</script>
+<!--
+<script type="text/javascript">
+   //Write the function to use with the project data fetching to send the json into the loop of data fetching 
+
+var pubs =
+{
+    "name": "AUT-1",
+    "children": [
+        {
+            "name": "PUB-1","children": [
+                {"name": "AUT-11","children": [
+                    {"name": "AFF-111"},
+                    {"name": "AFF-112"}
+                ]},
+                {"name": "AUT-12","children": [
+                    {"name": "AFF-121"}
+                ]},
+                {"name": "AUT-13","children": [
+                    {"name": "AFF-131"},
+                    {"name": "AFF-132"}
+                ]},
+                {"name": "AUT-14","children": [
+                    {"name": "AFF-141"}
+                ]}
+            ]
+        },
+        {
+            "name": "PUB-2","children": [
+                {"name": "AUT-21"},
+                {"name": "AUT-22"},
+                {"name": "AUT-23"},
+                {"name": "AUT-24"},
+                {"name": "AUT-25"},
+                {"name": "AUT-26"},
+                {"name": "AUT-27"},
+                {"name": "AUT-28","children":[
+                    {"name": "AFF-281"},
+                    {"name": "AFF-282"},
+                    {"name": "AFF-283"},
+                    {"name": "AFF-284"},
+                    {"name": "AFF-285"},
+                    {"name": "AFF-286"}
+                ]}
+            ]
+        },
+        {"name": "PUB-3"},
+        {
+            "name": "PUB-4","children": [
+                {"name": "AUT-41"},
+                {"name": "AUT-42"},
+                {"name": "AUT-43","children": [
+                    {"name": "AFF-431"},
+                    {"name": "AFF-432"},
+                    {"name": "AFF-433"},
+                    {"name": "AFF-434","children":[
+                        {"name": "ADD-4341"},
+                        {"name": "ADD-4342"},
+                    ]}
+                ]},
+                {"name": "AUT-44"}
+            ]
+        },
+        {
+            "name": "PUB-5","children": [
+                {"name": "AUT-51","children":[
+                    {"name": "AFF-511"},
+                    {"name": "AFF-512"},
+                    {"name": "AFF-513"},
+                    {"name": "AFF-514"},
+                    {"name": "AFF-515"},
+                    {"name": "AFF-516"}
+                ]},
+                {"name": "AUT-52"},
+                {"name": "AUT-53"},
+                {"name": "AUT-54"},
+                {"name": "AUT-55","children":[
+                    {"name": "AFF-551"},
+                    {"name": "AFF-552"},
+                    {"name": "AFF-553"},
+                    {"name": "AFF-554"}
+                ]},
+                {"name": "AUT-56"},
+                {"name": "AUT-57"},
+                {"name": "AUT-58"},
+                {"name": "AUT-59"},
+                {"name": "AUT-591"},
+                {"name": "AUT-592"},
+                {"name": "AUT-593"},
+                {"name": "AUT-594"},
+                {"name": "AUT-595"},
+                {"name": "AUT-596"}
+            ]
+        },
+        {
+            "name": "PUB-6","children": [
+              {"name": "AUT-61","children":[
+                  {"name": "AFF-611"},
+                  {"name": "AFF-612"},
+                  {"name": "AFF-613"},
+                  {"name": "AFF-614","children":[
+                      {"name": "ADD-6141"},
+                      {"name": "ADD-6142"},
+                  ]}
+              ]},
+              {"name": "AUT-62"},
+              {"name": "AUT-63"},
+              {"name": "AUT-64"},
+              {"name": "AUT-65"},
+              {"name": "AUT-66"},
+              {"name": "AUT-67"},
+              {"name": "AUT-68"},
+              {"name": "AUT-69"}
+            ]
+        }
+    ]
+};
+
+
+
+var diameter = 600;
+var margin = {top: 20, right: 60, bottom: 20, left: 60},
+    width = diameter,
+    height = diameter;
+    
+var i = 0,
+    duration = 350,
+    root;
+
+// Adjust the initial position of the root node to shift it to the right
+//var rootX = (-width / 10); // Change this value to shift the origin node to the right
+var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+var rootX = screenWidth < 768 ? -width / 4 : 0; // Adjust values as needed
+var tree = d3.layout.tree()
+    .size([360, diameter / 2 - 80])
+    .separation(function(a, b) { return (a.parent == b.parent ? 1 : 10) / a.depth; });
+
+var diagonal = d3.svg.diagonal.radial()
+    .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+   
+var svg = d3.select("#node_project")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + (diameter / 2 + rootX) + "," + diameter / 2 + ")");
+
+root = pubs;
+root.x0 = height / 2;
+root.y0 = 0;
+
+//root.children.forEach(collapse); // start with all children collapsed
+update(root);
+
+d3.select(self.frameElement).style("height", "600px");  
+
+function update(source) {
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root),
+      links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * 80; });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter any new nodes at the parent's previous position.
+  var nodeEnter = node.enter().append("g")
+      .attr("class", "node")
+      //.attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+      .on("click", click);
+
+  nodeEnter.append("circle")
+      .attr("r", 1e-6)
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeEnter.append("text")
+      .attr("x", 10)
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")
+      //.attr("transform", function(d) { return d.x < 180 ? "translate(0)" : "rotate(180)translate(-" + (d.name.length * 8.5)  + ")"; })
+      .text(function(d) { return d.name; })
+      .style("fill-opacity", 1e-6);
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+      .duration(duration)
+      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+
+  nodeUpdate.select("circle")
+      .attr("r", 4.5)
+      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeUpdate.select("text")
+      .style("fill-opacity", 1)
+      .attr("transform", function(d) { return d.x < 180 ? "translate(0)" : "rotate(180)translate(-" + (d.name.length + 50)  + ")"; });
+
+  // TODO: appropriate transform
+  var nodeExit = node.exit().transition()
+      .duration(duration)
+      //.attr("transform", function(d) { return "diagonal(" + source.y + "," + source.x + ")"; })
+      .remove();
+
+  nodeExit.select("circle")
+      .attr("r", 1e-6);
+
+  nodeExit.select("text")
+      .style("fill-opacity", 1e-6);
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+      .data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", function(d) {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+      });
+
+  // Transition links to their new position.
+  link.transition()
+      .duration(duration)
+      .attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+      .duration(duration)
+      .attr("d", function(d) {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+      })
+      .remove();
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+  
+  update(d);
+}
+
+// Collapse nodes
+function collapse(d) {
+  if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+    }
+}
+</script>-->
+<script type="text/javascript">
+  function myFunction() {
+       var x = document.getElementById("password");
+       if (x.type === "password") {
+                  x.type = "text";
+                  } else {
+                  x.type = "password";
+        }
+  }
+</script>
+</body>
+</html>

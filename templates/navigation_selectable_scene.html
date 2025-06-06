@@ -1,0 +1,2697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Navigation system</title>
+    <meta charset="utf-8">
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="../static/main.css">
+    <input type="hidden" id="email" value={{emailaccount}}> 
+    <input type="hidden" id="projectname" value="{{project_name}}"> 
+    <input type ="hidden" id="plandata" value="{{plan_data}}"> 
+    <input type="hidden" id="project_payload" value="{{payload_project_list}}"> <!--Passing the project data from the link -->
+    <input type="hidden" id ="component_nav" value="{{component_project}}">      
+	<input type="hidden" id="video_frame" value="{{video_realtime}}">
+    <style>
+        body { margin: 0; }
+            .my-image {
+              position: relative;
+              top: -100px;
+              left: 20px;
+              height: 600px;
+       }
+       .my-image2 {
+              position: relative;
+              top: -100px;
+              left: 45px;
+              height: 600px;
+       }
+       #container {
+  position: relative;
+  width: 200px;
+  height: 0px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+}
+        .label {
+            color: #fff;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .label2 {
+    font-family: Arial, sans-serif;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        pointer-events: none;
+}
+          .context-menu {
+            display: none;
+            position: absolute;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 150px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .context-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .context-menu ul li {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .context-menu ul li:hover {
+            background-color: #f0f0f0;
+        }
+
+        .context-menu ul li:active {
+            background-color: #e0e0e0;
+        }
+        /* Modal styles */
+        canvas {
+  grid-column: 1 / span 2;
+  grid-row: 1 / span 2;
+}
+     .modal4 {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .modal4 iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Overlay */
+    .overlay4 {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+    </style>     
+                    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
+                    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+                    <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script> 
+                    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+</head>      
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script> <!--Add the dat.gui.js into the control-->
+    
+   
+    <div class="context-menu" id="contextMenu">
+        <ul>
+            <li id="editdata">Add control</li>
+            <li id="moveid">Move model</li>
+            <li id="rotateid">Rotate model</li>
+            <li id="detachcontrol">Detach control</li>
+            <li id="deleteid">Remove model</li>
+        </ul>
+    </div>
+    <div class="overlay4" id="overlay" onclick="closeModal()"></div>
+
+    <div class="modal4" id="modal">
+      <iframe id="modalIframe" src=""></iframe>
+    </div>
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.114.0/build/three.module.js';
+        import { OrbitControls } from '../static/jsm/controls/OrbitControls.js';
+        import { TransformControls } from '../static/jsm/controls/TransformControls.js';
+        import { GLTFLoader } from '../static/jsm/loaders/GLTFLoader.js';
+        import { RGBELoader } from '../static/jsm/loaders/RGBELoader.js';
+        import { CSS2DRenderer, CSS2DObject } from '../static/jsm/renderers/CSS2DRenderer.js';
+
+        let camera, scene, renderer, labelRenderer, orbit,grid,control,model;
+        const gridExtensionFactor = 1.5; //Get the grid helper extension to extend the grid area automatically 
+        const controls = [];
+        const models = [];
+        let zoomSpeed = 0.1;
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const labels = [];
+        var detach_data = {}; 
+        var click_status = {}; // getting the click status data from the click response 
+        var transform_logic = {}; //geet the transform logic input 
+        var storecurrent_pos = {}; //Store the current position of the model data 
+        let state_nav = {}; 
+        var points_list = [];  //Get the list of the point random in the function of random path and sync hardware 
+        var points_list_swarm = {}; // Gt the swarm json data 
+        var local_swarm_inner = []; // Get the local swarm inner 
+        let cubes = [];
+        let axesGroups = [];
+        let lines = [];
+        let lineLabels = [];
+        let modelLabels = [];
+        let cube; 
+        let robot_models = {}; 
+        let trail_del = {};
+        let line,axesGroup; 
+        /*
+        let localmail = document.getElementById("email").value; 
+        let localprojectname = document.getElementById("projectname").value; 
+        let localplan = document.getElementById("plandata").value;
+        console.log("Local email: ", localmail);
+        console.log("local projectname: ",localprojectname); 
+        console.log("local plan: ",localplan);
+        */ 
+        //Input this from the hidden input data and decode the data from back-end 
+        var data_container = document.getElementById('project_payload').value  //Get the payload navigation system    
+        var decode_account = atob(data_container);
+        //{"email":"kornbot380@hotmail.com","project_name":"Smart_Robots"}
+        console.log('decode_structure_account: ',decode_account,typeof(decode_account));
+        var decode_json_string = JSON.parse(decode_account);
+        let email = decode_json_string['email']; 
+        let project_name = decode_json_string['project_name'];
+        console.log("Account extract: ",email,project_name);
+        const settings = {
+           showDetails: false, // Initial value
+           controlmodel : false, // Detach control system 
+           zoommouse : false //Zoom at mouse wheel
+        };
+        var control_logic_function = {};
+        var file_current = {} //Get the current model data 
+        // Step 2: Create a GUI instance
+        const gui = new dat.GUI();
+        settings["camera_tracker"] = false; 
+        settings["first_person"] = false; 
+        settings["pcd_timing"] = 1;  
+        settings['dynamic_mot'] = false;   
+        settings['clear_scene'] = false; 
+
+        var camera_track = gui.addFolder("Camera sync settings"); 
+        var cam_controller = camera_track.add(settings,"camera_tracker").name("Orbit_camera")
+            cam_controller.onChange(function(value_cam){
+                       console.log("Cam_control_logic",value_cam); // Get the value from the camera controller
+                       control_logic_function['orbit_cam_logic'] = value_cam; //get the orbit camera logic control function     
+            });
+            //Get the fps camera tracking function 
+            var fps_cam =camera_track.add(settings,"first_person").name("FPS_camera")
+            fps_cam.onChange(function(fps_value){
+                       console.log("FPS_cam_logic",fps_value); 
+                       control_logic_function['fps_cam_logic'] = fps_value; //Get the first person logic      
+            })
+            settings['cam_fol_track'] = false  //se
+            var cam_path_fol = camera_track.add(settings,"cam_fol_track").name("Follow_cam")
+            cam_path_fol.onChange(function(value_cam_fol){
+                       console.log("Follow camera ",value_cam_fol); 
+                       control_logic_function['follow_cam'] = value_cam_fol; 
+        });
+        camera_track.open();
+        settings['color'] = 0xffffff
+            var cpath_line = gui.addFolder("Path line axis and settings") 
+            var color_line = cpath_line.addColor(settings,"color").name("Line color") 
+            var colorcurve = color_line.onChange(function(color_value){
+                          console.log("Line color ",color_value); // Get the color value
+                          control_logic_function['color_line'] = color_value 
+                         
+            });
+            settings['axes']  = false
+            var axes_path = cpath_line.add(settings,"axes").name("Axes enable")
+            //axes_path.setValue(true); 
+            axes_path.onChange(function(value_axes){
+                         console.log("Add axes into the path ",value_axes); 
+                         control_logic_function['Axes_path'] = value_axes; 
+            }) 
+            var test_nav = cpath_line.addFolder("Test navigation system"); //Test the navigation system 
+
+            settings['proc_path'] = false 
+            var rand_path = test_nav.add(settings,"proc_path").name("Programming path") 
+            rand_path.onChange(function(value_rand){
+                              console.log("Programming_path",value_rand); 
+                              control_logic_function['proc_paths'] = value_rand; 
+            })            
+
+            settings['real_rand_path'] = false 
+            var rand_real = test_nav.add(settings,"real_rand_path").name("Random_path") 
+            rand_real.onChange(function(value_rand){
+                        console.log("Random_path ",value_rand); 
+                        control_logic_function['real_rand_path'] = value_rand; 
+                        if(value_rand == true){
+                            animate(); //Animate the random 
+                        
+                        }    
+                        if(value_rand == false){
+                            console.log("Animate deactivate");
+                        }
+            });
+            test_nav.open();
+            settings['matrix_area'] = 0;
+            var area_matrix = test_nav.add(settings,'matrix_area',1,10).name('Test_range').onChange(function(values_func){
+                      console.log("Matrix_function",values_func);
+                      settings['max_range'] = values_func; 
+            })
+            area_matrix.setValue(3);
+             //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                  //Setting the color of the point cloud for each sensor 
+            //Point cloud color setting for each sensor data 
+            settings['lidar_color'] = 0x44aa88; 
+            settings['radar_color'] = 0xff0000;
+            settings['TOF_color'] = 0x28ff;
+            settings['Ultrasonics_color'] = 0xdbff00  
+            //3D Particles for the camera slam and VIO 
+            settings['camera_slam'] = 0xff00f4; 
+            settings['camera_vio'] = 0xff0a;   
+            settings['point_cloud_color'] = {}; //Sending the data to the point cloud color 
+            var pointc_settings = gui.addFolder('Point cloud color settings'); 
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+             //Lidar color 
+            var lidar_pcdat  = pointc_settings.addColor(settings,"lidar_color").name('Lidar_color')
+            lidar_pcdat.onChange(function(value_lidarcolor){
+                   console.log("Lidar color data: ",value_lidarcolor);
+                   settings['point_cloud_color']['lidar_pcc'] = value_lidarcolor; //Get the value of the lidar sensor 
+
+            })
+            lidar_pcdat.setValue(0x44aa88); //Setting the current color data 
+            //Radar color 
+            var radar_pcdat = pointc_settings.addColor(settings,'radar_color').name('Radar_color')
+            radar_pcdat.onChange(function(value_radarcolor){
+                   console.log("Radar color data: ",value_radarcolor); 
+                   settings['point_cloud_color']['radar_pcc'] = value_radarcolor; //Getting the value of the radar sensor 
+            })
+            radar_pcdat.setValue(0xff0000);
+            //TOF color 
+            var tof_pcdat = pointc_settings.addColor(settings,'TOF_color').name('TOF_color') 
+            tof_pcdat.onChange(function(value_tofcolor){
+                   console.log("TOF color data: ",value_tofcolor);
+                   settings['point_cloud_color']['tof_pcc'] = value_tofcolor; //Getting the value of the tof sensor
+            })
+            tof_pcdat.setValue(0x28ff);
+            //Ultrasonics color 
+            var ultra_pcdat = pointc_settings.addColor(settings,'Ultrasonics_color').name('Ultrasonics_color')
+            ultra_pcdat.onChange(function(value_ultracolor){
+                   console.log("Ultrasonics color data: ",value_ultracolor);
+                   settings['point_cloud_color']['ultra_pcc'] = value_ultracolor; //Getting the value of the ultrasonics sensor
+            })
+            ultra_pcdat.setValue(0xdbff00);
+            //Camera slam color 
+            var camera_slam = pointc_settings.addColor(settings,'camera_slam').name('Camera_slam')
+            camera_slam.onChange(function(value_cameraslam){
+                   console.log("Camera slam color data: ",value_cameraslam);
+                   settings['point_cloud_color']['camera_slam'] = value_cameraslam; //Getting the value of the camera slam sensor
+            })
+            camera_slam.setValue(0xff00f4);
+            //Camera VIO color
+            var camera_vio = pointc_settings.addColor(settings,'camera_vio').name('Camera_vio')
+            camera_vio.onChange(function(value_cameravio){
+                   console.log("Camera VIO color data: ",value_cameravio);
+                   settings['point_cloud_color']['camera_vio'] = value_cameravio; //Getting the value of the camera VIO sensor
+            })
+            camera_vio.setValue(0xff0a);
+            pointc_settings.open()  
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            var synchd = cpath_line.addFolder("Sync hardware"); 
+            settings['sensor_sync_outdoor'] = false 
+            var hardware_sync_outdoor = synchd.add(settings,"sensor_sync_outdoor").name("Sync_outdoor")
+            hardware_sync_outdoor.onChange(function(value_sensor){
+                        console.log("Hardware sync outdoor enable ",value_sensor);
+                        control_logic_function["sensor_sync_outdoor"] = value_sensor
+                        if(value_sensor == true){
+                              animate(); // Animate the sync hardware 
+                        } 
+                        if(value_sensor == false){
+                             console.log("Animation sync hardware deactivate")
+                        }
+            })
+            
+            settings['sensor_sync_indoor'] = false
+            var hardware_sync_indoor = synchd.add(settings,"sensor_sync_indoor").name("Sync_indoor")
+            hardware_sync_indoor.onChange(function(value_sensor){
+                        console.log("Hardware sync indoor enable ",value_sensor);
+                        control_logic_function["sensor_sync_indoor"] = value_sensor
+                        if(value_sensor == true){
+                              animate(); // Animate the sync hardware 
+                        } 
+                        if(value_sensor == false){
+                             console.log("Animation sync hardware deactivate");
+                             delete settings.notify_pos_status; 
+                        }
+                        
+            })
+            settings['scale_environment'] = 1.00;
+            var ratio_environment = synchd.add(settings,'scale_environment',1.00,1000.00).name('Ratio').onChange(function(scale_vav){
+                    console.log("Scale environment settings: ",scale_vav); // Get the scale setting for the environment data 
+                    settings['ratio_of_space'] = scale_vav;
+
+            })
+            ratio_environment.setValue(20);
+            synchd.open();
+            // Get the swarm mode function 
+            var syncswarm = cpath_line.addFolder("Swarm mode hardware sync")
+            settings['swarm_mode_indoor'] = false;
+            settings['swarm_mode_outdoor'] = false;
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            var swarm_modes_indoor = syncswarm.add(settings,"swarm_mode_indoor").name("Swarm_indoor")
+            swarm_modes_indoor.onChange(function(value_swarm_indoor){
+                        console.log("Swarm modes indoor ", value_swarm_indoor); 
+                        control_logic_function['swarm_mode_indoor'] = value_swarm_indoor;  
+                        if(value_swarm_indoor == true){
+                            animate();  //Get the animation data to working 
+                        }
+                        if(value_swarm_indoor == false){
+                             console.log("Animateion sync swarm indoor hardware deactivate");
+                        }
+
+            });
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            var swarm_modes_outdoor = syncswarm.add(settings,"swarm_mode_outdoor").name("Swarm_outdoor")
+            swarm_modes_outdoor.onChange(function(value_swarm_outdoor){
+                       console.log("Swarm modes outdoor ",value_swarm_outdoor) //Get the swarm outdoor function 
+                       control_logic_function['swarm_mode_outdoor'] = value_swarm_outdoor; 
+                       if(value_swarm_outdoor == true){
+                             animate(); //Get the animation data to working 
+                       } 
+                       if(value_swarm_outdoor == false){
+
+                            console.log("Animation sync swarm outdoor hardware deactivate"); 
+
+                       }             
+
+            });  
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            syncswarm.open();
+            
+            var clear_scene = cpath_line.add(settings,"clear_scene").name("Clear_scene").onChange(function(value){
+                       console.log("Clearing path",value); //Clearing the path of the scene 
+                       if(value == true){
+                           console.log("Clearing the path data "); 
+                           //clearScene(scene);
+                           // This will reload the current page
+                           //window.location.reload();
+                           clearScene(scene);
+                       }
+            });
+            cpath_line.open(); 
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                //Navigation type and navigation prop 
+            settings['camera_pos_x'] = 0; 
+            settings['camera_pos_y'] = 0; 
+            settings['camera_pos_z'] = 0;
+            settings['navigation_camera'] = [];  
+            var navigation_type = gui.addFolder('Navigation type');
+            var navigation_components = ['Auto_select','Camera','WiFi_localization/BLE','Ultra_wide_band','SLAM','IMU']; //Get the navigation components 
+            var navigationcontroller = navigation_type.add(settings,'navigation_camera',navigation_components).name('Indoor_navigation')
+            navigationcontroller.setValue('Auto_select') 
+            settings['navigation_type_comp'] = 'Auto_select';
+            var camera_algorithm; 
+            navigationcontroller.onChange(function(value_nav){
+                       console.log("Navigation component ",value_nav);
+                       settings['navigation_type_comp'] = value_nav;
+                       settings['cam_algorithm'] = []; // Get the camera algorithm data 
+                       var camalgorithm = ['Aruco_marker_2D','Aruco_marker_3D']
+                       if(value_nav == 'Camera'){
+                           camera_algorithm = navigation_type.add(settings,'cam_algorithm',camalgorithm).name('Camera_algorithm').onChange(function(algo_val){
+                                 console.log("Camera algorithm ",algo_val);
+                                 settings['selected_nav_algorithm'] = algo_val; // get the camera algorithm data to running the process 
+                                 navigationcontroller.setValue('Auto_select');
+                                 navigation_type.remove(camera_algorithm); 
+                                 
+                           }); 
+                           if(Object.keys(state_nav).includes(value_nav) != true){
+                            state_nav[value_nav] = 'online';
+                            let cam_load = {'Vision_system':{'FLIR_Duo_Pro_R.glb':{'Quantity':3}}}
+                            load_multiple_selected_model(cam_load,email,project_name,'selected_com_num')
+                            
+                        
+                           } 
+                           if(Object.keys(state_nav).includes(value_nav)  == true){
+                              console.log('Camera not existing ...');
+                              notify_data('success',"Camera indoor navigation selected");
+                           }
+                           
+                           console.log('Camera function ');
+                           
+                     }
+                     settings['wifi_navtype'] = []; //Get the wifi navigation type data 
+                     var wifi_type = ['WiFi_triangulation_position','WiFi_imaging_array']; //Type of the wifi navigation system 
+                     if(value_nav  == 'WiFi_localization'){
+                             console.log('WiFi localization function');
+                             var wifi_locdat = navigation_type.add(settings,"wifi_navtype",wifi_type).name('wifi_localization_algorithm').onChange(function(wifi_vav){
+                                     console.log("WiFi navigation type: ",wifi_vav);
+                                     //Select the data of wifi value 
+                                     //navigation_type.remove(wifi_locdat); 
+                                     settings['selected_nav_algorithm'] = wifi_vav; //Selected wifi algorithm data  
+                             
+                             if(Object.keys(state_nav).includes(value_nav) != true){
+                                    state_nav[value_nav] = "online";
+                                    let cam_load = {'Navigation_system':{'Cerdas_UWB_Tracker_v4.gltf':{'Quantity':3}}}
+                                    //load_multiple_selected_model(cam_load,email,project_name,'selected_com_num')
+
+                                    
+                                    /*
+                                     //Spere use to display signal data for every communication components category loaded into the scene 
+                                    const radius = 5;  // Radius of the sphere
+                                    const widthSegments = 32;  // Number of horizontal segments
+                                    const heightSegments = 16;  // Number of vertical segments
+                                    // Geometry for the full sphere
+                                    const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI / 2);
+                                    // Create a wireframe version of the geometry
+                                    const wireframe = new THREE.WireframeGeometry(sphereGeometry);
+                                    // Create a line material for the wireframe
+                                    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 });
+                                    // Create a line object using the wireframe geometry and line material
+                                    const wireframeDome = new THREE.LineSegments(wireframe, lineMaterial);
+                                    wireframeDome.position.set(3,3,0);
+                                    // Add the wireframe dome to the scene
+                                    scene.add(wireframeDome);
+                                    */
+                                     
+            
+                            
+                             } 
+                             if(Object.keys(state_nav).includes(value_nav) == true){
+                                   console.log('WiFi localization not existing ...');
+                                   notify_data('success',"WiFi localization selected");
+                             } 
+                             navigation_type.remove(wifi_locdat); 
+                         });
+                             
+                     }
+                     if(value_nav == 'Ultra_wide_band'){
+                            console.log('Ultra wide band');
+                            if(Object.keys(state_nav).includes(value_nav) != true){
+                                    state_nav[value_nav] = "online"
+                                   
+                            } 
+                            if(Object.keys(state_nav).includes(value_nav) == true){
+                                   console.log('Ultra wide band not existing ...');
+                                   notify_data('success',"Ultra wide band selected");
+                            }
+                     }
+            });
+            /*
+            settings['outdoor_nav'] = [];
+            var outdoor_navlist = ['Auto-select','GPS','GNSS','Cellular LTE','VIO','Lidar','Fusion sensor'] 
+            var outdoornav = navigation_type.add(settings,'outdoor_nav',outdoor_navlist).name('Outdoor_navigation').onChange(function(outdoor_vav){
+                     console.log("Outdoor navigation system: ",outdoor_vav); //Get the outdoor navigation function 
+                     settings['outdoor_select'] = outdoor_vav; // Get the outdoor navigation type selected 
+                     notify_data('success','Selected '+outdoor_vav);
+            })
+            outdoornav.setValue('Auto-select');
+            */
+            navigation_type.open();
+
+            settings['prop_nav'] = [];
+            var robot_workplaces = ["Non-select","Manufacturing_factories", "Warehouses", "Hospitals", "Construction_sites", 
+                    "Farms", "Retail stores", "Restaurants", "Autonomous_delivery", 
+                    "Security_patrols", "Space_exploration"]
+                
+            var prop_features;  
+            var prop_nav = gui.addFolder('Prop for navigation scene');
+            var isResetting = false;
+
+            prop_features = prop_nav.add(settings,'prop_nav',robot_workplaces).name('select prop').onChange(function(propselect){
+                       console.log("Select prop model for the navigation scene",propselect);
+                       notify_data('success','Select prop model for the navigation scene '+propselect);
+                       if(propselect != 'Non-select'){
+        notify_data('success', 'Select prop model for the navigation scene ' + propselect);
+        
+        // Generate the code base64 link url for the model prop data 
+        var raw_encode = {'email':email, 'project_name':project_name, 'category':propselect};
+        var encode_data = JSON.stringify(raw_encode);
+        var encode_data_base64 = btoa(encode_data);
+        console.log("Encode data: ", encode_data_base64);
+        
+        // Open the modal with the selected prop
+        openModal(900, 450, 'https://roboreactor.com/prop_selector/'+encode_data_base64);
+        
+        // Reset the select box to 'Non-select' after a short delay
+        prop_features.setValue('Non-select');
+    
+    }
+                       
+            }); 
+            prop_nav.open();  
+            gui.__controllers.forEach(function(controller) {
+    controller.updateDisplay();
+});
+            settings['prop_select'] = function (){
+                   console.log("Load prop");
+            }
+            var prop_select  = prop_nav.add(settings,'prop_select').name('Load prop').onChange(function(load_prop){
+                     console.log('Load prop data: ',load_prop);    
+                     fetch('/get_nave_logic_data', {
+ 
+                       // Declare what type of data we're sending
+                       headers: {
+                          'Content-Type': 'application/json'
+                       },
+                      // Specify the method
+                     method: 'POST',
+                     // A JSON payload 
+                     body: JSON.stringify({'email':email,'project_name':project_name})
+                     }).then(function (response) { // At this point, Flask has printed our JSON
+                     return response.text();
+                     }).then(function (text) {
+                     console.log('POST response: ');
+                     // Should be 'OK' if everything was successful
+                     let get_logic =  JSON.parse(text);
+                     console.log("Get navigation logic: ",get_logic[project_name]);
+                     let getdata_nav_logic = get_logic[project_name]; //Get the data navigation logic data 
+                     let logicnav = getdata_nav_logic['logic_state']; 
+                     let prop_model = getdata_nav_logic['prop_loader'];
+                     let category = getdata_nav_logic['category']; 
+                     let quantity = getdata_nav_logic['quantity']; 
+
+                     console.log('Get the logic navigation: ',logicnav);       
+                     fetch('/get_logic_command', {
+
+                        // Declare what type of data we're sending
+                        headers: {
+                           'Content-Type': 'application/json'
+                        },
+                        // Specify the method
+                        method: 'POST',
+                        // A JSON payload 
+                        body: JSON.stringify({'email':email,'project_name':project_name,'logic_state':'False','prop_loader':prop_model,'category':category,'quantity':quantity})
+                        }).then(function (response) { // At this point, Flask has printed our JSON
+                        return response.text();
+                        }).then(function (text) {
+                        console.log('POST response: ');
+                        // Should be 'OK' if everything was successful
+                        let post_logic_result =  JSON.parse(text);   
+                        console.log('Get full logic input: ',post_logic_result);
+                        //Fetch the current selected model data  
+                        var construct_loader = {}; 
+                        construct_loader[category] = {}
+                        construct_loader[category][prop_model] = {'Quantity':quantity}
+                        let model_prop = construct_loader  //{category:{prop_model:{'Quantity':quantity}}}
+                        console.log('Prop selected data category: ',model_prop);
+                        load_multiple_selected_prop(model_prop,email,project_name,'selected_com_num')
+                        
+                       });
+                   });  
+                   prop_features.setValue('Non-select');
+            })
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+           //Transform control the 3D model 
+        
+        var cet = gui.addFolder("Transform control");
+        cet.add(settings, 'controlmodel').name('Move control').onChange((value) => {
+        // This function runs whenever the checkbox value changes
+        console.log('Control menu:', value);
+        transform_logic['status'] = value; //Get the transform logic data input 
+         
+       });
+
+       cet.open(); 
+                  
+    
+    //cet.close(); //close the folder before activate 
+    
+    init();
+    render();
+    
+    function init() {
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            //label 
+            labelRenderer = new CSS2DRenderer();
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.domElement.style.position = 'absolute';
+            labelRenderer.domElement.style.top = '0';
+            labelRenderer.domElement.style.pointerEvents = 'none';
+            document.body.appendChild(labelRenderer.domElement);   
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+            camera.position.set(5, 5, 10);
+            camera.lookAt(0, 0, 0);
+            
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color( 0x333333 );
+		    scene.environment = new RGBELoader().load( '../static/textures/equirectangular/venice_sunset_1k.hdr' );
+		    scene.environment.mapping = THREE.EquirectangularReflectionMapping;
+            grid = new THREE.GridHelper( 20, 40, 0xffffff, 0xffffff );
+			grid.material.opacity = 0.2;
+			grid.material.depthWrite = false;
+			grid.material.transparent = true;
+            scene.add(grid); 
+            //scene.add(new THREE.GridHelper(10, 10, 0x888888, 0x444444));
+             
+            // Lighting
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+
+            // Controls setup
+            orbit = new OrbitControls(camera, renderer.domElement);
+            orbit.update();
+            orbit.addEventListener('change', render);
+            // Mouse click event for raycasting
+            window.addEventListener('click', onMouseClick, false);
+        }
+
+      
+        const modelData = {}; // Dictionary to store model name and position
+        const poskeymod = {}; //Get the keypos store as key and follow by the model name data  
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //Update grid helper 
+    function updateGridHelper() {
+    // Remove existing grid
+    if (grid) {
+        scene.remove(grid);
+    }
+
+    // Find the maximum absolute coordinate among all models
+    let maxCoord = 0;
+    models.forEach(model => {
+        maxCoord = Math.max(maxCoord, 
+            Math.abs(model.position.x), 
+            Math.abs(model.position.y), 
+            Math.abs(model.position.z)
+        );
+    });
+    //console.log("Models_data: ",models,typeof(models));
+
+    // Calculate new grid size
+    const gridSize = Math.ceil(maxCoord * gridExtensionFactor);
+    const gridDivisions = 20; // You can adjust this for more or fewer grid lines
+
+    // Create new grid
+    grid = new THREE.GridHelper(gridSize * 2, gridDivisions, 0xffffff, 0x888888);
+    grid.material.opacity = 0.2;
+    grid.material.transparent = true;
+    scene.add(grid);
+
+    // Update renderer and camera
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    // Optionally, adjust camera position or controls target if needed
+    // orbit.target.set(0, 0, 0);
+    // camera.position.set(gridSize, gridSize, gridSize);
+    // orbit.update();
+
+    render();
+}
+
+
+settings['state_nav_func'] = {}; //Get the status navigation
+settings['state_navcomp'] = {};  // State navigaiton components store data 
+settings['Current_loaded_prop'] = {}; // Store the current loaded prop into the loop function 
+function Navigation_controller(){
+
+       //Loop fetching data in the animation
+       //Fetching the input command  classified from the manufacturing assistant ai 
+       //Loading the multiple prop model from the category of the prop model 
+    if(settings['real_rand_path'] == true ){
+                       console.log("Test running path random");
+                       let min = 0.1; 
+                       let max = settings['max_range']
+                       var randomIntX = Math.floor(Math.random() * (max - min + 1)) + min;
+                       var randomIntY = Math.floor(Math.random() * (max - min + 1)) + min;
+                       var randomIntZ = Math.floor(Math.random() * (max - min + 1)) + min; 
+                       console.log(randomIntX,randomIntY,randomIntZ); 
+                       var material = new THREE.LineBasicMaterial({ color: control_logic_function['color_line'] }); // Red color
+                       //Calculate the position from the IMU data to draw the line and move the point cloud into the difference position 
+                       //Get the origin position from the polar_co-ordination 
+                       if (points_list.length > 3){         
+                               var p_point = 0; 
+                               for(p_point > 0; p_point <= points_list.length-1; p_point++){                    
+                                   //points_list.shift(); 
+                                   //points_list.unshift(points_list.pop());
+                                   points_list.splice(p_point,1);
+
+                               }
+                               points_list.splice(0, points_list.length);   //Clear 
+                            }
+                       points_list.push(new THREE.Vector3(randomIntX,randomIntY,randomIntZ)); 
+                              
+                       console.log("Move_path",points_list);
+                       try{
+                       var curve = new THREE.CatmullRomCurve3(points_list);
+                       // Define the geometry of the line using the curve
+                       var geometry = new THREE.Geometry();
+                       geometry.vertices = curve.getPoints(50); // Get 50 points along the curve
+                           // Create the line object
+                       
+                       line = new THREE.Line(geometry, material);
+                       scene.add(line);
+                       }
+                       catch{
+                             console.log("Path process error")
+                       }
+                       label_controldata(line,axesGroup,randomIntX,randomIntY,randomIntZ);  
+                        const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]),
+                            new THREE.LineBasicMaterial({ color: 0xff0000 })
+                        );
+                        const yAxis = new THREE.Line(
+                            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]),
+                            new THREE.LineBasicMaterial({ color: 0x00ff00 })
+                        );
+                        const zAxis = new THREE.Line(
+                            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1)]),
+                            new THREE.LineBasicMaterial({ color: 0x0000ff })
+                        );
+                        if(control_logic_function['Axes_path'] == true){
+                        // Create an object to group the axes and add them to the scene
+                        axesGroup = new THREE.Group();
+                        axesGroup.add(xAxis, yAxis, zAxis);
+                        axesGroup.position.set(randomIntX,randomIntY,randomIntZ)
+                        models['position'] = {'x':randomIntZ,'y':randomIntY,'z':randomIntZ}
+                        var cam_r_polar = Math.sqrt(Math.pow(randomIntX,2)+Math.pow(randomIntY,2)); 
+                        var cam_polar_angle_x  = Math.acos(randomIntX/cam_r_polar)
+                        var cam_polar_angle_y  = Math.asin(randomIntY/cam_r_polar)
+                        label_controldata(line,axesGroup,randomIntX,randomIntY,randomIntZ);
+                        if(control_logic_function['fps_cam_logic'] == true){
+                                
+                                camera.position.set(randomIntX,randomIntY,randomIntZ );
+                                 
+                        }
+                        if(control_logic_function['orbit_cam_logic'] == true){
+                                 //Control the angle (x,y,z)
+                                 if(control_logic_function['follow_cam'] == true){
+                                              camera.rotation.x = cam_polar_angle_x //  row 
+                                              camera.rotation.y = cam_polar_angle_y  //  yaw
+                                              camera.rotation.z = 90*Math.PI/180  //  pitch
+                                 }
+                        }
+                       
+                        scene.add(axesGroup);    
+                        }
+                        updateGridHelper();
+       }    
+       
+   if(settings['sensor_sync_outdoor'] == true)   {
+        console.log("Sync hardware sensor data for outdoor navigation");
+         
+        fetch('/outdoor_total_position', {
+           // Declare what type of data we're sending
+           headers: {
+                 'Content-Type': 'application/json'
+           },
+           // Specify the method
+           method: 'POST',
+           // A JSON payload
+           body: JSON.stringify({
+                "email": email,'project_name':project_name
+           })
+           }).then(function (response) { // At this point, Flask has printed our JSON
+           return response.text();
+           }).then(function (text) {
+          //console.log('POST response: ');
+          var data_pos = JSON.parse(text);
+          console.log("Return the outdoor position: ",data_pos);
+          let check_status = Object.keys(data_pos); //Get the status data of the current position
+          var len_navcomp = parseInt(check_status.length)+parseInt(check_status.length)/2;
+          console.log("Check status: ",check_status); // Get the status of the positioning outdoor data
+           //Check the status of data input 
+          
+          if(check_status != {}){
+               //Get the offset data of the current robot model data                  
+               let navocom =0; 
+               console.log('Return the local key data',check_status);
+               var material = new THREE.LineBasicMaterial({ color: control_logic_function['color_line'] }); // Red color
+               for(navocom >0;navocom<=check_status.length-1;navocom++){
+                     console.log("Navigation component: ",check_status[navocom]);
+                      //Distance and avoidance sensor data for the navigation mapping and  navigation system  
+                      let nav_list = ['main_robot','radar','camera_slam','camera_vio','lidar','tof','ultrasonic',];
+                      //The Positioning system based on the sattellite and locomotion leges robot 
+                      let sat_local_nav = ['gnss','gps','cellular lte','compass','rtk']; 
+                       //Check the navigation components data detected 
+                       if(nav_list.includes(check_status[navocom]) == true){
+                         //All list of the navigation components is detected available in the list of the components features existance checked
+                          console.log("Detected the components in the list: ",check_status[navocom]);
+                          if(check_status[navocom] == 'main_robot'){
+                            console.log("Main components detected: ",data_pos[check_status[navocom]]);
+                            //Get the position data from the radar payload to display the position of object before robot 
+                            let list_main= Object.keys(data_pos[check_status[navocom]]);
+                            console.log("Main components list: ",list_main); 
+                            let main_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(main_com >0;main_com<=list_main.length-1;main_com++){
+                                   
+                                   console.log('Main robot components: ',list_main[main_com],data_pos[check_status[navocom]][list_main[main_com]]);
+                                   //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let main_params = data_pos[check_status[navocom]][list_main[main_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Replace with the internal offset 
+                                   //Offset of the components position 
+                                   let offset_x = main_params['Xc'];
+                                   let offset_y = main_params['Yc'];
+                                   let offset_z = main_params['Zc'];
+
+                                                        //Position of robot 
+                                   let robot_x = main_params['Xo']+offset_x; 
+                                   let robot_y = main_params['Yo']+offset_y; 
+                                   let robot_z = main_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let radar_x = main_params['X']+robot_x;
+                                   let radar_y = main_params['Y']+robot_y;
+                                   let radar_z = main_params['Z']+robot_z; 
+                                   
+                                   let angle_x =  THREE.MathUtils.degToRad(parseFloat(main_params['roll']));
+                                   let angle_y =THREE.MathUtils.degToRad(parseFloat(main_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(main_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   
+                                   console.log("Radar_"+list_main[main_com],radar_x,radar_y,radar_z,angle_x,angle_y,angle_z);
+                                   let X = parseFloat(radar_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(radar_z/settings['ratio_of_space'])
+                                   let Z = parseFloat(radar_y/settings['ratio_of_space']);
+                                   models['position'] = {'x':X,'y':Y,'z':Z}
+                                   
+                                    //console.log("Move_path",points_list);
+                                  var material = new THREE.LineBasicMaterial({ color: control_logic_function['color_line'] }); // Red color
+                                  //Calculate the position from the IMU data to draw the line and move the point cloud into the difference position 
+                                  //Get the origin position from the polar_co-ordination 
+                                  if (points_list.length > 3){         
+                                       var p_point = 0; 
+                                       for(p_point > 0; p_point <= points_list.length-1; p_point++){                    
+                                           //points_list.shift(); 
+                                          //points_list.unshift(points_list.pop());
+                                          points_list.splice(p_point,1);
+                                          }
+                                      points_list.splice(0, points_list.length);   //Clear 
+                                  } 
+                                  //Structure of the positioning data input 
+
+         //var element_coordinate = Object.keys(data_pos); //Get the element of the coordinate position data 
+         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..
+                //Function for the camera navigation use the camera positioning input 
+            points_list.push(new THREE.Vector3(X,Y,Z));  
+            console.log("Outdoor 3D space position: ",X,Y,Z);                    
+            console.log("Move_path",points_list);
+         try{
+             var curve = new THREE.CatmullRomCurve3(points_list);
+             // Define the geometry of the line using the curve
+             var geometry = new THREE.Geometry();
+             geometry.vertices = curve.getPoints(50); // Get 50 points along the curve
+            // Create the line object          
+             line = new THREE.Line(geometry, material);
+             scene.add(line);
+        }
+        catch{
+           console.log("Path process error")
+        }
+        label_controldata(line,axesGroup,X,Y,Z);  
+        const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]),
+                    new THREE.LineBasicMaterial({ color: 0xff0000 })
+        );
+        const yAxis = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]),
+        new THREE.LineBasicMaterial({ color: 0x00ff00 })
+        );
+        const zAxis = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1)]),
+            new THREE.LineBasicMaterial({ color: 0x0000ff })
+        );
+           if(control_logic_function['Axes_path'] == true){
+                        // Create an object to group the axes and add them to the scene
+                        axesGroup = new THREE.Group();
+                        axesGroup.add(xAxis, yAxis, zAxis);
+                        axesGroup.position.set(X,Y,Z)
+                        axesGroup.rotation.x =angle_x
+                        axesGroup.rotation.y = angle_y// Get the angle degree of the
+                        axesGroup.rotation.z = angle_z; 
+                        var cam_r_polar = Math.sqrt(Math.pow(X,2)+Math.pow(Y,2)); 
+                        var cam_polar_angle_x  = Math.acos(X/cam_r_polar)
+                        var cam_polar_angle_y  = Math.asin(Y/cam_r_polar)
+                        label_controldata(line,axesGroup,X,Y,Z);
+                        if(control_logic_function['fps_cam_logic'] == true){
+                                
+                                camera.position.set(X,Y,Z);    
+                                camera.rotation.set(angle_x,angle_y,angle_z); // Get the angle of the camera rotation 
+
+                        }
+                      
+
+                 scene.add(axesGroup);
+                 updateGridHelper();
+    }   
+    
+
+                            }
+                        }
+                        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+                        if(check_status[navocom] == 'radar'){
+                            console.log("Detecting radar: ",data_pos[check_status[navocom]]); 
+                            //Movable polar coordinate function required
+                            let list_radar = Object.keys(data_pos[check_status[navocom]]);
+                            console.log("radar components list: ",list_radar); 
+                            let radar_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(radar_com >0;radar_com<=list_radar.length-1;radar_com++){
+                                  
+                                   console.log('Radar components: ',list_radar[radar_com],data_pos[check_status[navocom]][list_radar[radar_com]]);
+                            
+                                 //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let radar_params = data_pos[check_status[navocom]][list_radar[radar_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Offset of the components position 
+                                   let offset_x = radar_params['Xc'];
+                                   let offset_y = radar_params['Yc'];
+                                   let offset_z = radar_params['Zc'];
+                                                        //Position of robot 
+                                   let robot_x = radar_params['Xo']+offset_x; 
+                                   let robot_y = radar_params['Yo']+offset_y; 
+                                   let robot_z = radar_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let radar_x = radar_params['X']+robot_x;
+                                   let radar_y = radar_params['Y']+robot_y;
+                                   let radar_z = radar_params['Z']+robot_z; 
+                                   
+                                   let angle_x = THREE.MathUtils.degToRad(parseFloat(radar_params['roll']));
+                                   let angle_y = THREE.MathUtils.degToRad(parseFloat(radar_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(radar_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   //parseFloat(lidar_params['max_distance']); //Get the max distance data of the lidar params  
+                                   let angular_rotation = parseFloat(radar_params['angular_rotation']); // Get the angular rotational deg of the lidar 
+                                   let distance = parseFloat(radar_params['distance']); // Get the distance data of the lidar
+                                   
+                                   console.log("Lidar_"+list_radar[radar_com],radar_x,radar_y,radar_z,angle_x,angle_y,angle_z,distance,angular_rotation);
+                                   let X = parseFloat(radar_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(radar_z/settings['ratio_of_space']);
+                                   let Z = parseFloat(radar_y/settings['ratio_of_space']);
+                                   pointcloud_radar(X,Y,Z,distance,angular_rotation,settings['radar_color']);
+                            }        
+                        }
+                        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                        if(check_status[navocom] == 'lidar'){
+                            console.log("Lidar components detected: ",data_pos[check_status[navocom]]);
+                            //Movable polar coordinate function required
+                            let list_lidar = Object.keys(data_pos[check_status[navocom]]);
+                            console.log("Lidar components list: ",list_lidar); 
+                            let lidar_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(lidar_com >0;lidar_com<=list_lidar.length-1;lidar_com++){
+                                  
+                                   console.log('Lidar components: ',list_lidar[lidar_com],data_pos[check_status[navocom]][list_lidar[lidar_com]]);
+                            
+                                 //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let lidar_params = data_pos[check_status[navocom]][list_lidar[lidar_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Offset of the components position 
+                                   let offset_x = lidar_params['Xc'];
+                                   let offset_y = lidar_params['Yc'];
+                                   let offset_z = lidar_params['Zc'];
+                                                        //Position of robot 
+                                   let robot_x = lidar_params['Xo']+offset_x; 
+                                   let robot_y = lidar_params['Yo']+offset_y; 
+                                   let robot_z = lidar_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let lidar_x = lidar_params['X']+robot_x;
+                                   let lidar_y = lidar_params['Y']+robot_y;
+                                   let lidar_z = lidar_params['Z']+robot_z; 
+                                   
+                                   let angle_x = THREE.MathUtils.degToRad(parseFloat(lidar_params['roll']));
+                                   let angle_y = THREE.MathUtils.degToRad(parseFloat(lidar_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(lidar_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   //parseFloat(lidar_params['max_distance']); //Get the max distance data of the lidar params  
+                                   let angular_rotation = parseFloat(lidar_params['angular_rotation']); // Get the angular rotational deg of the lidar 
+                                   let distance = parseFloat(lidar_params['distance']); // Get the distance data of the lidar
+                                   
+                                   console.log("Lidar_"+list_lidar[lidar_com],lidar_x,lidar_y,lidar_z,angle_x,angle_y,angle_z,distance,angular_rotation);
+                                   let X = parseFloat(lidar_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(lidar_z/settings['ratio_of_space']);
+                                   let Z = parseFloat(lidar_y/settings['ratio_of_space']);
+                                   pointcloud_lidar(X,Y,Z,distance,angular_rotation,settings['lidar_color']);
+                            }
+                          }
+                          //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.
+                          if(check_status[navocom] == 'camera_slam'){
+                            console.log("Camera components detected: ",data_pos[check_status[navocom]]);
+                                   //Movable polar coordinate function required
+                            let list_camera = Object.keys(data_pos[check_status[navocom]]);
+                            console.log("Camera components list: ",list_camera); 
+                            let camera_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(camera_com >0;camera_com<=list_camera.length-1;camera_com++){
+                                  
+                                   console.log('Camera components: ',list_camera[camera_com],data_pos[check_status[navocom]][list_camera[camera_com]]);
+                            
+                                 //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let camera_params = data_pos[check_status[navocom]][list_camera[camera_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Offset of the components position 
+                                   let offset_x = camera_params['Xc'];
+                                   let offset_y = camera_params['Yc'];
+                                   let offset_z = camera_params['Zc'];
+                                                        //Position of robot 
+                                   let robot_x = camera_params['Xo']+offset_x; 
+                                   let robot_y = camera_params['Yo']+offset_y; 
+                                   let robot_z = camera_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let camera_x = camera_params['X']+robot_x;
+                                   let camera_y = camera_params['Y']+robot_y;
+                                   let camera_z = camera_params['Z']+robot_z; 
+                                   
+                                   let angle_x = THREE.MathUtils.degToRad(parseFloat(camera_params['roll']));
+                                   let angle_y = THREE.MathUtils.degToRad(parseFloat(camera_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(camera_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   //parseFloat(lidar_params['max_distance']); //Get the max distance data of the lidar params  
+                                   let angular_rotation = parseFloat(camera_params['angular_rotation']); // Get the angular rotational deg of the lidar 
+                                   let distance = parseFloat(camera_params['distance']); // Get the distance data of the lidar
+                                   
+                                   console.log("Camera_"+list_camera[camera_com],camera_x,camera_y,camera_z,angle_x,angle_y,angle_z,distance,angular_rotation);
+                                   let X = parseFloat(camera_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(camera_z/settings['ratio_of_space']);
+                                   let Z = parseFloat(camera_y/settings['ratio_of_space']);
+                                   pointcloud_camera(X,Y,Z,distance,angular_rotation,settings['camera_slam']);
+                            }
+
+                          } 
+                          if(check_status[navocom] == 'camera_vio'){
+                            console.log("Camera vio components detected: ",data_pos[check_status[navocom]]);
+                                   //Movable polar coordinate function required
+                            let list_cameravio = Object.keys(data_pos[check_status[navocom]]);
+                            console.log("Camera vio components list: ",list_cameravio); 
+                            let cameravio_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(cameravio_com >0;cameravio_com<=list_cameravio.length-1;cameravio_com++){
+                                  
+                                   console.log('Camera vio components: ',list_cameravio[cameravio_com],data_pos[check_status[navocom]][list_cameravio[cameravio_com]]);
+                            
+                                 //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let cameravio_params = data_pos[check_status[navocom]][list_cameravio[cameravio_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Offset of the components position 
+                                   let offset_x = cameravio_params['Xc'];
+                                   let offset_y = cameravio_params['Yc'];
+                                   let offset_z = cameravio_params['Zc'];
+                                                        //Position of robot 
+                                   let robot_x = cameravio_params['Xo']+offset_x; 
+                                   let robot_y = cameravio_params['Yo']+offset_y; 
+                                   let robot_z = cameravio_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let cameravio_x = cameravio_params['X']+robot_x;
+                                   let cameravio_y = cameravio_params['Y']+robot_y;
+                                   let cameravio_z = cameravio_params['Z']+robot_z; 
+                                   
+                                   let angle_x = THREE.MathUtils.degToRad(parseFloat(cameravio_params['roll']));
+                                   let angle_y = THREE.MathUtils.degToRad(parseFloat(cameravio_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(cameravio_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   //parseFloat(lidar_params['max_distance']); //Get the max distance data of the lidar params  
+                                   let angular_rotation = parseFloat(cameravio_params['angular_rotation']); // Get the angular rotational deg of the lidar 
+                                   let distance = parseFloat(cameravio_params['distance']); // Get the distance data of the lidar
+                                   
+                                   console.log("Camera_VIO_"+list_cameravio[cameravio_com],cameravio_x,cameravio_y,cameravio_z,angle_x,angle_y,angle_z,distance,angular_rotation);
+                                   let X = parseFloat(cameravio_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(cameravio_z/settings['ratio_of_space']);
+                                   let Z = parseFloat(cameravio_y/settings['ratio_of_space']);
+                                   pointcloud_camvio(X,Y,Z,distance,angular_rotation,settings['camera_vio']);
+                            }
+
+                          } 
+                          if(check_status[navocom] == 'tof'){
+                            console.log("ToF components detected: ",data_pos[check_status[navocom]]);
+                                       //Movable polar coordinate function required
+                            let list_tof = Object.keys(data_pos[check_status[navocom]]);
+                            console.log("TOF components list: ",list_tof); 
+                            let tof_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(tof_com >0;tof_com<=list_tof.length-1;tof_com++){
+                                  
+                                   console.log('TOF components: ',list_tof[tof_com],data_pos[check_status[navocom]][list_tof[tof_com]]);
+                            
+                                 //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let tof_params = data_pos[check_status[navocom]][list_tof[tof_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Offset of the components position 
+                                   let offset_x = tof_params['Xc'];
+                                   let offset_y = tof_params['Yc'];
+                                   let offset_z = tof_params['Zc'];
+                                                        //Position of robot 
+                                   let robot_x = tof_params['Xo']+offset_x; 
+                                   let robot_y = tof_params['Yo']+offset_y; 
+                                   let robot_z = tof_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let tof_x = tof_params['X']+robot_x;
+                                   let tof_y = tof_params['Y']+robot_y;
+                                   let tof_z = tof_params['Z']+robot_z; 
+                                   
+                                   let angle_x = THREE.MathUtils.degToRad(parseFloat(tof_params['roll']));
+                                   let angle_y = THREE.MathUtils.degToRad(parseFloat(tof_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(tof_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   //parseFloat(lidar_params['max_distance']); //Get the max distance data of the lidar params  
+                                   let angular_rotation = parseFloat(tof_params['angular_rotation']); // Get the angular rotational deg of the lidar 
+                                   let distance = parseFloat(tof_params['distance']); // Get the distance data of the lidar
+                                   
+                                   console.log("Tof_"+list_tof[tof_com],tof_x,tof_y,tof_z,angle_x,angle_y,angle_z,distance,angular_rotation);
+                                   let X = parseFloat(tof_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(tof_z/settings['ratio_of_space']);
+                                   let Z = parseFloat(tof_y/settings['ratio_of_space']);
+                                   pointcloud_tof(X,Y,Z,distance,angular_rotation,settings['TOF_color']);
+                            }
+   
+                        }
+                    
+                          
+                          if(check_status[navocom] == 'ultrasonic'){
+                            console.log("Ultrasonics components detected: ",data_pos[check_status[navocom]]);
+                                       //Movable polar coordinate function required
+                            let list_ultrasonics = Object.keys(data_pos[check_status[navocom]]);
+                            console.log("Ultrasonics components list: ",list_ultrasonics); 
+                            let ultrasonics_com =0; 
+                            //Beam forming radar both phase array and single phase  
+                            for(ultrasonics_com >0;ultrasonics_com<=list_ultrasonics.length-1;ultrasonics_com++){
+                                  
+                                   console.log('Ultrasonics components: ',list_ultrasonics[ultrasonics_com],data_pos[check_status[navocom]][list_ultrasonics[ultrasonics_com]]);
+                            
+                                 //Extract each radar parameters data to display the position of the object detected  by robot in local aread parameters of robot 
+                                   let ultrasonics_params = data_pos[check_status[navocom]][list_ultrasonics[ultrasonics_com]]; 
+                                   
+                                   //Get the position data and angle from the components 
+                                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                        //This function will setting the position of the sensors and robot to dsplay as robot positioning data from the input post request data 
+                                    //Offset of the components position 
+                                   let offset_x = ultrasonics_params['Xc'];
+                                   let offset_y = ultrasonics_params['Yc'];
+                                   let offset_z = ultrasonics_params['Zc'];
+                                                        //Position of robot 
+                                   let robot_x = ultrasonics_params['Xo']+offset_x; 
+                                   let robot_y = ultrasonics_params['Yo']+offset_y; 
+                                   let robot_z = ultrasonics_params['Zo']+offset_z; 
+                                  
+                                   //Position from radar 
+                                   let ultrasonics_x = ultrasonics_params['X']+robot_x;
+                                   let ultrasonics_y = ultrasonics_params['Y']+robot_y;
+                                   let ultrasonics_z = ultrasonics_params['Z']+robot_z; 
+                                   
+                                   let angle_x = THREE.MathUtils.degToRad(parseFloat(ultrasonics_params['roll']));
+                                   let angle_y = THREE.MathUtils.degToRad(parseFloat(ultrasonics_params['pitch']));
+                                   let angle_z = THREE.MathUtils.degToRad(parseFloat(ultrasonics_params['yaw']));
+                                   let angle = Math.sqrt(Math.pow(angle_x,2)+Math.pow(angle_y,2)+Math.pow(angle_z,2));
+                                   //parseFloat(lidar_params['max_distance']); //Get the max distance data of the lidar params  
+                                   let angular_rotation = parseFloat(ultrasonics_params['angular_rotation']); // Get the angular rotational deg of the lidar 
+                                   let distance = parseFloat(ultrasonics_params['distance']); // Get the distance data of the lidar
+                                   
+                                   console.log("Ultrasonics_"+list_ultrasonics[ultrasonics_com],ultrasonics_x,ultrasonics_y,ultrasonics_z,angle_x,angle_y,angle_z,distance,angular_rotation);
+                                   let X = parseFloat(ultrasonics_x/settings['ratio_of_space']); 
+                                   let Y = parseFloat(ultrasonics_z/settings['ratio_of_space']);
+                                   let Z = parseFloat(ultrasonics_y/settings['ratio_of_space']);
+                                   pointcloud_ultrasonics(X,Y,Z,distance,angular_rotation,settings['Ultrasonics_color']);
+                            }
+                          }
+
+                        }
+                    }
+                }
+    }); 
+
+   }
+   if(settings['sensor_sync_indoor'] == true){
+ 
+        fetch('/indoor_total_position', {
+           // Declare what type of data we're sending
+           headers: {
+                 'Content-Type': 'application/json'
+           },
+           // Specify the method
+           method: 'POST',
+           // A JSON payload
+           body: JSON.stringify({
+                "email": email,'project_name':project_name
+           })
+           }).then(function (response) { // At this point, Flask has printed our JSON
+           return response.text();
+           }).then(function (text) {
+          console.log('POST response: ');
+          var data_pos = JSON.parse(text);
+          console.log("Return the position: ",data_pos);
+          let check_status = Object.keys(data_pos); //Get the status data of the current position 
+          if(check_status.includes('status')!=true){
+    
+       console.log("Sync hardware sensor data indoor navigation");
+       //Check the data from the JSON data input fetching to extract the indoor navigation list 
+            var material = new THREE.LineBasicMaterial({ color: control_logic_function['color_line'] }); // Red color
+        //Calculate the position from the IMU data to draw the line and move the point cloud into the difference position 
+        //Get the origin position from the polar_co-ordination 
+        if (points_list.length > 3){         
+            var p_point = 0; 
+            for(p_point > 0; p_point <= points_list.length-1; p_point++){                    
+                                   //points_list.shift(); 
+                                   //points_list.unshift(points_list.pop());
+                                   points_list.splice(p_point,1);
+
+             }
+                               points_list.splice(0, points_list.length);   //Clear 
+         }
+         //Structure of the positioning data input 
+
+         var element_coordinate = Object.keys(data_pos); //Get the element of the coordinate position data 
+         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>..
+                //Function for the camera navigation use the camera positioning input 
+         if(settings['selected_nav_algorithm'] == "Aruco_marker_2D"){
+            console.log("Selected Aruco camera navigation algorithm");
+
+                     
+         if(element_coordinate.includes('Z') !=true){
+            let X = parseFloat(data_pos['X']/settings['ratio_of_space'])
+            let Y = parseFloat(0); 
+            let Z = parseFloat(data_pos['Y']/settings['ratio_of_space'])
+            points_list.push(new THREE.Vector3(X,Y,Z));  
+            console.log("Indoor 3D space position: ",X,Y,Z);                    
+         console.log("Move_path",points_list);
+         try{
+             var curve = new THREE.CatmullRomCurve3(points_list);
+             // Define the geometry of the line using the curve
+             var geometry = new THREE.Geometry();
+             geometry.vertices = curve.getPoints(50); // Get 50 points along the curve
+            // Create the line object          
+             line = new THREE.Line(geometry, material);
+             scene.add(line);
+        }
+        catch{
+           console.log("Path process error")
+        }
+        label_controldata(line,axesGroup,X,Y,Z);  
+        const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]),
+                    new THREE.LineBasicMaterial({ color: 0xff0000 })
+        );
+        const yAxis = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]),
+        new THREE.LineBasicMaterial({ color: 0x00ff00 })
+        );
+        const zAxis = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1)]),
+            new THREE.LineBasicMaterial({ color: 0x0000ff })
+        );
+        if(control_logic_function['Axes_path'] == true){
+                        // Create an object to group the axes and add them to the scene
+                        axesGroup = new THREE.Group();
+                        axesGroup.add(xAxis, yAxis, zAxis);
+                        axesGroup.position.set(X,Y,Z)
+                        axesGroup.rotation.y = THREE.MathUtils.degToRad(parseFloat(data_pos['Angle'])); // Get the angle degree of the 
+                        models['position'] = {'x':X,'y':Y,'z':Z}
+                        var cam_r_polar = Math.sqrt(Math.pow(X,2)+Math.pow(Y,2)); 
+                        var cam_polar_angle_x  = Math.acos(X/cam_r_polar)
+                        var cam_polar_angle_y  = Math.asin(Y/cam_r_polar)
+                        label_controldata(line,axesGroup,X,Y,Z);
+                        if(control_logic_function['fps_cam_logic'] == true){
+                                
+                                camera.position.set(X,Y,Z);    
+                                
+                        }
+        scene.add(axesGroup);
+        updateGridHelper(); 
+      }
+      }
+    }
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+       // Get the infared tracking for the 3D navigation system of flying robot 
+     if(settings['selected_nav_algorithm'] == "Aruco_marker_3D"){
+       console.log("Select the infrared tracking navigation system");
+      if(element_coordinate.includes('Z') ==true){
+            let X = parseFloat(data_pos['X']/settings['ratio_of_space']); 
+            let Y = parseFloat(data_pos['Z']/settings['ratio_of_space'])
+            let Z = parseFloat(data_pos['Y']/settings['ratio_of_space']);
+            points_list.push(new THREE.Vector3(X,Y,Z));  
+                            
+         console.log("Move_path",points_list);
+         try{
+             var curve = new THREE.CatmullRomCurve3(points_list);
+             // Define the geometry of the line using the curve
+             var geometry = new THREE.Geometry();
+             geometry.vertices = curve.getPoints(50); // Get 50 points along the curve
+            // Create the line object          
+             line = new THREE.Line(geometry, material);
+             scene.add(line);
+        }
+        catch{
+           console.log("Path process error")
+        }
+        label_controldata(line,axesGroup,X,Y,Z);  
+        const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]),
+                    new THREE.LineBasicMaterial({ color: 0xff0000 })
+        );
+        const yAxis = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]),
+        new THREE.LineBasicMaterial({ color: 0x00ff00 })
+        );
+        const zAxis = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1)]),
+            new THREE.LineBasicMaterial({ color: 0x0000ff })
+        );
+        if(control_logic_function['Axes_path'] == true){
+                        // Create an object to group the axes and add them to the scene
+                        axesGroup = new THREE.Group();
+                        axesGroup.add(xAxis, yAxis, zAxis);
+                        axesGroup.position.set(X,Y,Z)
+                        //Create the rotation of the axes 
+                        if (element_coordinate.includes('roll')){
+                              axesGroup.rotation.x = THREE.MathUtils.degToRad(parseFloat(data_pos['roll'])); // Get the
+                              axesGroup.rotation.y = THREE.MathUtils.degToRad(parseFloat(data_pos['pitch'])); // Get the angle degree of the
+                              axesGroup.rotation.z = THREE.MathUtils.degToRad(parseFloat(data_pos['yaw'])); 
+                        }
+                        models['position'] = {'x':Z,'y':Y,'z':Z}
+                        var cam_r_polar = Math.sqrt(Math.pow(X,2)+Math.pow(Y,2)); 
+                        var cam_polar_angle_x  = Math.acos(X/cam_r_polar)
+                        var cam_polar_angle_y  = Math.asin(Y/cam_r_polar)
+                        label_controldata(line,axesGroup,X,Y,Z);
+                        if(control_logic_function['fps_cam_logic'] == true){
+                                
+                                camera.position.set(X,Y,Z);
+                                 
+                         }
+        scene.add(axesGroup);
+        updateGridHelper(); 
+      }
+      }
+    }
+
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+         //Wifi Localization mode  
+       if(settings['selected_nav_algorithm'] == "WiFi_triangulation_position"){
+                        console.log("Select the WiFi_triangle");
+
+       }
+       if(settings['selected_nav_algorithm'] == "WiFi_image_array"){
+                        console.log("Select the WiFi_image_array");
+       }
+
+        } //End the if statement of the status data
+       //settings['notify_pos_status'] = data_pos['status']; // Get the pos status 
+       if(check_status.includes('status')==true){
+           console.log("Error reading the current position request from the hardware ");
+          
+           let status_dat = Object.keys(settings); //Get the key data of the status 
+         
+           if(status_dat.includes('notify_pos_status')!=true){
+                  console.log('Found error requesting current position',data_pos['status']);
+                  notify_data('warning','Robot hardware sync fail connection'); //Fail to connect robot hardware 
+           } 
+           settings['notify_pos_status'] = data_pos['status'];
+        }
+
+     });
+    
+   }
+   if(settings['swarm_mode']){
+        console.log("Swarm mode navigation system extract all the list of robot project online in the same area");
+        //Checking the data from the JSON data input fetching to extract the indoor navigation list 
+        var material = new THREE.LineBasicMaterial({color: control_logic_function['color_line']}); // Red color
+        //Calculate the position from the IMU data to draw the line and move the point cloud into the difference position 
+        //Get the origin position from the polar_co-ordination 
+        fetch('/Qr_total_position', {
+           // Declare what type of data we're sending
+           headers: {
+                 'Content-Type': 'application/json'
+           },
+           // Specify the method
+           method: 'POST',
+           // A JSON payload
+           body: JSON.stringify({
+                "email": email,'project_name':project_name
+           })
+           }).then(function (response) { // At this point, Flask has printed our JSON
+           return response.text();
+           }).then(function (text) {
+          console.log('POST response: ');
+          var data_pos = JSON.parse(text);
+          console.log("Return the position: ",data_pos);
+               
+          if (points_list.length > 3){         
+            var p_point = 0; 
+            for(p_point > 0; p_point <= points_list.length-1; p_point++){                    
+                                   //points_list.shift(); 
+                                   //points_list.unshift(points_list.pop());
+                                   points_list.splice(p_point,1);
+
+             }
+                               points_list.splice(0, points_list.length);   //Clear 
+         }
+         points_list.push(new THREE.Vector3(1,1,1));                      
+         console.log("Move_path",points_list);
+         try{
+             var curve = new THREE.CatmullRomCurve3(points_list);
+             // Define the geometry of the line using the curve
+             var geometry = new THREE.Geometry();
+             geometry.vertices = curve.getPoints(50); // Get 50 points along the curve
+            // Create the line object          
+             line = new THREE.Line(geometry, material);
+             scene.add(line);
+        }
+        catch{
+           console.log("Path process error")
+        }
+        label_controldata(line,axesGroup,X,Y,Z);  
+        const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]),
+                    new THREE.LineBasicMaterial({ color: 0xff0000 })
+        );
+        const yAxis = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]),
+        new THREE.LineBasicMaterial({ color: 0x00ff00 })
+        );
+        const zAxis = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1)]),
+            new THREE.LineBasicMaterial({ color: 0x0000ff })
+        );
+        if(control_logic_function['Axes_path'] == true){
+                        // Create an object to group the axes and add them to the scene
+                        axesGroup = new THREE.Group();
+                        axesGroup.add(xAxis, yAxis, zAxis);
+                        axesGroup.position.set(randomIntX,randomIntY,randomIntZ)
+                        models['position'] = {'x':1,'y':1,'z':1}
+                        var cam_r_polar = Math.sqrt(Math.pow(randomIntX,2)+Math.pow(randomIntY,2)); 
+                        var cam_polar_angle_x  = Math.acos(randomIntX/cam_r_polar)
+                        var cam_polar_angle_y  = Math.asin(randomIntY/cam_r_polar)
+                        label_controldata(line,axesGroup,1,1,1);
+                        if(control_logic_function['fps_cam_logic'] == true){
+                                
+                                camera.position.set(1,1,1);
+                                 
+        }
+        scene.add(axesGroup);
+        updateGridHelper(); 
+    
+      }
+
+     });
+   }
+}
+function clearScene(scene) {
+    // Function to recursively remove and dispose of objects
+    function disposeObject(obj) {
+        if (obj.children.length > 0) {
+            for (let i = obj.children.length - 1; i >= 0; i--) {
+                disposeObject(obj.children[i]);
+            }
+        }
+
+        if (obj.geometry) {
+            obj.geometry.dispose();
+        }
+
+        if (obj.material) {
+            if (Array.isArray(obj.material)) {
+                obj.material.forEach(material => material.dispose());
+            } else {
+                obj.material.dispose();
+            }
+        }
+
+        // Remove CSS2D labels
+        if (obj.isCSS2DObject) {
+            if (obj.element && obj.element.parentNode) {
+                obj.element.parentNode.removeChild(obj.element);
+            }
+        }
+
+        if (obj.parent) {
+            obj.parent.remove(obj);
+        }
+    }
+
+    // Clear the scene, but keep the grid helper
+    for (let i = scene.children.length - 1; i >= 0; i--) {
+        const obj = scene.children[i];
+        if (!(obj instanceof THREE.GridHelper)) {
+            disposeObject(obj);
+        }
+    }
+
+    // Clear any stored references to labels
+    if (window.modelLabels) {
+        window.modelLabels.forEach(label => {
+            if (label.element && label.element.parentNode) {
+                label.element.parentNode.removeChild(label.element);
+            }
+        });
+        window.modelLabels.length = 0;
+    }
+    if (window.lineLabels) {
+        window.lineLabels.forEach(label => {
+            if (label.element && label.element.parentNode) {
+                label.element.parentNode.removeChild(label.element);
+            }
+        });
+        window.lineLabels.length = 0;
+    }
+
+    // Clear any other label arrays if they exist
+    if (window.cubes) window.cubes.length = 0;
+    if (window.axesGroups) window.axesGroups.length = 0;
+    if (window.lines) window.lines.length = 0;
+    location.reload(true); 
+    
+   
+}
+function pointcloud_lidar(X,Y,Z,distance,angular_rotation,color_comp){
+       // Create point cloud geometry
+       const points = [];            
+                       
+       let x_polar = distance*Math.cos(angular_rotation)/settings['ratio_of_space'];
+       let y_polar = distance*Math.sin(angular_rotation)/settings['ratio_of_space'];   
+       points.push(new THREE.Vector3(
+       x_polar, 
+       0, 
+       y_polar
+       ));                
+       const lidargeometry = new THREE.BufferGeometry().setFromPoints(points);
+       let materials;
+
+       // Point cloud material
+       materials = new THREE.PointsMaterial({ color:color_comp , size: 0.05 });
+
+       // Create point cloud object
+       const pointCloud = new THREE.Points(lidargeometry, materials);
+       scene.add(pointCloud);
+       // Translation vector
+       const translation = new THREE.Vector3(X, Y, Z);
+       //pointCloud.rotation.x += 0.01;
+       //pointCloud.rotation.z += 0.01;
+       // Translate the point cloud
+       pointCloud.position.add(translation);
+}
+function pointcloud_camera(X,Y,Z,distance,angular_rotation,color_comp){
+       // Create point cloud geometry
+       const points = [];            
+                       
+       let x_polar = distance*Math.cos(angular_rotation)/settings['ratio_of_space'];
+       let y_polar = distance*Math.sin(angular_rotation)/settings['ratio_of_space'];   
+       points.push(new THREE.Vector3(
+       x_polar, 
+       0, 
+       y_polar
+       ));                
+       const lidargeometry = new THREE.BufferGeometry().setFromPoints(points);
+       let materials;
+
+       // Point cloud material
+       materials = new THREE.PointsMaterial({ color:color_comp , size: 0.05 });
+
+       // Create point cloud object
+       const pointCloud = new THREE.Points(lidargeometry, materials);
+       scene.add(pointCloud);
+       // Translation vector
+       const translation = new THREE.Vector3(X, Y, Z);
+       //pointCloud.rotation.x += 0.01;
+       //pointCloud.rotation.z += 0.01;
+       // Translate the point cloud
+       pointCloud.position.add(translation);
+}
+function pointcloud_radar(X,Y,Z,distance,angular_rotation,color_comp){
+       // Create point cloud geometry
+       const points = [];            
+                       
+       let x_polar = distance*Math.cos(angular_rotation)/settings['ratio_of_space'];
+       let y_polar = distance*Math.sin(angular_rotation)/settings['ratio_of_space'];   
+       points.push(new THREE.Vector3(
+       x_polar, 
+       0, 
+       y_polar
+       ));                
+       const lidargeometry = new THREE.BufferGeometry().setFromPoints(points);
+       let materials;
+
+       // Point cloud material
+       materials = new THREE.PointsMaterial({ color:color_comp , size: 0.05 });
+
+       // Create point cloud object
+       const pointCloud = new THREE.Points(lidargeometry, materials);
+       scene.add(pointCloud);
+       // Translation vector
+       const translation = new THREE.Vector3(X, Y, Z);
+       //pointCloud.rotation.x += 0.01;
+       //pointCloud.rotation.z += 0.01;
+       // Translate the point cloud
+       pointCloud.position.add(translation);
+}
+function pointcloud_tof(X,Y,Z,distance,angular_rotation,color_comp){
+       // Create point cloud geometry
+       const points = [];            
+                       
+       let x_polar = distance*Math.cos(angular_rotation)/settings['ratio_of_space'];
+       let y_polar = distance*Math.sin(angular_rotation)/settings['ratio_of_space'];   
+       points.push(new THREE.Vector3(
+       x_polar, 
+       0, 
+       y_polar
+       ));                
+       const lidargeometry = new THREE.BufferGeometry().setFromPoints(points);
+       let materials;
+
+       // Point cloud material
+       materials = new THREE.PointsMaterial({ color:color_comp , size: 0.05 });
+
+       // Create point cloud object
+       const pointCloud = new THREE.Points(lidargeometry, materials);
+       scene.add(pointCloud);
+       // Translation vector
+       const translation = new THREE.Vector3(X, Y, Z);
+       //pointCloud.rotation.x += 0.01;
+       //pointCloud.rotation.z += 0.01;
+       // Translate the point cloud
+       pointCloud.position.add(translation);
+}
+function pointcloud_ultrasonics(X,Y,Z,distance,angular_rotation,color_comp){
+       // Create point cloud geometry
+       const points = [];            
+                       
+       let x_polar = distance*Math.cos(angular_rotation)/settings['ratio_of_space'];
+       let y_polar = distance*Math.sin(angular_rotation)/settings['ratio_of_space'];   
+       points.push(new THREE.Vector3(
+       x_polar, 
+       0, 
+       y_polar
+       ));                
+       const lidargeometry = new THREE.BufferGeometry().setFromPoints(points);
+       let materials;
+
+       // Point cloud material
+       materials = new THREE.PointsMaterial({ color:color_comp , size: 0.05 });
+
+       // Create point cloud object
+       const pointCloud = new THREE.Points(lidargeometry, materials);
+       scene.add(pointCloud);
+       // Translation vector
+       const translation = new THREE.Vector3(X, Y, Z);
+       //pointCloud.rotation.x += 0.01;
+       //pointCloud.rotation.z += 0.01;
+       // Translate the point cloud
+       pointCloud.position.add(translation);
+}
+function pointcloud_camvio(X,Y,Z,distance,angular_rotation,color_comp){
+       // Create point cloud geometry
+       const points = [];            
+                       
+       let x_polar = distance*Math.cos(angular_rotation)/settings['ratio_of_space'];
+       let y_polar = distance*Math.sin(angular_rotation)/settings['ratio_of_space'];   
+       points.push(new THREE.Vector3(
+       x_polar, 
+       0, 
+       y_polar
+       ));                
+       const lidargeometry = new THREE.BufferGeometry().setFromPoints(points);
+       let materials;
+
+       // Point cloud material
+       materials = new THREE.PointsMaterial({ color:color_comp , size: 0.05 });
+
+       // Create point cloud object
+       const pointCloud = new THREE.Points(lidargeometry, materials);
+       scene.add(pointCloud);
+       // Translation vector
+       const translation = new THREE.Vector3(X, Y, Z);
+       //pointCloud.rotation.x += 0.01;
+       //pointCloud.rotation.z += 0.01;
+       // Translate the point cloud
+       pointCloud.position.add(translation);
+}
+function label_navcomponents(line,nav_component,len_navdata,axesGroup,randomIntX, randomIntY, randomIntZ,angle_x,angle_y,angle_z) {
+    const geometry = new THREE.BoxGeometry(0.001, 0.001, 0.001);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.set(randomIntX, randomIntY, randomIntZ);
+
+    // Create model label
+    var modelLabelDiv = document.createElement('div');
+    var modelLabelText = String(nav_component) + '_' + "(" + String(parseInt(randomIntX)) + "," + String(parseInt(randomIntY)) + "," + String(parseInt(randomIntZ)) + ")";
+    modelLabelDiv.className = 'label model-label';
+    modelLabelDiv.textContent = modelLabelText;
+    modelLabelDiv.style.pointerEvents = 'none';
+    var modelLabel = new CSS2DObject(modelLabelDiv);
+    modelLabel.position.set(0, 0.1, 0); // Position above the cube
+    
+    // Create line label
+    var lineLabelDiv = document.createElement('div');
+    lineLabelDiv.className = 'label line-label';
+    lineLabelDiv.style.pointerEvents = 'none';
+    var lineLabel = new CSS2DObject(lineLabelDiv);
+
+    // Position line label at the end of the line
+    if (line.geometry.vertices && line.geometry.vertices.length > 0) {
+        var lastVertex = line.geometry.vertices[line.geometry.vertices.length - 1];
+        lineLabel.position.copy(lastVertex);
+    } else if (line.geometry.attributes && line.geometry.attributes.position) {
+        var positions = line.geometry.attributes.position.array;
+        var lastPosition = new THREE.Vector3(
+            positions[positions.length - 3],
+            positions[positions.length - 2],
+            positions[positions.length - 1]
+        );
+        lineLabel.position.copy(lastPosition);
+    }
+
+    // Add objects to the scene
+    scene.add(cube);
+    scene.add(axesGroup);
+    scene.add(line);
+    cube.add(modelLabel);
+    line.add(lineLabel);
+
+    // Add new objects to our tracking arrays
+    cubes.push(cube);
+    modelLabels.push(modelLabel);
+    lineLabels.push(lineLabel);
+    axesGroups.push(axesGroup);
+    lines.push(line);
+
+    // If we have more than 3 sets, remove the oldest
+    if (cubes.length > 3) {
+        let oldestCube = cubes.shift();
+        let oldestModelLabel = modelLabels.shift();
+        let oldestLineLabel = lineLabels.shift();
+        let oldestAxesGroup = axesGroups.shift();
+        let oldestLine = lines.shift();
+
+        scene.remove(oldestCube);
+        scene.remove(oldestAxesGroup);
+        scene.remove(oldestLine);
+        oldestCube.remove(oldestModelLabel);
+        oldestLine.remove(oldestLineLabel);
+    }
+
+    // Update trail_del
+    if (typeof trail_del === 'undefined') {
+        trail_del = {};
+    }
+    trail_del[modelLabelText] = {'x': randomIntX, 'y': randomIntY, 'z': randomIntZ};
+    if (Object.keys(trail_del).length > 3) {
+        var firstmove = Object.keys(trail_del)[0];
+        delete trail_del[firstmove];
+    }
+
+    // Ensure the labels always face the camera
+    function updateLabelOrientation() {
+        modelLabel.quaternion.copy(camera.quaternion);
+        lineLabel.quaternion.copy(camera.quaternion);
+    }
+
+    // Add the updateLabelOrientation function to your render loop
+    if (typeof window.labelUpdateFunctions === 'undefined') {
+        window.labelUpdateFunctions = [];
+    }
+    window.labelUpdateFunctions.push(updateLabelOrientation);
+}
+function label_controldata(line, axesGroup, randomIntX, randomIntY, randomIntZ) {
+    const geometry = new THREE.BoxGeometry(0.01, 0.01, 0.01);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    cube = new THREE.Mesh(geometry, material);
+    cube.position.set(randomIntX, randomIntY, randomIntZ);
+
+    // Create model label
+    var modelLabelDiv = document.createElement('div');
+    var modelLabelText = String(project_name) + '_' + "(" + String(parseInt(randomIntX)) + "," + String(parseInt(randomIntY)) + "," + String(parseInt(randomIntZ)) + ")";
+    modelLabelDiv.className = 'label model-label';
+    modelLabelDiv.textContent = modelLabelText;
+    modelLabelDiv.style.pointerEvents = 'none';
+    var modelLabel = new CSS2DObject(modelLabelDiv);
+    modelLabel.position.set(0, 0.1, 0); // Position above the cube
+    
+    // Create line label
+    var lineLabelDiv = document.createElement('div');
+    lineLabelDiv.className = 'label line-label';
+    lineLabelDiv.style.pointerEvents = 'none';
+    var lineLabel = new CSS2DObject(lineLabelDiv);
+
+    // Position line label at the end of the line
+    if (line.geometry.vertices && line.geometry.vertices.length > 0) {
+        var lastVertex = line.geometry.vertices[line.geometry.vertices.length - 1];
+        lineLabel.position.copy(lastVertex);
+    } else if (line.geometry.attributes && line.geometry.attributes.position) {
+        var positions = line.geometry.attributes.position.array;
+        var lastPosition = new THREE.Vector3(
+            positions[positions.length - 3],
+            positions[positions.length - 2],
+            positions[positions.length - 1]
+        );
+        lineLabel.position.copy(lastPosition);
+    }
+
+    // Add objects to the scene
+    scene.add(cube);
+    scene.add(axesGroup);
+    scene.add(line);
+    cube.add(modelLabel);
+    line.add(lineLabel);
+
+    // Add new objects to our tracking arrays
+    cubes.push(cube);
+    modelLabels.push(modelLabel);
+    lineLabels.push(lineLabel);
+    axesGroups.push(axesGroup);
+    lines.push(line);
+
+    // If we have more than 3 sets, remove the oldest
+    if (cubes.length > 3) {
+        let oldestCube = cubes.shift();
+        let oldestModelLabel = modelLabels.shift();
+        let oldestLineLabel = lineLabels.shift();
+        let oldestAxesGroup = axesGroups.shift();
+        let oldestLine = lines.shift();
+
+        scene.remove(oldestCube);
+        scene.remove(oldestAxesGroup);
+        scene.remove(oldestLine);
+        oldestCube.remove(oldestModelLabel);
+        oldestLine.remove(oldestLineLabel);
+    }
+
+    // Update trail_del
+    if (typeof trail_del === 'undefined') {
+        trail_del = {};
+    }
+    trail_del[modelLabelText] = {'x': randomIntX, 'y': randomIntY, 'z': randomIntZ};
+    if (Object.keys(trail_del).length > 3) {
+        var firstmove = Object.keys(trail_del)[0];
+        delete trail_del[firstmove];
+    }
+
+    // Ensure the labels always face the camera
+    function updateLabelOrientation() {
+        modelLabel.quaternion.copy(camera.quaternion);
+        lineLabel.quaternion.copy(camera.quaternion);
+    }
+
+    // Add the updateLabelOrientation function to your render loop
+    if (typeof window.labelUpdateFunctions === 'undefined') {
+        window.labelUpdateFunctions = [];
+    }
+    window.labelUpdateFunctions.push(updateLabelOrientation);
+    updateCubeBasedGridHelper();
+}
+function updateCubeBasedGridHelper() {
+    // Remove the existing grid helper if it exists
+    if (grid) {
+        scene.remove(grid);
+    }
+
+    // Find the extreme positions of all cubes
+    let maxCoord = 0;
+    cubes.forEach(cube => {
+        maxCoord = Math.max(maxCoord, 
+            Math.abs(cube.position.x), 
+            Math.abs(cube.position.y), 
+            Math.abs(cube.position.z)
+        );
+    });
+    const gridSize = Math.ceil(maxCoord * gridExtensionFactor);
+    const gridDivisions = 20; // You can adjust this for more or fewer grid lines
+
+    // Create new grid
+    grid = new THREE.GridHelper(gridSize * 2, gridDivisions, 0xffffff, 0x888888);
+    grid.material.opacity = 0.2;
+    grid.material.transparent = true;
+    scene.add(grid);
+
+    // Update renderer and camera
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    render();
+}
+let isRunning = true;
+// Modify your animate function to include grid update
+function animate() {
+    if (!isRunning) return; 
+    requestAnimationFrame(animate);
+    Navigation_controller(); 
+    TWEEN.update();
+    updateGridHelper(); // Add this line
+    updateCubeBasedGridHelper();
+    render();
+}
+//animate();
+
+    //Load multimodal based number of each compomponent with label successfully 
+    //get_selected_part(email,project_name,"selected_com_num");
+    function get_selected_part(email,project_name,task_descp){
+       if(task_descp == "selected_ai"){ 
+          fetch('/Get_selected_components', {
+            // Declare what type of data we're sending
+            headers: {
+           'Content-Type': 'application/json'
+           },
+           // Specify the method
+           method: 'POST',
+           // A JSON payload
+           body: JSON.stringify({'email':email,"project_name":project_name})
+           }).then(function (response) { // At this point, Flask has printed our JSON
+           return response.text();
+          }).then(function (text) {
+          console.log('POST response: ');
+          // Should be 'OK' if everything was successful
+          var getpart =  JSON.parse(text); //Get the posted current position and store in json data 
+          console.log("Selected part: ",getpart); //Get the current position data 
+          load_multiple_selected_model(getpart,email,project_name,task_descp);
+          });
+        }
+        if(task_descp == "selected_com_num")
+           fetch('/get_quantity_com', {
+            // Declare what type of data we're sending
+            headers: {
+           'Content-Type': 'application/json'
+           },
+           // Specify the method
+           method: 'POST',
+           // A JSON payload
+           body: JSON.stringify({'email':email,"project_name":project_name})
+           }).then(function (response) { // At this point, Flask has printed our JSON
+           return response.text();
+          }).then(function (text) {
+          console.log('POST response: ');
+          // Should be 'OK' if everything was successful
+          var getpart_q =  JSON.parse(text); //Get the posted current position and store in json data 
+          console.log("Getting data: ",getpart_q); 
+          load_multiple_selected_model(getpart_q,email,project_name,task_descp) 
+          //Get the selected part with the quantity requirement of each model 
+
+         });
+    }
+    //Use this function to load multiple model selected on the datgui function 
+    function load_multiple_selected_model(model_multiply,email,project_name,selected_status){
+       if(selected_status == "selected_ai"){
+         console.log("Selected component by AI llms");
+         for(let ty=0;ty<=Object.keys(model_multiply).length-1;ty++){
+            console.log("category_load",Object.keys(model_multiply)[ty]);
+            var category = Object.keys(model_multiply)[ty] 
+            var model_file = Object.keys(model_multiply[category])[0];
+            console.log("File name: ",model_file); //Get file name of component 
+            model_loader_function([model_file],email,project_name,category,ty*0.3,ty*0.3,0); 
+         }
+       }
+       if(selected_status == "selected_com_num"){
+           console.log("Selected components with quantity requirement");
+           for(let ty=0;ty<=Object.keys(model_multiply).length-1;ty++){
+
+               console.log("category_load",Object.keys(model_multiply)[ty]);
+               var category = Object.keys(model_multiply)[ty] 
+               var model_file = Object.keys(model_multiply[category]); 
+               for(let num_model=0;num_model<=model_file.length-1;num_model++){
+
+                  const modelfiles = model_file[num_model]
+                  console.log("Multi_model_category: ",modelfiles); 
+                  var quantity_com = model_multiply[category][modelfiles]
+                  var Quantity = parseInt(model_multiply[category][modelfiles]['Quantity'],10);
+                  console.log("File name: ",model_file); //Get the file name of the component
+                  console.log("Quantity and com: ",quantity_com['Quantity']) //Get the quantity and communication  
+                  console.log("Quantity: ",Quantity); 
+                  for(let nm = 0; nm<=Quantity-1;nm++){
+
+                     console.log("Load multiple model: ",nm); //Load multiple model data           
+                     model_loader_function([modelfiles],email,project_name,category,ty*0.3,ty*0.3,nm*0.3+num_model*0.2); 
+                  }
+               }
+           }
+        }
+
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //Notification data function 
+    function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-right",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status != 'success'){
+              toastr.warning(text); 
+           }
+            
+    };
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    function model_loader_function(modelPaths,email,project_name,category,nr,ny,nz) {
+    const loader = new GLTFLoader();
+    var store_label_pos = []; 
+    var current_model = {};
+     
+    modelPaths.forEach((path, index) => {
+        var path_file = "../static/Client_projects/" + email.split(".com")[0] + "/" + project_name + "/" + category + "/" + modelPaths;
+        loader.load(path_file, function (gltf) {
+            let model = gltf.scene;
+            
+            model.position.set(index * nr, ny, nz); // Initial position
+            scene.add(model);
+            models.push(model);
+
+            // Extract file name
+            const filename = path.split('/').pop().split(".")[0] + "_" + JSON.stringify({ x: model.position.x, y: model.position.y, z: model.position.z });
+            current_model[filename] = "selected";
+            console.log("Current model file: ", filename);
+            model.name = filename;
+
+            // Create label
+            var labelDiv = document.createElement('div');
+            var namecut_length = filename.split("_")[filename.split("_").length-1];
+            var construct_namecut = filename.split(namecut_length)[0];
+            labelDiv.className = 'label';
+            labelDiv.textContent = construct_namecut;
+            var label = new CSS2DObject(labelDiv);
+
+            // Function to update label position
+            function updateLabelPosition() {
+                const box = new THREE.Box3().setFromObject(model);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+                
+                // Calculate the offset from the model's position to its center
+                const offset = center.sub(model.position);
+                
+                // Set the label position to the center of the model
+                label.position.copy(offset);
+            }
+
+            // Fetch stored position data
+            fetch('/get_navmodel', {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify({'email': email, "project_name": project_name})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched position data: ", data);
+                if (data[filename]) {
+                    // Update model position and rotation
+                    model.position.set(
+                        data[filename].position.x,
+                        data[filename].position.y,
+                        data[filename].position.z
+                    );
+                    model.rotation.set(
+                        THREE.MathUtils.degToRad(data[filename].rotation.x),
+                        THREE.MathUtils.degToRad(data[filename].rotation.y),
+                        THREE.MathUtils.degToRad(data[filename].rotation.z)
+                    );
+                    console.log(`Updated ${filename} position:`, model.position);
+                    console.log(`Updated ${filename} rotation:`, model.rotation);
+                }
+
+                // Update label position
+                updateLabelPosition();
+
+                // Store initial position and rotation in the dictionary
+                modelData[filename] = { 
+                    position: { x: model.position.x, y: model.position.y, z: model.position.z },
+                    rotation: { 
+                        x: THREE.MathUtils.radToDeg(model.rotation.x), 
+                        y: THREE.MathUtils.radToDeg(model.rotation.y), 
+                        z: THREE.MathUtils.radToDeg(model.rotation.z) 
+                    }
+                };
+
+                // Add label to the model
+                labels.push(label); 
+                model.add(label);
+
+                // Add TransformControls for each model
+                let control = new TransformControls(camera, renderer.domElement);
+                control.attach(model);
+                control.addEventListener('change', () => {
+                    if (control.object) {
+                        const { x: posX, y: posY, z: posZ } = control.object.position;
+                        const { x: rotX, y: rotY, z: rotZ } = control.object.rotation;
+
+                        modelData[filename] = { 
+                            position: { x: posX, y: posY, z: posZ },
+                            rotation: { 
+                                x: THREE.MathUtils.radToDeg(rotX), 
+                                y: THREE.MathUtils.radToDeg(rotY), 
+                                z: THREE.MathUtils.radToDeg(rotZ) 
+                            }
+                        };
+                        poskeymod[JSON.stringify({ 
+                            position: { x: model.position.x, y: model.position.y, z: model.position.z },
+                            rotation: { 
+                                x: THREE.MathUtils.radToDeg(model.rotation.x), 
+                                y: THREE.MathUtils.radToDeg(model.rotation.y), 
+                                z: THREE.MathUtils.radToDeg(model.rotation.z) 
+                            }
+                        })] = filename;
+                        file_current['name'] = filename;
+                        console.log(`Updated for ${filename}: Position x=${posX}, y=${posY}, z=${posZ}, Rotation x=${modelData[filename].rotation.x}, y=${modelData[filename].rotation.y}, z=${modelData[filename].rotation.z}`);
+                        var list_nav = ['Cerdas_UWB_Tracker_v4.gltf','Intel_Realsense_RPLIDAR_A2.glb','QUECTEL_EC25_v3.glb','SIM900.glb']
+                        if(list_nav.includes(filename) == true){
+                               console.log('Move the signal sphere display',filename);
+                               
+                        }
+                        fetch_model_pos("store_navigation_position", "current position: ", {'email': email, "project_name": project_name, "current_pos": modelData});
+                        updateGridHelper();
+                        updateLabelPosition(); // Update label position when model is transformed
+                    }
+                });
+
+                control.addEventListener('change', render);
+                control.addEventListener('dragging-changed', (event) => {
+                    orbit.enabled = !event.value;
+                });
+
+                scene.add(control);
+                controls.push(control);
+
+                render(); // Render the scene after updating positions
+            })
+            .catch(error => {
+                console.error('Error fetching stored positions:', error);
+            });
+        });
+    });
+
+    // Event Listeners
+    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('keydown', onKeyDown);
+}
+function load_multiple_selected_prop(model_multiply,email,project_name,selected_status){
+       if(selected_status == "selected_ai"){
+         console.log("Selected component by AI llms");
+         for(let ty=0;ty<=Object.keys(model_multiply).length-1;ty++){
+            console.log("category_load",Object.keys(model_multiply)[ty]);
+            var category = Object.keys(model_multiply)[ty] 
+            var model_file = Object.keys(model_multiply[category])[0];
+            console.log("File name: ",model_file); //Get file name of component 
+            prop_loader_function([model_file],email,project_name,category,ty*0.3,ty*0.3,0); 
+         }
+       }
+       if(selected_status == "selected_com_num"){
+           console.log("Selected components with quantity requirement");
+           for(let ty=0;ty<=Object.keys(model_multiply).length-1;ty++){
+
+               console.log("category_load",Object.keys(model_multiply)[ty]);
+               var category = Object.keys(model_multiply)[ty] 
+               var model_file = Object.keys(model_multiply[category]); 
+               for(let num_model=0;num_model<=model_file.length-1;num_model++){
+
+                  const modelfiles = model_file[num_model]
+                  console.log("Multi_model_category: ",modelfiles); 
+                  var quantity_com = model_multiply[category][modelfiles]
+                  var Quantity = parseInt(model_multiply[category][modelfiles]['Quantity'],10);
+                  console.log("File name: ",model_file); //Get the file name of the component
+                  console.log("Quantity and com: ",quantity_com['Quantity']) //Get the quantity and communication  
+                  console.log("Quantity: ",Quantity); 
+                  for(let nm = 0; nm<=Quantity-1;nm++){
+
+                     console.log("Load multiple model: ",nm); //Load multiple model data           
+                     prop_loader_function([modelfiles],email,project_name,category,ty*0.3,ty*0.3,nm*0.3+num_model*0.2); 
+                  }
+               }
+           }
+        }
+
+    }
+function prop_loader_function(modelPaths,email,project_name,category,nr,ny,nz) {
+    const loader = new GLTFLoader();
+    var store_label_pos = []; 
+    var current_model = {};
+     
+    modelPaths.forEach((path, index) => {
+        var path_file = "../static/Prop_components/" + email.split(".com")[0] + "/" + project_name + "/" + category + "/" + modelPaths;
+        loader.load(path_file, function (gltf) {
+            let model = gltf.scene;
+            
+            model.position.set(index * nr, ny, nz); // Initial position
+            scene.add(model);
+            models.push(model);
+
+            // Extract file name
+            const filename = path.split('/').pop().split(".")[0] + "_" + JSON.stringify({ x: model.position.x, y: model.position.y, z: model.position.z });
+            current_model[filename] = "selected";
+            console.log("Current model file: ", filename);
+            model.name = filename;
+
+            // Create label
+            var labelDiv = document.createElement('div');
+            var namecut_length = filename.split("_")[filename.split("_").length-1];
+            var construct_namecut = filename.split(namecut_length)[0];
+            labelDiv.className = 'label';
+            labelDiv.textContent = construct_namecut;
+            var label = new CSS2DObject(labelDiv);
+
+            // Function to update label position
+            function updateLabelPosition() {
+                const box = new THREE.Box3().setFromObject(model);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+                
+                // Calculate the offset from the model's position to its center
+                const offset = center.sub(model.position);
+                
+                // Set the label position to the center of the model
+                label.position.copy(offset);
+            }
+
+            // Fetch stored position data
+            fetch('/get_navmodel', {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify({'email': email, "project_name": project_name})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched position data: ", data);
+                if (data[filename]) {
+                    // Update model position and rotation
+                    model.position.set(
+                        data[filename].position.x,
+                        data[filename].position.y,
+                        data[filename].position.z
+                    );
+                    model.rotation.set(
+                        THREE.MathUtils.degToRad(data[filename].rotation.x),
+                        THREE.MathUtils.degToRad(data[filename].rotation.y),
+                        THREE.MathUtils.degToRad(data[filename].rotation.z)
+                    );
+                    console.log(`Updated ${filename} position:`, model.position);
+                    console.log(`Updated ${filename} rotation:`, model.rotation);
+                }
+
+                // Update label position
+                updateLabelPosition();
+
+                // Store initial position and rotation in the dictionary
+                modelData[filename] = { 
+                    position: { x: model.position.x, y: model.position.y, z: model.position.z },
+                    rotation: { 
+                        x: THREE.MathUtils.radToDeg(model.rotation.x), 
+                        y: THREE.MathUtils.radToDeg(model.rotation.y), 
+                        z: THREE.MathUtils.radToDeg(model.rotation.z) 
+                    }
+                };
+
+                // Add label to the model
+                labels.push(label); 
+                model.add(label);
+
+                // Add TransformControls for each model
+                let control = new TransformControls(camera, renderer.domElement);
+                control.attach(model);
+                control.addEventListener('change', () => {
+                    if (control.object) {
+                        const { x: posX, y: posY, z: posZ } = control.object.position;
+                        const { x: rotX, y: rotY, z: rotZ } = control.object.rotation;
+
+                        modelData[filename] = { 
+                            position: { x: posX, y: posY, z: posZ },
+                            rotation: { 
+                                x: THREE.MathUtils.radToDeg(rotX), 
+                                y: THREE.MathUtils.radToDeg(rotY), 
+                                z: THREE.MathUtils.radToDeg(rotZ) 
+                            }
+                        };
+                        poskeymod[JSON.stringify({ 
+                            position: { x: model.position.x, y: model.position.y, z: model.position.z },
+                            rotation: { 
+                                x: THREE.MathUtils.radToDeg(model.rotation.x), 
+                                y: THREE.MathUtils.radToDeg(model.rotation.y), 
+                                z: THREE.MathUtils.radToDeg(model.rotation.z) 
+                            }
+                        })] = filename;
+                        file_current['name'] = filename;
+                        console.log(`Updated for ${filename}: Position x=${posX}, y=${posY}, z=${posZ}, Rotation x=${modelData[filename].rotation.x}, y=${modelData[filename].rotation.y}, z=${modelData[filename].rotation.z}`);
+                        var list_nav = ['Cerdas_UWB_Tracker_v4.gltf','Intel_Realsense_RPLIDAR_A2.glb','QUECTEL_EC25_v3.glb','SIM900.glb']
+                        if(list_nav.includes(filename) == true){
+                               console.log('Move the signal sphere display',filename);
+                               
+                        }
+                        fetch_model_pos("store_navigation_position", "current position: ", {'email': email, "project_name": project_name, "current_pos": modelData});
+                        updateGridHelper();
+                        updateLabelPosition(); // Update label position when model is transformed
+                    }
+                });
+
+                control.addEventListener('change', render);
+                control.addEventListener('dragging-changed', (event) => {
+                    orbit.enabled = !event.value;
+                });
+
+                scene.add(control);
+                controls.push(control);
+
+                render(); // Render the scene after updating positions
+            })
+            .catch(error => {
+                console.error('Error fetching stored positions:', error);
+            });
+        });
+    });
+
+    // Event Listeners
+    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('keydown', onKeyDown);
+}
+
+const contextMenu = document.getElementById("contextMenu");
+const editDataItem = document.getElementById("editdata");
+const detachItem = document.getElementById("detachcontrol");
+const moveItem = document.getElementById("moveid");
+const rotateItem = document.getElementById("rotateid"); 
+const deleteIdItem = document.getElementById("deleteid");
+        // Show the context menu at the mouse position
+       
+        document.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+
+            contextMenu.style.top = `${e.clientY}px`;
+            contextMenu.style.left = `${e.clientX}px`;
+            if(transform_logic['status']  == true){  
+            contextMenu.style.display = "block";
+            }
+        });
+
+        // Hide the context menu when clicking elsewhere
+        document.addEventListener("click", () => {
+
+            contextMenu.style.display = "none";
+        });
+       
+      // Handle "Edit component" click
+editDataItem.addEventListener("click", () => {
+    console.log("Edit this data ");
+    location.reload(true);
+    contextMenu.style.display = "none";
+
+});
+moveItem.addEventListener("click", () => {
+    console.log("move control ");
+    //controls.forEach(control => control.add(model));
+    controls.forEach(control => control.setMode('translate'));
+      
+  
+});
+rotateItem.addEventListener("click",() =>{
+    console.log("rotate control");
+    //controls.forEach(control => control.add(model));
+    controls.forEach(control => control.setMode('rotate'));
+})
+detachItem.addEventListener("click", () => {
+    console.log("Detach control ");
+    controls.forEach(control => control.detach());  
+  
+});
+// Handle "Delete File" click
+deleteIdItem.addEventListener("click", () => {
+    //const modelName = contextMenu.dataset.modelName;
+    var current_data = file_current['name'];
+    removeModelByName(current_data); //Remove the file of the current model 
+    console.log("Delete this data",current_data);
+    contextMenu.style.display = "none";
+});
+
+function removeModelByName(name) {
+    // Check if the model exists in the scene
+    const modelIndex = models.findIndex(model => model.name === name);
+    if (modelIndex !== -1) {
+        const model = models[modelIndex];
+
+        // Remove associated TransformControls
+        const controlIndex = controls.findIndex(control => control.object === model);
+        if (controlIndex !== -1) {
+            const control = controls[controlIndex];
+            scene.remove(control);
+            controls.splice(controlIndex, 1);
+        }
+
+        // Remove the label associated with the model
+        const labelIndex = labels.findIndex(label => label.parent === model);
+        if (labelIndex !== -1) {
+            const label = labels[labelIndex];
+            model.remove(label); // Remove label from the model
+            labels.splice(labelIndex, 1);
+        }
+
+        // Remove the model itself
+        scene.remove(model);
+        models.splice(modelIndex, 1);
+
+        // Remove the model data from the dictionary
+        delete modelData[name];
+
+        console.log(`Model "${name}" and its label have been removed.`);
+        render();
+    } else {
+        console.log(`Model "${name}" not found.`);
+    }
+}
+
+
+function fetch_model_pos(end_point,display,payload){
+
+    fetch('/'+end_point, {
+
+                   // Declare what type of data we're sending
+        headers: {
+                'Content-Type': 'application/json'
+    },
+    // Specify the method
+    method: 'POST',
+    // A JSON payload
+    body: JSON.stringify(payload)
+    }).then(function (response) { // At this point, Flask has printed our JSON
+    return response.text();
+    }).then(function (text) {
+    console.log('POST response: ');
+     // Should be 'OK' if everything was successful
+     var getpart =  JSON.parse(text); //Get the posted current position and store in json data 
+     console.log(display,getpart); //Get the current position d
+
+
+   });
+   
+}
+
+
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+
+      
+        }
+
+        function onKeyDown(event) {
+            switch (event.keyCode) {
+                case 87: // W
+                    controls.forEach(control => control.setMode('translate'));
+                    break;
+                case 69: // E
+                    controls.forEach(control => control.setMode('rotate'));
+                    break;
+                /*
+                case 82: // R
+                    controls.forEach(control => control.setMode('scale'));
+                    break;
+                   
+                case 49: // 1
+                    toggleControl(0); // Toggle control for the first model
+                    break;
+                case 50: // 2
+                    toggleControl(1); // Toggle control for the second model
+                    break;
+            */
+            }
+        }
+
+        function toggleControl(index) {
+            controls.forEach((control, i) => {
+                control.enabled = i === index; // Enable only the selected control
+            });
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+        }
+        //
+        function onMouseClick(event) {
+            // Normalize mouse coordinates to (-1 to 1) for both axes
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+            // Update raycaster
+            raycaster.setFromCamera(mouse, camera);
+            console.log("Pickup model data:");
+            click_status['clicked'] = true //Get the click logic status 
+
+           
+        
+        }
+        function onMouseWheel(event) {
+    event.preventDefault();
+
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    let zoom = (event.deltaY > 0) ? 1 + zoomSpeed : 1 - zoomSpeed;
+
+    let raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    let intersects = raycaster.intersectObjects(scene.children, true);
+
+    if (intersects.length > 0) {
+        let targetPoint = intersects[0].point;
+
+        camera.position.sub(targetPoint);
+        camera.position.multiplyScalar(zoom);
+        camera.position.add(targetPoint);
+
+        orbit.target.copy(targetPoint);
+    } else {
+        camera.position.multiplyScalar(zoom);
+    }
+
+    orbit.update();
+    render();
+}
+
+
+
+    </script>
+    <script>
+        const modal = document.getElementById('modal');
+        const overlay = document.getElementById('overlay');
+        const iframe = document.getElementById('modalIframe');
+    
+        /**
+         * Open the modal and set its size and iframe source
+         * @param {number} width - Width of the modal
+         * @param {number} height - Height of the modal
+         * @param {string} src - URL for the iframe
+         */
+         function openModal(maxWidth, maxHeight, src) {
+    const modal = document.getElementById('modal');
+    const iframe = document.getElementById('modalIframe');
+    const overlay = document.getElementById('overlay');
+
+    // Set maximum dimensions
+    modal.style.maxWidth = maxWidth + 'px';
+    modal.style.maxHeight = maxHeight + 'px';
+
+    // Set dimensions as percentages
+    modal.style.width = '90%';
+    modal.style.height = '90%';
+
+    iframe.src = src;
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+
+    // Adjust iframe size
+    iframe.onload = function() {
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+
+        // Attempt to resize iframe to content
+        try {
+            iframe.contentWindow.document.body.style.overflow = 'hidden';
+        } catch (e) {
+            console.log('Cannot access iframe content. It might be cross-origin.');
+        }
+    };
+
+    // Add window resize event listener
+    window.addEventListener('resize', adjustModalSize);
+}
+
+function adjustModalSize() {
+    const modal = document.getElementById('modal');
+    const iframe = document.getElementById('modalIframe');
+
+    // Adjust modal size based on window size
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    const modalWidth = Math.min(windowWidth * 0.9, parseInt(modal.style.maxWidth));
+    const modalHeight = Math.min(windowHeight * 0.9, parseInt(modal.style.maxHeight));
+
+    modal.style.width = modalWidth + 'px';
+    modal.style.height = modalHeight + 'px';
+
+    // Adjust iframe size
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+}
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('overlay');
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+    window.removeEventListener('resize', adjustModalSize);
+}
+      </script>
+</body>
+</html>
+
+
+

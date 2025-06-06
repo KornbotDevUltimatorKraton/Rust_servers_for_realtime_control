@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Three.js GLTF Loader with Multiple Models</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="static/main.css">
+</head>
+<body>
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.114.0/build/three.module.js';
+        import { OrbitControls } from '../static/jsm/controls/OrbitControls.js';
+        import { TransformControls } from '../static/jsm/controls/TransformControls.js';
+        import { GLTFLoader } from '../static/jsm/loaders/GLTFLoader.js';
+
+        let camera, scene, renderer, orbit;
+        const controls = [];
+        const models = [];
+
+        init();
+        render();
+
+        function init() {
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 30000);
+            camera.position.set(5, 5, 10);
+            camera.lookAt(0, 0, 0);
+
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.add(new THREE.GridHelper(10, 10, 0x888888, 0x444444));
+
+            // Lighting
+            const light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+
+            // Controls setup
+            orbit = new OrbitControls(camera, renderer.domElement);
+            orbit.update();
+            orbit.addEventListener('change', render);
+        }
+        const modelPaths = [
+                '../static/Client_projects/kornbot380@hotmail/Smart_Robots/Motion_system/Mechanum_upgrade_edited.gltf',
+                '../static/Client_projects/kornbot380@hotmail/Smart_Robots/Motion_system/PCA9685_12Channel_PWM.glb',
+                '../static/Client_projects/kornbot380@hotmail/Smart_Robots/Motion_system/RMD-L-9010.gltf'
+            ];
+
+        model_loader_function(modelPaths);
+        function model_loader_function(){
+            const loader = new GLTFLoader();
+
+            modelPaths.forEach((path, index) => {
+                loader.load(path, function (gltf) {
+                    const model = gltf.scene;
+                    model.position.set(index * 0.5, 0, 0); // Spread models for visibility
+                    scene.add(model);
+                    models.push(model);
+
+                    // Add TransformControls for each model
+                    const control = new TransformControls(camera, renderer.domElement);
+                    control.attach(model);
+                    control.addEventListener('change', render);
+                    control.addEventListener('dragging-changed', (event) => {
+                        orbit.enabled = !event.value; // Disable orbit controls when dragging
+                    });
+                    scene.add(control);
+                    controls.push(control);
+                });
+            });
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('keydown', onKeyDown);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            render();
+        }
+
+        function onKeyDown(event) {
+            switch (event.keyCode) {
+                case 87: // W
+                    controls.forEach(control => control.setMode('translate'));
+                    break;
+                case 69: // E
+                    controls.forEach(control => control.setMode('rotate'));
+                    break;
+                case 82: // R
+                    controls.forEach(control => control.setMode('scale'));
+                    break;
+                case 49: // 1
+                    toggleControl(0); // Toggle control for the first model
+                    break;
+                case 50: // 2
+                    toggleControl(1); // Toggle control for the second model
+                    break;
+            }
+        }
+
+        function toggleControl(index) {
+            controls.forEach((control, i) => {
+                control.enabled = i === index; // Enable only the selected control
+            });
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

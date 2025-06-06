@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head> 
+      <meta charset="UTF-8">  
+      <meta http-equiv='cache-control' content='no-cache'>
+      <meta http-equiv='expires' content='0'>
+      <meta http-equiv='pragma' content='no-cache'>
+      <!--<meta name="viewport" content="width=device-width, user-scalable=yes, minimum-scale=1.0, maximum-scale=1.0">-->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+      <!--<link type="text/css" rel="stylesheet" href="../static/main.css">-->
+
+      
+      <title>Automate assembly</title> 
+       <!--Get the data container of the project list and email account to check the hardware correctness -->
+		  <!--Get the email account id data--> 
+      <input type="hidden" id="email_account" value="{{userdata}}"> <!--Get the user data input--> 
+      <input type="hidden" id="encode_jwt" value="{{encodejwt}}"> <!--Passing jwt encode data--> 
+      <input type="hidden" id="project_payload" value="{{payload_project_list}}"> <!--Passing the project data from the link -->
+      <input type="hidden" id="projectname_data" value="{{projectnamedata}}">
+      <input type="hidden" id="project_descrp" value="{{project_descript}}">
+      <input type="hidden" id="languageset" value="{{valueset_lang}}">
+      <input type="hidden" id ="component_nav" value="{{component_project}}">     
+      <input type="hidden" id="video_frame" value="{{video_realtime}}">
+     
+      <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+      <!--Adding the notify-->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+      <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+      <!--<link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css'>-->
+
+
+      <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
+      <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+      <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script>
+      <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>-->
+      <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+      
+      <!--
+      <input type="hidden" id="email" value="{{useraccount}}">
+  <input type="hidden" id="encode_jwt" value="{{encodejwt}}">
+      var email = document.getElementById("email").value;
+    var encode_jwt = document.getElementById("encode_jwt").value
+      -->
+    </head>
+    
+    <style>
+              body { margin: 0; }
+              canvas { display: block; }
+
+              .label {
+               position: absolute;
+               width:relative; 
+               height:relative;
+               background-color: rgba(0, 0, 0, 0.7);
+               color: #fff;
+               font-family: Arial, sans-serif;
+               font-size: 12px;
+               padding: 4px 8px;
+               border-radius: 4px;
+     }
+    
+     
+
+	</style>
+   
+    <style>
+      .toast-slider {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        max-width: 300px;
+        overflow: hidden;
+        z-index: 9999;
+      }
+  
+      .toast-slider .toast {
+        cursor: pointer;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #333;
+        color: #fff;
+        transition: all 0.3s ease;
+      }
+  
+      .toast-slider .toast:hover {
+        background-color: #555;
+      }
+  
+      .scrollable-content {
+        max-height: 100px; /* Adjust as needed */
+        overflow-y: auto;
+      }
+        /* Style the iframe container to take up full width and height */
+  #iframe-container {
+      padding-top: 2px;
+      padding-left: 0px;
+      width: 100%;
+      height: 100vh; /* Set the height to viewport height */
+      overflow: hidden; /* Hide any overflow content */
+      position: relative;
+  }
+
+  /* Style the iframe itself to fill the container */
+  #iframe-container iframe {
+      width: 100%;
+      height: 100%;
+      border: 10; /* Optional: Remove iframe border */
+      
+  }
+  #iframe-container2 {
+      padding-top: 2px;
+      padding-left: 0px;
+      width: 100%;
+      height: 100vh; /* Set the height to viewport height */
+      overflow: hidden; /* Hide any overflow content */
+      position: relative;
+  }
+  /* Style the iframe itself to fill the container */
+  #iframe-container2 iframe {
+      width: 100%;
+      height: 100%;
+      border: 10; /* Optional: Remove iframe border */
+      
+  }
+  .navbar {
+     /* Set the position to fixed */
+    top: -30; /* Stick it to the top of the viewport */
+    left: 0; /* Stick it to the left of the viewport */
+    width: 70%; /* Make it span the entire width of the viewport */
+    background-color: #333; /* Styling for the background color */
+    color: #fff; /* Styling for text color */
+    padding: 10px; /* Add padding for spacing */
+    z-index: 1000; /* Set a z-index to control the stacking order (higher values are on top) */
+}
+.city {display:none}
+
+    </style>
+     <style>
+      /* Custom style for the select box */
+      .my-custom-select-box select {
+        color: black; /* Change the text color */
+        background-color: #f0f0f0; /* Change background color */
+      }
+    </style>
+   <style>
+       
+    /* Modal styles */
+    .modal3 {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        justify-content: center; /* Center content vertically */
+        align-items: center; /* Center content horizontally */
+    }
+
+    .modal-content3 {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    .slider-container3 {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        border: 2px solid #ccc; /* Optional border for better visibility */
+    }
+
+    .slider3 {
+        display: flex; /* Use flexbox for horizontal layout */
+    }
+
+    .frame3 {
+        min-width: 300px; /* Set the width of each iframe frame */
+        height: 200px; /* Set the height of the iframe */
+        margin-right: 10px; /* Space between frames */
+        border: 1px solid #aaa; /* Optional border for frames */
+    }
+    .center-text {
+            text-align: center;
+        }
+    
+</style> 
+    <body>
+      <div id="components_modal" class="modal3">
+        <div class="modal-content3">
+           <!-- <span class="close" onclick="closeModal()" style="cursor:pointer; float:right;">&times;</span>-->
+            <div class="slider-container3">
+                <div class="slider3" id="components-slider">
+                    <!-- Iframes will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+      <div class="w3-container">
+        <div id="id01" class="w3-modal">
+          <div class="w3-modal-content w3-card-4 w3-animate-zoom">
+           <header class="w3-container w3-white"> 
+            <span onclick="document.getElementById('id01').style.display='none'" 
+            class="w3-button w3-white w3-xsmall w3-display-topleft">&times;</span>
+            <h5 class="center-text" >Project manager</h5> <!--Call the project name from the id input-->
+           </header>
+          
+         
+           <div class="w3-bar w3-border-bottom">
+            <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'projprofile');fetch_head();">Project profile</button>
+            <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'components');fetch_project();">Components selection</button>
+            <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'components_features');fetch_codefeature();">Generated features</button>
+            <button class="tablink w3-bar-item w3-button" onclick="openCity(event, 'code');fetch_docmatch();">Component doc</button>
+            
+           </div>
+
+           <div id="projprofile" class="w3-container city">
+            <br>  
+                <div>  
+                 <ul>
+                    <h2>Project name</h2> 
+                    <input class="form-control addMain" id="projname"  placeholder="Project name"value="{{project_name}}"> 
+                 </ul> 
+                 <ul>
+                 </ul>
+                 
+                
+                <ul>
+                      <button type="button" onClick="Save_edit_data();">Save edit</button>
+                </ul>
+              
+              </div>  <!--http://192.168.50.193:7998/ -->
+            </div>
+            
+ 
+           <!--User url from the server -->
+           <div id="components" class="w3-container city">
+             
+              <br>    
+             
+             <div id="iframe-container">
+              <!--Passing the data of the json into the new model loader slection to activate the feature generation in the code -->
+               <!--<iframe src="https://roboreactor.com/Model_selected/{{userdata}}/Smart_bots/Vision_system/Non" frameborder="10"></iframe>--> <!-- Replace with your URL -->
+               <iframe id="componentsloader" src="https://roboreactor.com/components_loader/{{userdata}}" scrolling="no" frameborder="10"></iframe>
+            </div>
+
+           </div>
+        
+          <div id="components_features" class="w3-container city">
+            <br>
+            <div id="iframe-container2">
+          
+              <iframe id="docloader" src="https://roboreactor.com/load_selected_features/{{encodejwt}}" scrolling="yes" frameborder="10"></iframe>
+            </div>
+          </div>
+
+        <div id="code" class="w3-container city">
+            <br>
+            <div id="iframe-container2">
+
+              <iframe id="projectflowchart" src="https://roboreactor.com/folder_docmatch/{{encodejwt}}" scrolling="yes" frameborder="10"></iframe>
+
+            </div>
+           </div>
+         
+           <div class="w3-container w3-light-grey w3-padding">
+            <button class="w3-button w3-right w3-white w3-border" 
+            onclick="document.getElementById('id01').style.display='none'">Close</button>
+           </div>
+          </div>
+        </div>
+        
+
+
+      </div>
+      <!--Get the new tab widget here tof the data visualization of the components prics -->  
+       <script>
+        function fetch_project(){
+                  console.log("Extract the project data ....");
+                  var email = document.getElementById("email_account").value; 
+                  //Fetch the id project data here 
+                  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          //Get the current project name update 
+                          var iframe = document.getElementById("componentsloader");
+                          console.log("Current project name data",data_projectadd['project_name']);
+                          document.getElementById("projname").value = data_projectadd['project_name'];    
+                          iframe.src = "https://roboreactor.com/components_loader/{{userdata}}"
+
+                          
+    });    
+        }
+    function fetch_docmatch(){
+               console.log("Fetching the document data and model matching");
+                var email = document.getElementById("email_account").value; 
+                  //Fetch the id project data here 
+                  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          //Get the current project name update 
+                          var iframe = document.getElementById("projectflowchart");
+                          console.log("Current project name data",data_projectadd['project_name']);
+                          document.getElementById("projname").value = data_projectadd['project_name'];    
+                          iframe.src = "https://roboreactor.com/folder_docmatch/{{encodejwt}}"
+                          
+                          
+    });    
+                        
+    }
+    function fetch_codefeature(){
+                console.log("Fetch the generated features selected");
+                var email = document.getElementById("email_account").value; 
+                  //Fetch the id project data here 
+                  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          //Get the current project name update 
+                          var iframe = document.getElementById("docloader");
+                          console.log("Current project name data",data_projectadd['project_name']);
+                          document.getElementById("projname").value = data_projectadd['project_name'];    
+                          iframe.src = "https://roboreactor.com/load_selected_features/{{encodejwt}}"
+
+                          
+    });    
+    }
+        function fetch_head(){
+                  console.log("Extract the project data ....");
+                  var email = document.getElementById("email_account").value; 
+                  //Fetch the id project data here 
+                  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          //Get the current project name update 
+                          //var iframe = document.getElementById("componentsloader");
+                          console.log("Current project name data",data_projectadd['project_name']);
+                          document.getElementById("projname").value = data_projectadd['project_name'];    
+                          //iframe.src = "https://192.168.50.193:5889/components_loader/{{userdata}}"
+
+                          
+    });    
+        }
+        function fetch_pdf(){
+                  console.log("Extract the project data ....");
+                  var email = document.getElementById("email_account").value; 
+                  //Fetch the id project data here 
+                  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          //Get the current project name update 
+                          var iframe = document.getElementById("docloader");
+                          console.log("Current project name data",data_projectadd['project_name']);
+                          //Fetch the first components pdf in the list if the directory 
+
+                          //document.getElementById("projname").value = data_projectadd['project_name'];    
+                          iframe.src = "https://roboreactor.com/pdfdocu/{{userdata}}/drv8323.pdf"
+
+                          
+    });    
+        }  
+        function fetch_code(){
+                  console.log("Extract the project data ....");
+                  var email = document.getElementById("email_account").value; 
+                  //Fetch the id project data here 
+                  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          //Get the current project name update 
+                          var iframe = document.getElementById("projectflowchart");
+                          console.log("Current project name data",data_projectadd['project_name']);
+                          //Fetch the first components pdf in the list if the directory 
+
+                          //document.getElementById("projname").value = data_projectadd['project_name'];    
+                          iframe.src = "https://roboreactor.com/statechart"
+
+                          
+    });    
+        }   
+        function Save_edit_data(){
+              //Get the email account data and get the project name to send back to the back-end and rename data in the project into the name for the directory 
+              var email = document.getElementById("email_account").value; 
+              var jwt_code = document.getElementById("encode_jwt").value;
+              var project_edit_backend = document.getElementById("projname").value;
+              console.log("Save edit data",email,project_edit_backend);
+              //Fetch to save data of the project name  
+              manual_create_project(email,project_edit_backend); //Get the project edit data  
+              function manual_create_project(email,projectname_data){
+
+              fetch('/add_projectname',{
+                // Declare what type of data we're sending
+                     headers: {
+                    'Content-Type': 'application/json'
+               },
+               // Specify the method
+                method: 'POST',
+               // A JSON payload
+              body: JSON.stringify({
+              "email": email,"projectname":projectname_data  // Get the destiny language data to translate back the server reference   
+          })
+          }).then(function (response) { // At this point, Flask has printed our JSON
+         return response.text();
+         }).then(function (text) {
+          console.log('POST response: ');
+          var data_projs= JSON.parse(text); 
+          console.log("project data",data_projs);
+          if(Object.keys(data_projs[email]) == "Existing_project"){
+                           console.log("This project is already created"); // Existing project detected
+                           notify_data("success","This project is already created");
+                           var date_data = data_projs[email]["Existing_project"][projectname_data];      
+                           var datedata = date_data.split(" ")[0]; 
+                           var date_extract = date_data.split(" ")[0].split("-")
+
+                           //translate_lang("This project was already created in date "+datedata,value_set)
+                           notify_data("success","This project was already created in date "+datedata);
+                           //Asking for editing the project 
+                           //translate_lang("Do you want to edit project "+projectname_data+"?",value_set); 
+                           //Activate the project modal edited 
+                           document.getElementById('id01').style.display='block';
+                           document.getElementById("projname").value = projectname_data;
+                                      
+                
+          }   
+          if(Object.keys(data_projs[email]) != "Existing_project"){
+               
+                          console.log("This project is now created");
+                          notify_data('success','This project is now created');
+                          //Activate the project directory to created 
+                          //Fetch to create the project data 
+                         // mesh_model_loader();
+
+          }
+         
+          
+
+
+        });
+     }
+               
+              
+
+       }
+       //Get the project data notification function to show the project data 
+       function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  }
+       </script>
+        <script type="module">
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //Animation WebGL part   
+			          import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.114.0/build/three.module.js';
+                import { OrbitControls } from '../static/jsm/controls/OrbitControls.js';
+                import { CSS2DRenderer, CSS2DObject } from '../static/jsm/renderers/CSS2DRenderer.js'; 
+                import { GUI } from '../static/jsm/libs/lil-gui.module.min.js';
+                import { TransformControls } from '../static/jsm/controls/TransformControls.js';
+
+			         	var message_container = {}; 
+                var main_text_message = {};
+                var toal_activationres_list = [];
+                var current_category_memory = {}; //Getting the category of the command activationres 
+                var long_term_memory = {}; //
+                var classify_list = {}; // Get classification sub element data detected for the prompts activationres  
+                var trans_response = {} // get the translator data response 
+                var gui = new GUI();
+
+                let cameraPersp, cameraOrtho, currentCamera;
+                let scene, renderer, control, orbit, light, aspect, texture, geometry, material, mesh;
+            
+                 
+
+		            init();   // Calling init function containing the model and mesh geometry loader 
+		    	      render(); // rendering function  
+        var email = document.getElementById("email_account").value; //Get the  
+        console.log("Email account",email);            
+				var myObject = {
+	               "myBoolean": false,
+                 "components_modal_close": function(){
+                     console.log("Processing the componetns modal close");
+                     closeModal(); //Close the modal components       
+                 },
+	               "myFunction": function() {
+	             	 console.log("Send command to back-end",main_text_message); 
+					//Send the command into the back-end fetch the data 
+				  document.getElementById('id01').style.display='block';
+          /*
+          try{
+                          
+				            fetch('/send_message', {
+                                   // Declare what type of data we're sending
+                                   headers: {
+                                       'Content-Type': 'application/json'
+                             },
+                             // Specify the method
+                             method: 'POST',
+                              // A JSON payload
+                             body: JSON.stringify({
+	                                         "email":email,"payload_message":main_text_message  //Get the payload message data to send the data into the AI langchain 
+                            })
+                           }).then(function (response) { // At this point, Flask has printed our JSON
+                           return response.text();
+                           }).then(function (text) {
+                           console.log('POST response: ');
+                          // Should be 'OK' if everything was successful
+                          var data_text = JSON.parse(text); 
+					                console.log(data_text); // 
+                         });
+			          }
+		         	catch{
+				             console.log("Error communicate with back-end data")
+		        	}
+              */
+	            },
+                "Assistant":function (){
+                            console.log("Speech recognition activated!"); 
+                            recognition.abort();
+                            setTimeout(() => {
+                            recognition.abort();
+                            recognition.lang = message_container['lang_dat'];
+                            recognition.start();
+                             }, 1000);  //We call recognition.start() in a timeout to make sure the abort() function is done      
+                }, 
+	            "myString": '',
+	            "myNumber": "Non-select"
+                 
+               };
+			   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			
+       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                           //Controller function 
+          var isRecording = false
+          const recognition = new webkitSpeechRecognition();
+          recognition.continuous = true;
+          var list_lang = {"Non-select":"en-US","English-US":"en-US","French":"fr-FR","German":"de-DE","Spanish":"es-ES","Italian":"it-IT","Thai":"th-TH","Japanese": "ja-JP","Arabic": "ar-EG","Turkish": "tr-TR","Spanish": "es-MX","Russian": "ru-RU", "English-GB": "en-GB","Welsh": "cy-GB","Scottish Gaelic": "gd-GB","English": "en-ZA","Zulu": "zu-ZA","Afrikaans": "af-ZA","Portuguese": "pt-BR","Chinese-CN": "zh-CN","Chinese-HK": "zh-HK", "Hindi": "hi-IN","Bengali": "bn-IN","Telugu": "te-IN","Marathi": "mr-IN","Tamil": "ta-IN","English-CA": "en-CA","French": "fr-CA","Danish": "da-DK","Pashto": "ps","Dari": "fa-AF","Uzbek": "uz-AF","Turkmen": "tk","Albanian": "sq-AL","Arabic": "ar-DZ","Berber": "ber-DZ","German": "de-AT",}
+          var matched_lang = {"en-US": "en", "fr-CA": "fr", "de-AT": "de", "es-MX": "es", "it-IT": "it", "th-TH": "th","zh-CN":"zh-cn", "ja-JP": "ja", "ar-DZ": "ar", "tr-TR": "tr", "ru-RU": "ru", "en-GB": "en", "cy-GB": "cy", "gd-GB": "gd", "en-ZA": "en", "zu-ZA": "zu", "af-ZA": "af", "pt-BR": "pt", "hi-IN": "hi", "bn-IN": "bn", "te-IN": "te", "mr-IN": "mr", "ta-IN": "ta", "en-CA": "en", "da-DK": "da", "ps": "ps", "fa-AF": "fa", "uz-AF": "uz", "sq-AL": "sq"}
+          var get_list_box = gui.add(myObject,'myNumber',list_lang ).name("Language_settings");
+          get_list_box.setValue("Non-selected")
+          get_list_box.domElement.classList.add('my-custom-select-box'); 
+          get_list_box.onChange(function(value_set){
+          console.log("List combodata",value_set);  
+          document.getElementById("languageset").value = value_set; //Get language setting
+				  message_container['lang_dat'] = value_set;
+                  recognition.abort();
+                   setTimeout(() => {
+                    recognition.abort();
+                   recognition.lang = value_set;
+                   recognition.start();
+                   }, 1000);  //We call recognition.start() in a timeout to make sure the abort() function is done    
+                   recognition.onresult = (event) => {
+                   for (let i = event.resultIndex; i < event.results.length; i++) {
+                          const trans_speak = event.results[i][0].transcript;
+                          //translate_lang(event.results[i][0].transcript,"en");
+                          fetch('/translator_module',{
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":trans_speak,"dest_trans": matched_lang[value_set]    //value_set   // Get the destiny language data to translate back the server reference   
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                                  var trans_dat = JSON.parse(text); 
+                                  console.log("Trans_data",trans_dat[email]); //Get the current user data  
+                          console.log("Translate_main_data",trans_dat[email]['en']); 
+                          const transcript = trans_dat[email]['en']    // Translate everything into eng 
+                          //const transcript = trans_response["transdat"][email]['en'];  
+                          if (event.results[i].isFinal) { 
+                             console.log(transcript);
+                             
+                             var data_splitter = word_ninja(transcript); // Get the word splitter to compare the data 
+                             
+                             //Fetch the language translation at the back-end processing 
+                             var selected_command_list = {}; 
+                             //Fetch the data send into the back-end to processing the data of the part selection 
+                             // POST
+                             notify_data("success","Listening ...")
+                             fetch('/speech_prompts', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":transcript
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful
+                                 notify_data("success","Processing please wait...")
+                                 var data_json = JSON.parse(text);
+                                 
+                                 
+                                 console.log("Answer AI",data_json['command_ref']); 
+                                 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                    //Command detection                  
+                                 var probabilistic_answer = {} //Find the probablity of the answer in the data of word input command 
+                                 var probabilistic_questions = {} //Find the probabilistic activationres 
+                                 var probabilistic_activationres = {} //Probabilistic for the activationres data function 
+
+                                 var current_awareness = []; //Detecting the current awareness system 
+                                 //notify_data("success",data_json['answer']['kornbot380@hotmail.com']['Answer'])
+                                 //condition_notify("success",data_json['answer']['kornbot380@hotmail.com']['Answer'])
+                                 // Find and display the intersection
+                                 console.log("Word splitter",data_splitter)
+                                
+                                 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                     //Word similarity function 
+
+                                 var  intersection = findIntersection(data_splitter,data_json['command_ref']);
+                                 console.log('Intersection:', intersection);
+                                 // Find and display the similarity
+                                 var  similarity = findSimilarity(data_splitter,data_json['command_ref']);
+                                 console.log('Similarity:', similarity + '%');
+                                 
+                                 //Open new component feature 
+
+                                 if(similarity >0){
+                                      //Similarity detected 
+                                      //speak("I'm working on it",value_set);
+                                      //Classify the data topic header detector 
+                                      var vil = 0; 
+                                      for(vil>1; vil<Object.keys(data_json).length;vil++){
+                                             console.log(intersection,Object.keys(data_json)[vil],data_json[Object.keys(data_json)[vil]]); 
+                                            
+                                            var  sub_intersect = findIntersection(intersection,data_json[Object.keys(data_json)[vil]]); 
+                                            var  sub_similarity = findSimilarity(sub_intersect,data_json[Object.keys(data_json)[vil]]); 
+                                            //Add the data into the list and find the maximum value for the data input 
+                                            console.log(sub_similarity,Object.keys(data_json)[vil]); 
+                                            probabilistic_answer[sub_similarity] = Object.keys(data_json)[vil]; //Get the probabilistic data to classify command 
+                                      
+                                      }    
+                                      var select_prob = findMaxNumber(Object.keys(probabilistic_answer))
+                                      if(select_prob > 25){
+                                          if(probabilistic_answer[select_prob] != "command_ref"){
+
+                                             console.log("Found selected",probabilistic_answer[select_prob]);
+
+                                             //speak("Creating project directory",value_set);                                 
+                                             translate_lang("Creating project directory",value_set);
+                                             notify_data("success","Opening "+String(probabilistic_answer[select_prob]));
+
+                                             var extract_projectname =  word_ninja(transcript); //Get the list of the project extraction to see if there is a name of the project 
+                                             //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                                 //Attention activation on each of the category detection after probabilistic calculation 
+                                             //Detecting each last parameter need to be input 
+                                             var last_element_detect =  data_json["project detect"] //["new","project","name","call","called","is","so","the"]
+                                             var project_statement = [] //Save the project statement data of the current project 
+                                             var project_dec = []  //Check the current key word detect 
+                                             var bw = 0; 
+                                             console.log("Detecting the project name",extract_projectname[extract_projectname.length-1]);
+                                             //Running the for loop backward to detect the project and break 
+                                             //Running the list backward by detecting the data   
+                                             console.log("Search for the current project existance") 
+                                             var result_refsearch = {}; //Get the reference data of the search project list  
+                                             for(bw=extract_projectname.length-1 ;bw >0; bw--){
+                                                          console.log("Reverse input",extract_projectname[bw]);
+                                                          if(last_element_detect.includes(extract_projectname[bw]) == false){ 
+                                                                   if(data_json['command_ref'].includes(extract_projectname[bw]) == false){
+                                                                           project_statement.push(extract_projectname[bw]); 
+                                                                   }
+
+                                                          }
+
+                                             }                       
+                                             console.log("Get the current project name",[...project_statement].reverse());
+                                             
+                                             var project_name_detected = [...project_statement].reverse().join(" "); 
+                                             var list_proj_cal = word_ninja(project_name_detected); 
+                                             console.log("Project calibration",list_proj_cal);
+                                             //Get the project name from the response to send to the data 
+                                             var calprojs = []; //Get the calibrate project name 
+                                             var ref_word = ["would","like","want","wanting","to","know","a","creation","create","of","."];
+                                             var cps = 0; 
+                                             for(cps >0;cps <= list_proj_cal.length-1;cps++){
+                                                   try{
+                                                       console.log("Calibrate projectname",list_proj_cal[cps]);
+                                                       if(ref_word.includes(list_proj_cal[cps]) != true){
+                                                            
+                                                                 calprojs.push(list_proj_cal[cps]); // Get the project 
+                                                                 
+                                                       }
+                                                    }
+                                                    catch{
+                                                         console.log("Not found in the list undefine");
+                                                    }
+
+                                             }
+                                             console.log("Re-calibrated project name ",calprojs.join("_").split(".")[0]); //Get the project name data 
+                                             //console.log("Currrent project file existance ",result_refsearch); //get the current project existance  
+                                             //console.log("output result current project ",result_refsearch); 
+                                             var new_calb_proj = calprojs.join("_").split(".")[0]; // New calibrated project data 
+                                             if(project_name_detected != ""){
+                                                  if(Object.keys(data_json).includes(project_name_detected) == false){
+                                                        if(data_json['command_ref'].includes(project_name_detected) == false){
+                                                                  //speak("Your current project name is "+project_name_detected,value_set);
+                                                                  translate_lang("Your current project name is "+new_calb_proj,value_set); //project_name_detected,value_set);
+                                                                  notify_data("success","Your current project name is "+new_calb_proj);
+                                                                  var result_refsearch = {} //Get the current project data extraction to check existance of the directory 
+                                                                  search_existing_project(email,result_refsearch,new_calb_proj,value_set); //get the project search 
+                                                                  //Load project name into the argument to load the model file into the system 
+                                                                  //mesh_model_loader(); //Put the model input detection for selection model category data
+                                                                  //Adding the functio to create the new directory 
+                                                                  //Get the 3D components from the project description to select the part or asking for the part directly 
+                                                                  //Create the arguement into the mesh_model_loader(model_name) running in the loop fetching latest model 
+
+
+                                                        }
+                                                        
+                                                      
+                                                                   
+                                                       
+                                                  }
+                                                
+                                            }
+                                             
+                                             if(project_name_detected == ""){
+                                                        //Check similarity again     
+                                                        if(Object.keys(data_json).includes(project_name_detected) == false){
+                                                                   //speak("Please repeat your project name again This name is do not allow to name project",value_set);
+                                                                   translate_lang("Please repeat your project name again This name is do not allow to name project",value_set); 
+                                                                   notify_data("error","Please repeat your project name again.This name is do not allow to name project.");
+                                                        }
+                                                        if(Object.keys(data_json).includes(project_name_detected) == true){
+                                                                        //Compare similarity if true 
+                                                                    console.log("Finding the similarity of the function activation in the call mode")
+                                                                    //speak("opening the "+project_name_detected,value_set)
+                                                                    translate_lang("opening the "+project_name_detected,value_set);
+                                                                    notify_data("success","Opening the "+project_name_detected);
+
+                                                        }
+
+                                                        
+
+                                             }
+                                             
+                                             
+
+                                          }
+
+
+                                          if(probabilistic_answer[select_prob] == "command_ref"){
+                                                //Check if the project found then reclassify the command in the message_container 
+                                               //speak("You may need to create new project first by saying I need to create new project and follow by the name of your project you want to create.",value_set); 
+                                               translate_lang("You may need to create new project first by saying I need to create new project and follow by the name of your project you want to create.",value_set);
+                                               notify_data("warning","Please create new project by saying or typing I need new to create new project the fillow by your project name") 
+
+
+                                          }
+
+                                      }
+                                     
+                                      
+                                }
+                                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                                     //activationres data detection 
+                                             //This feature running the function separately to answer the question about the pdf data and other                                     
+                                 //Use the speaker when create the likely possibility data to detecting the relationship between function 
+                                 //Finding the new similarlity of the of the activationres command 
+                                 //activationres re ordering data 
+                                 fetch('/speech_questions_prompts', {
+                                             // Declare what type of data we're sending
+                                            headers: {
+                                               'Content-Type': 'application/json'
+                                            },
+                                            // Specify the method
+                                            method: 'POST',
+                                            // A JSON payload
+                                            body: JSON.stringify({
+                                                   "email":email,"command":transcript
+                                           })
+                                           }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                           console.log('POST response: ');
+                                           // Should be 'OK' if everything was successful 
+                                           var questions_json = JSON.parse(text);
+
+                                           console.log("Questions prompts datas",questions_json);
+                                           var questions_dat = questions_json['Question']
+                                           console.log(questions_dat); //Get the activationres data list  
+                                           var  q_intersect = findIntersection(data_splitter,questions_json['Question']);
+                                           console.log('Questions_Intersection:', q_intersect);
+                                          // Find and display the similarity
+                                          var  q_similarity = findSimilarity(data_splitter,questions_json['Question']);
+                                          console.log('Questions_Similarity:', q_similarity + '%');
+                                          if(q_similarity > 0){
+
+                                                      //Processing the data of the sub similarity comparation of the data category activationres selection 
+                                                      console.log("Container sub data text processing Questions",data_splitter); 
+                                                      //Finding the sub intersection to get the right selected highest possibility activationres detected 
+                                                      var vil = 0; 
+                                                      for(vil>1; vil<Object.keys(questions_json).length;vil++){
+
+                                                                     console.log("Questions data",Object.keys(questions_json)[vil],questions_json[Object.keys(questions_json)[vil]]); 
+                                                                     var  q_sub_intersect = findIntersection(q_intersect,questions_json[Object.keys(questions_json)[vil]]); 
+                                                                     var  q_sub_similarity = findSimilarity(q_intersect,questions_json[Object.keys(questions_json)[vil]]); 
+                                                                     //Add the data into the list and find the maximum value for the data input 
+                                                                     console.log(q_similarity,Object.keys(questions_json)[vil]); 
+                                                                     probabilistic_questions[q_sub_similarity] = Object.keys(questions_json)[vil]; //Get the probabilistic data to classify command 
+
+
+                                                      }
+                                                      var q_select_prob = findMaxNumber(Object.keys(probabilistic_questions))
+                                                      console.log("Selected question from the list",q_select_prob,probabilistic_questions[q_select_prob])
+                                                      if(q_select_prob > 4){
+
+
+                                                                     if(probabilistic_questions[q_select_prob] != "Question" && probabilistic_activationres[q_select_prob] != "command_ref"){
+
+                                                                                     console.log("Found selected",probabilistic_questions[q_select_prob]); 
+                                                                                     //speak("Accessing large language model"+String(probabilistic_activationres[activation_select_prob]),value_set); 
+                                                                                     notify_data("success","Accessing large language model")
+                                                                                     //LLM_model_activate(transcript,value_set); //Next time making it settable language models
+                                                                                     //Load free asyncronous large language model here 
+                                                                                     //Free_LLM_model_activate(transcript,value_set);
+                                                                                     //Load llama2 or orca2 service
+                                                                                     llama2_model_activate(transcript,value_set);  
+                                                                                      
+                          
+                                                                     }
+                                                                   
+
+                                                      }
+
+
+
+                                          }
+                                           
+                                            
+                                             
+                                });
+                                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                //Application detection and command
+                                //activation_speech("")
+
+                                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                //Selection detection 
+                                //Detecting the components classification 
+                                activation_speech("speech_components_classification",data_splitter,"component classification","component classify",probabilistic_activationres,email,transcript,value_set,"components_classification","motion part"); //components_classification("OK",value_set)); //Input the parameters needed for the classification data 
+                                //Detecting the part analysis 
+                                //activation_speech("speech_free_llms_concurrency",data_splitter,"component classification","component classify",probabilistic_activationres,email,transcript,value_set,"components_classification","motion part")
+                                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                  //Appointment and time table data 
+                                                                  
+                                //activation_speech("Application_features_interface",data_splitter,"application","application",probabilistic_activationres,"kornbot380@hotmail.com",transcript,value_set,"Application_features_interface","applications");
+                                test_activation_speech_match("Application_features_interface",data_splitter,"application","application",probabilistic_activationres,email,transcript,value_set,"Application_features_interface","applications");
+                                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                                 //Searching data                                   
+
+
+
+                                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                //Clear the possibility list of the selection or json data in the container for short memory container 
+                                clear_probabilistic_data(probabilistic_answer);
+                                clear_probabilistic_data(probabilistic_questions);
+                                clear_probabilistic_data(probabilistic_activationres); 
+                                //probabilistic_answer.clear();
+                                //probabilistic_activationres.clear(); 
+                              
+                                                                   
+                          });
+                            
+                         }
+                      });
+                 }
+                    
+            }
+          
+               
+          }) 
+      /*
+      var text_input = gui.add( myObject, 'myString' ).name("Message");   // Text Field
+      text_input.onChange(function(value_text){       
+	               console.log("Text_output ",value_text); // get the output data 
+                 main_text_message['Message'] = value_text; 
+                 console.log(main_text_message);
+      })
+      */		
+                     
+		  gui.add( myObject, 'myFunction' ).name("Project manager"); // Button send the message back to AI at the back-end data
+      gui.add(myObject,'components_modal_close').name("Close components list");
+      var start_assist = gui.add(myObject, 'Assistant').name("Talk with AI Assistant") // Button to talk with AI assistant via speech recognition using the Falcon LLM 
+                   
+          //Trigger when needed in the loop of the command 
+          function startRecording() {
+             if (isRecording == false) {
+                     isRecording = true
+                      // document.getElementById("start-recording").style.backgroundColor = 'Red';
+             }else{
+             isRecording = false
+                     //.getElementById("start-recording").style.backgroundColor = 'Grey';
+              }
+              console.log(isRecording)
+          }
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        function init() {
+                
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				aspect = window.innerWidth / window.innerHeight;
+        
+				cameraPersp = new THREE.PerspectiveCamera( 50, aspect, 0.01, 30000 );
+				cameraOrtho = new THREE.OrthographicCamera( - 600 * aspect, 600 * aspect, 600, - 600, 0.01, 30000 );
+				currentCamera = cameraPersp;
+
+				currentCamera.position.set( 1000, 500, 1000 );
+				currentCamera.lookAt( 0, 200, 0 );
+
+				scene = new THREE.Scene();
+				scene.add( new THREE.GridHelper( 1000, 10, 0x888888, 0x444444 ) );
+
+				light = new THREE.DirectionalLight( 0xffffff, 2 );
+				light.position.set( 1, 1, 1 );
+				scene.add( light );
+        /*
+				texture = new THREE.TextureLoader().load( '../static/textures/crate.gif', render );
+				texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+				geometry = new THREE.BoxGeometry( 200, 200, 200 ); //Geometry load here
+				material = new THREE.MeshLambertMaterial( { map: texture, transparent: true } );
+         */
+				orbit = new OrbitControls( currentCamera, renderer.domElement );
+				orbit.update();
+				orbit.addEventListener( 'change', render );
+
+				control = new TransformControls( currentCamera, renderer.domElement );
+				/*
+        control.addEventListener( 'change', render );
+
+				control.addEventListener( 'dragging-changed', function ( event ) {
+
+					orbit.enabled = ! event.value;
+
+				} );
+        */ 
+				
+			}
+
+			function onWindowResize() {
+
+				aspect = window.innerWidth / window.innerHeight;
+
+				cameraPersp.aspect = aspect;
+				cameraPersp.updateProjectionMatrix();
+
+				cameraOrtho.left = cameraOrtho.bottom * aspect;
+				cameraOrtho.right = cameraOrtho.top * aspect;
+				cameraOrtho.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+       
+			}
+      function mesh_model_loader(){
+
+        texture = new THREE.TextureLoader().load( '../static/textures/crate.gif', render );
+				texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        control.addEventListener( 'change', render );
+
+				control.addEventListener( 'dragging-changed', function ( event ) {
+
+					orbit.enabled = ! event.value;
+
+				} );
+				geometry = new THREE.BoxGeometry( 200, 200, 200 ); //Geometry load here
+				material = new THREE.MeshLambertMaterial( { map: texture, transparent: true } );
+        const mesh = new THREE.Mesh( geometry, material ); //Turn geometry into mesh 
+				scene.add( mesh );
+
+				control.attach( mesh );
+				scene.add( control );
+        
+				window.addEventListener( 'resize', onWindowResize );
+
+				window.addEventListener( 'keydown', function ( event ) {
+
+					switch ( event.keyCode ) {
+
+						case 81: // Q
+							control.setSpace( control.space === 'local' ? 'world' : 'local' );
+							break;
+
+						case 16: // Shift
+							control.setTranslationSnap( 100 );
+							control.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
+							control.setScaleSnap( 0.25 );
+							break;
+
+						case 87: // W
+							control.setMode( 'translate' );
+							break;
+
+						case 69: // E
+							control.setMode( 'rotate' );
+							break;
+
+						case 82: // R
+							control.setMode( 'scale' );
+							break;
+
+						case 67: // C
+							const position = currentCamera.position.clone();
+
+							currentCamera = currentCamera.isPerspectiveCamera ? cameraOrtho : cameraPersp;
+							currentCamera.position.copy( position );
+
+							orbit.object = currentCamera;
+							control.camera = currentCamera;
+
+							currentCamera.lookAt( orbit.target.x, orbit.target.y, orbit.target.z );
+							onWindowResize();
+							break;
+
+						case 86: // V
+							const randomFoV = Math.random() + 0.1;
+							const randomZoom = Math.random() + 0.1;
+
+							cameraPersp.fov = randomFoV * 160;
+							cameraOrtho.bottom = - randomFoV * 500;
+							cameraOrtho.top = randomFoV * 500;
+
+							cameraPersp.zoom = randomZoom * 5;
+							cameraOrtho.zoom = randomZoom * 5;
+							onWindowResize();
+							break;
+
+						case 187:
+						case 107: // +, =, num+
+							control.setSize( control.size + 0.1 );
+							break;
+
+						case 189:
+						case 109: // -, _, num-
+							control.setSize( Math.max( control.size - 0.1, 0.1 ) );
+							break;
+
+						case 88: // X
+							control.showX = ! control.showX;
+							break;
+
+						case 89: // Y
+							control.showY = ! control.showY;
+							break;
+
+						case 90: // Z
+							control.showZ = ! control.showZ;
+							break;
+
+						case 32: // Spacebar
+							control.enabled = ! control.enabled;
+							break;
+
+						case 27: // Esc
+							control.reset();
+							break;
+
+					}
+
+				} );
+
+				window.addEventListener( 'keyup', function ( event ) {
+
+					switch ( event.keyCode ) {
+
+						case 16: // Shift
+							control.setTranslationSnap( null );
+							control.setRotationSnap( null );
+							control.setScaleSnap( null );
+							break;
+
+					}
+
+				} );
+
+
+      }
+            //Render 3D model 
+			function render() {
+
+				renderer.render( scene, currentCamera );
+
+			}
+    function remove_mesh_part(mesh,geometry,material){
+
+          scene.remove(mesh);
+          // Optionally, dispose of the mesh geometry and material to free up resources
+          
+    }  
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function test_activation_speech_match(speech_end_point,data_splitter,display_response,prompts,probabilistic_activationres,user_account,transcript,value_set,functionselect,input_arguement){
+
+              fetch('/'+String(speech_end_point), {
+                            // Declare what type of data we're sending
+                           headers: {
+                              'Content-Type': 'application/json'
+                           },
+                           // Specify the method
+                           method: 'POST',
+                           // A JSON payload
+                           body: JSON.stringify({
+                                  "email": user_account,"command":transcript
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                          var activationres_json = JSON.parse(text);
+
+                         console.log(display_response,activationres_json);
+                         var activationres_dat = activationres_json[prompts]
+                         console.log(display_response,activationres_dat); //Get the activationres data list  
+                         console.log("Speech transcription", data_splitter); 
+                         
+                         var  activation_intersect = findIntersection(data_splitter,activationres_dat);
+                         console.log('activationres_Intersection:', activation_intersect);
+                         // Find and display the similarity
+                         var  activation_similarity = findSimilarity(data_splitter,activation_intersect);
+                         var vr = []
+                         console.log('activationres_Similarity:', activation_similarity + '%'); 
+                         if(activation_similarity >0){
+
+                                         //Activate the data for the activation of the 
+                                         console.log("Finding the data of similarity intersection data")
+                                         notify_data("success","Finding the data of similarity intersection data");
+                                         var vil = 0; 
+                                         for(vil>1; vil<Object.keys(activationres_json).length;vil++){
+                                             //console.log(activation_intersect,Object.keys(activationres_json)[vil],activationres_dat[Object.keys(activationres_json)[vil]]);
+                                             console.log(activation_intersect,Object.keys(activationres_json)[vil],word_ninja(Object.keys(activationres_json)[vil])); //Finding the intersection of the data of key to find matching data 
+                                             var key_matching = word_ninja(Object.keys(activationres_json)[vil]) 
+                                             
+                                             var activation_sub_intersect = findIntersection(activation_intersect,key_matching); 
+                                             var activation_sub_similarity = findSimilarity(activation_sub_intersect,key_matching); 
+                                             console.log("Sub Similarity intersection data ",activation_sub_similarity,activation_intersect,activation_sub_intersect); 
+                                             if(activation_sub_similarity >30){
+                                                              
+                                                           console.log("Selected function of the sub similarity data ",activation_sub_intersect.join(" ")); // Get the result from the sub intersection  
+                                                           multi_processing_function(transcript,functionselect,activation_sub_intersect.join(" "),value_set);
+
+                                                                                                                       
+
+                                             }
+                                               
+                                         }
+
+                         }
+ 
+            });
+  }
+function activation_speech(speech_end_point,data_splitter,display_response,prompts,probabilistic_activationres,user_account,transcript,value_set,functionselect,input_arguement){
+                 console.log("Activate Free LLMs by activation and word calssification");
+                 fetch('/'+String(speech_end_point), {
+                                             // Declare what type of data we're sending
+                                            headers: {
+                                               'Content-Type': 'application/json'
+                                            },
+                                            // Specify the method
+                                            method: 'POST',
+                                            // A JSON payload
+                                            body: JSON.stringify({
+                                                   "email": user_account,"command":transcript
+                                           })
+                                           }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                           console.log('POST response: ');
+                                           // Should be 'OK' if everything was successful 
+                                           var activationres_json = JSON.parse(text);
+
+                                          console.log(display_response,activationres_json);
+                                          var activationres_dat = activationres_json[prompts]
+                                          console.log(display_response,activationres_dat); //Get the activationres data list  
+                                          console.log("Speech transcription", data_splitter); 
+                                          
+                                          var  activation_intersect = findIntersection(data_splitter,activationres_dat);
+                                          console.log('activationres_Intersection:', activation_intersect);
+                                          // Find and display the similarity
+                                          
+                                          var  activation_similarity = findSimilarity(data_splitter,activation_intersect);
+                                          console.log('activationres_Similarity:', activation_similarity + '%');
+                                          ///*
+                                          if(activation_similarity > 0){
+
+                                                      //Processing the data of the sub similarity comparation of the data category activationres selection 
+                                                      console.log("Container sub data text processing activationres",data_splitter); 
+                                                      //Finding the sub intersection to get the right selected highest possibility activationres detected 
+                                                      var vil = 0; 
+                                                      for(vil>1; vil<Object.keys(activationres_json).length;vil++){
+
+                                                                     console.log("activationres data",Object.keys(activationres_json)[vil],activationres_json[Object.keys(activationres_json)[vil]]); 
+                                                                     var  activation_sub_intersect = findIntersection(activation_intersect,activationres_json[Object.keys(activationres_json)[vil]]); 
+                                                                     var  activation_sub_similarity = findSimilarity(activation_sub_intersect,activationres_json[Object.keys(activationres_json)[vil]]); 
+                                                                     //Add the data into the list and find the maximum value for the data input 
+                                                                     console.log(activation_similarity,Object.keys(activationres_json)[vil]); 
+                                                                     probabilistic_activationres[activation_sub_similarity] = Object.keys(activationres_json)[vil]; //Get the probabilistic data to classify command 
+
+
+                                                      }
+                                                      var activation_select_prob = findMaxNumber(Object.keys(probabilistic_activationres))
+                                                      console.log("Selected activationres from the list",activation_select_prob,probabilistic_activationres[activation_select_prob])
+                                                      if(activation_select_prob > 4){
+
+
+                                                                     if(probabilistic_activationres[activation_select_prob] != "activationres" && probabilistic_activationres[activation_select_prob] != "command_ref"){
+
+                                                                                     console.log("Found activation selected",probabilistic_activationres[activation_select_prob]); //Output choosing data for the output activation controller condition
+                                                                                     //speak("Accessing vector database",value_set); 
+                                                                                     notify_data("success","Accessing vector database")
+                                                                                     var results_data =  multi_processing_function(transcript,functionselect,probabilistic_activationres[activation_select_prob],value_set); 
+                                                                                     console.log("Returning data",results_data); 
+                                                                                     console.log("Activate Free LLMS model"); 
+                                                                                     //Get the return value from the function of components_classification 
+                                                                                     //LLM_model_activate(transcript,value_set); //Next time making it settable language models 
+                                                                                     //Using the free pdf reader to run the langchain data processing
+                                                                                     //Free_LLM_model_activate(transcript,value_set)
+                                                                                     //Get the FreeLLM roca2_request 
+                                                                                     //
+
+                                                                                     
+                                                                     }
+                                                                   
+
+                                                      }
+                                              
+
+
+                                          }
+                                          //*/
+                                           
+                                            
+                                             
+                          });
+
+ }       
+ 
+ function multi_processing_function(transcript,functionselect,input_arguement,value_set){
+              //Select each type of the function to control the function of each argument selected 
+              console.log("Selected language data ",value_set); //Get the selected language data 
+              if(functionselect == "clear_probabilistic_data"){
+                           clear_probabilistic_data(input_arguement);
+              }
+              if(functionselect == "project_attention_mech"){
+                           project_attention_mech(input_arguement);   
+              }
+              if(functionselect == "create_new_project"){
+                           create_new_project(input_arguement);
+              }
+              if(functionselect == "Download_and_search"){
+                
+                          Download_and_search(input_arguement);         
+              }
+              if(functionselect == "LLM_model_activate"){
+                                 
+                          LLM_model_activate(input_arguement,value_set);
+
+              }
+              if(functionselect == "components_classification"){
+
+                          components_classification(transcript,input_arguement,value_set); 
+                          console.log("Argument datainput",transcript);
+                          //check the activation intersection 
+                         
+
+              }
+              if(functionselect == "Application_features_interface"){
+                      
+                          var results_data = Application_features_interface(input_arguement,value_set);  
+                          return results_data;   
+              }
+
+
+ }
+
+ function components_classification(transcript,components_data,value_set){
+              console.log("Language selected",value_set); //Get the value language selected  
+              console.log("Components classification function........ ["+components_data+"]"); //Extract the components classification function 
+              notify_data("success","Feature extraction processing begin")  
+
+              //translate_lang("Classifying components please wait",value_set);
+              //Fetch the orca2 hear      
+              //orca2_components_request(transcript,value_set); //Get the value set of the transcript input function           
+              var intersect_comp =  word_ninja(transcript); //Find the intersect command functionality 
+              console.log("List for intersection: ",intersect_comp);
+              //var  activation_intersect = findIntersection(data_splitter,activationres_dat);
+              //Fetch the intersection of the database of the classification to confirm the activation function 
+              ///speech_components_classification
+              
+              fetch('/'+String("speech_components_classification"), {
+                            // Declare what type of data we're sending
+                           headers: {
+                              'Content-Type': 'application/json'
+                           },
+                           // Specify the method
+                           method: 'POST',
+                           // A JSON payload
+                           body: JSON.stringify({
+                                  "email": email,"command":transcript
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                          var activationres_json = JSON.parse(text);
+                          console.log("Activation json data processing",activationres_json); //Get the activationres to find intersection of thr transcript data  
+                          console.log("Classification intersect activation ",activationres_json['component classify']); //Get the activationres intersection 
+                          var intersect_classification = findIntersection(intersect_comp,activationres_json['component classify']); 
+                          console.log("Intersection classification ",intersect_classification);
+
+                          //Check similarity before start process 
+                          console.log("Find similarity intersection: ",intersect_comp,intersect_classification);
+                          var similarity =  findSimilarity(intersect_comp,intersect_classification);
+                          //Get the data of the intersection similarity 
+                          var get_project_data =  getUniqueWords(intersect_comp,intersect_classification);
+          
+                          console.log("Get the similarity percentage: ",similarity); //Get the data of  
+                          //if(similarity >= 50){
+                          console.log("Get the project data: ",get_project_data); //Get the project data components 
+                          var join_projectdata = get_project_data.join(' '); 
+                          console.log("Connect project data string: ",join_projectdata); 
+                          translate_lang("Processing components data"+join_projectdata+" please wait",value_set);
+                          //Accessing the large language model prompt for the components data classification function 
+                          orca2_components_request(get_project_data.join(' '),value_set); //Send the data to the back-end 
+                          
+                          //}
+                          
+              });            
+              //document.getElementById('id01').style.display='block';
+ }         
+ //Extract the unique word of the transcript data 
+ function getUniqueWords(list1, list2) {
+    // Convert lists to sets for faster intersection checking
+    const set1 = new Set(list1);
+    const set2 = new Set(list2);
+
+    // Filter out words present in both lists and concatenate the unique words from each list
+    const uniqueWordsList1 = list1.filter(word => !set2.has(word));
+    const uniqueWordsList2 = list2.filter(word => !set1.has(word));
+    
+    return [...uniqueWordsList1, ...uniqueWordsList2];
+}
+ //Feature of the website 
+ function Application_features_interface(input_system,value_set){  
+                 //Application control system control the code here 
+                 var list_selection = {"navigation system":"https://roboreactor.com","motion control system":"https://roboreactor.com","download file":"command download","upload code":"upload data","generate code":"generate the code "}        
+                 console.log("Open ",input_system);
+                 speak("Open "+input_system,value_set);
+                 notify_data("success","Activate "+input_system); 
+                 //Open the link for the profile page data  
+
+                 return input_system              
+                
+ }
+ function clear_probabilistic_data(probabilistic){
+        //probabilistic_answer.clear();
+        var ty = 0; 
+        for(ty>0; ty <Object.keys(probabilistic).length;ty++){
+
+                        console.log("Prob_answer",Object.keys(probabilistic)[ty]);
+                        delete probabilistic[Object.keys(probabilistic)[ty]]; //clear the list notification 
+                        console.log("Clear short memory")
+        }  
+ }         
+ function project_attention_mech(extract_projectname){
+                                             var last_element_detect = ["project","name","call","called","is"]
+                                             var project_statement = [] //Save the project statement data of the current project 
+                                             var bw = 0; 
+                                             console.log("Detecting the project name",extract_projectname[extract_projectname.length-1]);
+                                             //Running the for loop backward to detect the project and break 
+                                             //Running the list backward by detecting the data   
+                                             for(bw=extract_projectname.length-1 ;bw >0; bw--){
+                                                          console.log("Reverse input",extract_projectname[bw]);
+                                                          //Put the data reverse into the project_statement 
+                                                          project_statement.push(extract_projectname[bw]) 
+                                                          //If detected the found element detect in the list then stop 
+                                                          if(extract_projectname.includes(extract_projectname[bw]) == true){ 
+                                                               
+                                                               break;
+                                                          }
+                                             }                       
+                                             console.log("Get the current project name",[...project_statement].reverse());
+                                             
+                                             if(last_element_detect.includes([...project_statement].reverse()[0]) == false){                   
+                                                                  speak("Your current project name is "+[...project_statement].reverse()[0],value_set)
+                                                                  notify_data("success","Your current project name is "+[...project_statement].reverse()[0]);
+                                             }
+                                             if(last_element_detect.includes([...project_statement].reverse()[0]) == true || [...project_statement].reverse()[0] == ""){
+                                                                   speak("Please repeat your project name again",value_set); 
+                                                                   notify_data("warning","Please repeat your project name again");
+                                             }
+                                             
+
+ }
+ //Create the new project function from the input feature 
+ function create_new_project(projectname){
+  
+              console.log("Creaating new project...."); 
+              fetch('/create_new_project', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email,"payload_category":category_input
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var new_project = JSON.parse(text); // Get the data feedback from the back-end 
+                          console.log(new_project); //Create the new project at the back-end by define the user email account to feedback  
+                      
+               });
+              
+
+ }
+ //Downlod search data from the internet 
+ function Download_and_search(category_input){
+                console.log("Downloading the data for training......."); 
+                fetch('/download_datasearch', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email,"payload_category":category_input
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                          var download_data  = JSON.parse(text); //Download the data search from the system 
+                          console.log(download_data); // 
+                         
+
+                  }); 
+             
+
+ }
+ //Large language model input 
+ function LLM_model_activate(transcript,value_set){
+              fetch('/speech_command_concurrency', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":transcript
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                                 var data_json = JSON.parse(text);
+                                 console.log("Answer AI",data_json); 
+                                 //notify_data("success",data_json['answer']['kornbot380@hotmail.com']['Answer'])
+                                 condition_notify("success",data_json['answer'][email]['Answer'])
+                                 speak(data_json['answer'][email]['Answer'],value_set);
+              });
+ }
+ //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+   // Array of URLs to be used in the iframes
+  
+
+   function components_selected_mmai(urls) {
+        // Function to populate the slider with iframes
+        function populateSlider() {
+            const slider = document.getElementById('components-slider');
+
+            urls.forEach((url) => {
+                const frame = document.createElement('div');
+                frame.classList.add('frame3');
+
+                const iframe = document.createElement('iframe');
+                iframe.src = url; // Set the iframe URL
+                iframe.width = '100%'; // Make iframe fill the frame
+                iframe.height = '100%'; // Make iframe fill the frame
+                iframe.frameBorder = '0'; // Remove border
+
+                frame.appendChild(iframe); // Append iframe to the frame
+                slider.appendChild(frame); // Append frame to the slider
+            });
+        }
+
+        // Function to open the modal
+        function componentsModal() {
+            document.getElementById('components_modal').style.display = 'flex';
+            populateSlider(); // Populate slider when modal opens
+        }
+        componentsModal(); 
+
+    } 
+
+        // Function to close the modal
+function closeModal() {
+            document.getElementById('components_modal').style.display = 'none';
+            const slider = document.getElementById('components-slider');
+            slider.innerHTML = ''; // Clear the slider contents when closing
+    }
+
+window.onclick = function(event) {
+            const modal = document.getElementById('components_modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+}
+
+ //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ //Function to request and get the data from the orca2 components requests 
+ function orca2_components_request(data_project,value_set){
+                 //if(transcript.length > 25){
+                      //speak("Processing please wait",'en');
+                translate_lang("Processing please wait",value_set);      
+                 //}  
+                 //Processing the transcript to detecting the project requirement in the data and split data 
+                 
+                 fetch('/orca2_free_llms_concurrency',{
+                          headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":data_project
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                                 var comp_json = JSON.parse(text); 
+                                 console.log("Get the component request output",comp_json[email]); //Get the data components output   
+                                 if(Object.keys(comp_json[email]).length != 0){
+                                               translate_lang("Successfull processing components!",value_set);
+                                               //Running the for loop to store the encoded data link and store inside array 
+                                               
+                                               const urls = [
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com',
+                                               'https://roboreactor.com'
+                                               ];
+                                               components_selected_mmai(urls);
+                                 }
+                                 if(Object.keys(comp_json[email]).length == 0){
+
+                                               translate_lang("Fail to search components.Try to ask me again",value_set);
+                                               //Trigger constant speech recognition function trigger 
+                                 }
+                                 //Processing the modal trigger to open the components selected by automated assembly 
+                                 //Fetch the end-point features_Selector for the AI selected components data 
+
+         
+
+                                 //Fetch the components comparation data 
+                                 /*
+                                 fetch('/get_comp_ref',{
+                                      headers: {
+                                         'Content-Type': 'application/json'
+                                      },
+                                      // Specify the method
+                                      method: 'POST',
+                                      // A JSON payload
+                                      body: JSON.stringify({
+                                             "email": email,"command":data_project
+                                     })
+                                    }).then(function (response) { // At this point, Flask has printed our JSON
+                                    return response.text();
+                                    }).then(function (text) {
+                                    console.log('POST response: ');
+                                    // Should be 'OK' if everything was successful 
+                                    var project_components = JSON.parse(text);  //Get the project components data to make the reference to the feature of code 
+                                    console.log("Get components processing ",project_components); //Get the components reference processing 
+                                    
+                                    
+                                 });
+                                 */
+                                                                
+                 })
+
+ } 
+
+
+
+ //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ //Extract the free large language model data for the production using Falcon-7B components classification  
+ function Free_LLM_model_activate(transcript,value_set){   
+                     if(transcript.length > 25){
+                       
+                      //speak("Processing please wait",'en');
+                      translate_lang("Processing please wait",value_set);  
+                     
+                     }   
+
+                     fetch('/speech_free_llms_concurrency',{
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":transcript
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                                 var data_json = JSON.parse(text);
+                                 console.log("Answer AI",data_json); 
+                                 notify_data("success",data_json['answer'][email]['text_answ'])
+                                 //condition_notify("success",data_json['answer'][email]['Answer'])
+                                 speak(data_json['answer'][email]['text_answ'],value_set);
+
+              });   
+ }
+//Extract llama2 large language model 
+ function llama2_model_activate(transcript,value_set){   
+                     //Checking the length of the word before saying processing 
+                     if(transcript.length > 25){
+                      
+                          //speak("Processing please wait",'en');
+                          translate_lang("Processing please wait",value_set);  
+                         
+                     } 
+                     //var translate_transcript = translate_lang(transcript,value_set); //get 'en' transcript
+                     //console.log("Tranlated lang",translate_transcript);                     
+                     fetch('/speech_llama2_async',{
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":transcript+" answer me in short and clear answer","dest_lang": matched_lang[value_set]
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          // Should be 'OK' if everything was successful 
+                                 var data_json = JSON.parse(text);
+                                 console.log("Answer AI",data_json); 
+                                 //notify_data("success",data_json['translate'])
+                                 infonotify(data_json['translate'])
+                                 //condition_notify("success",data_json['answer'][email]['Answer'])
+                                 //translate_lang(data_json['answer'][email],value_set); //Get the output translator from the language input into the system 
+                                 speak(data_json['translate'],value_set);
+                                 
+
+              });   
+ }
+ function translate_lang(transcript,value_set){
+                         fetch('/translator_module',{
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+                                   "email": email,"command":transcript,"dest_trans":matched_lang[value_set]  
+                                   // Get the destiny language data to translate back the server reference   
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                                  var trans_dat = JSON.parse(text); 
+                                  //console.log("Trans_data",trans_dat,value_set.split("-")[0]);
+                                  //Fetch the data of the language components matching from the back-end
+
+                                  //notify_data("success",trans_dat[email][value_set.split("-")[0]])
+                                  //speak(trans_dat[email][value_set.split("-")[0]],value_set); 
+                                  fetch('/language_braviation_match',{
+                              // Declare what type of data we're sending
+                                              headers: {
+                                             'Content-Type': 'application/json'
+                                        },
+                                        // Specify the method
+                                         method: 'POST',
+                                        // A JSON payload
+                                       body: JSON.stringify({
+                                       "email": email,"dest_lang":value_set  // Get the destiny language data to translate back the server reference   
+                                   })
+                                   }).then(function (response) { // At this point, Flask has printed our JSON
+                                  return response.text();
+                                  }).then(function (text) {
+                                   console.log('POST response: ');
+                                   var get_langbrev = JSON.parse(text); 
+                                   console.log("Get language breviation data: ",get_langbrev,);
+                                   console.log("Hashing_langbrev",get_langbrev[email][value_set]);
+                                   var get_matchedlang = get_langbrev[email][value_set]; 
+                                   notify_data("success",trans_dat[email][get_matchedlang])
+                                   speak(trans_dat[email][get_matchedlang],value_set); // Get the language match from the api back-end 
+                               
+                              });
+                                    
+                                  
+                        });
+                       
+
+ }
+ function search_existing_project(email,result_refsearch,projectname_data,value_set){
+               //result_refsearch["Created_project"] = projectname_data; 
+               console.log("Fetch new data of the current project ",email,result_refsearch,projectname_data); // Fetch the current project data 
+               //Fetch the project name to search existing project 
+               // /search_projectname
+               fetch('/add_projectname',{
+                              // Declare what type of data we're sending
+                                              headers: {
+                                             'Content-Type': 'application/json'
+                                        },
+                                        // Specify the method
+                                         method: 'POST',
+                                        // A JSON payload
+                                       body: JSON.stringify({
+                                       "email": email,"projectname":projectname_data  // Get the destiny language data to translate back the server reference   
+                                   })
+                                   }).then(function (response) { // At this point, Flask has printed our JSON
+                                  return response.text();
+                                  }).then(function (text) {
+                                   console.log('POST response: ');
+                                   var data_projs= JSON.parse(text); 
+                                   console.log("project data",data_projs);
+                                   if(Object.keys(data_projs[email]) == "Existing_project"){
+                                                    console.log("This project is already created"); // Existing project detected
+                                                    var date_data = data_projs[email]["Existing_project"][projectname_data];      
+                                                    var datedata = date_data.split(" ")[0]; 
+                                                    var date_extract = date_data.split(" ")[0].split("-")
+                                                    translate_lang("This project was already created in date "+datedata,value_set)
+                                                    //Asking for editing the project 
+                                                    translate_lang("Do you want to edit project "+projectname_data+"?",value_set); 
+                                                    //Activate the project modal edited 
+                                                    document.getElementById('id01').style.display='block';
+                                                    document.getElementById("projname").value = projectname_data;
+
+
+                                   }   
+                                   if(Object.keys(data_projs[email]) != "Existing_project"){
+                                        
+                                                   console.log("This project have not been created");
+                                                   //Activate the project directory to created 
+                                                   //Fetch to create the project data 
+                                                   //mesh_model_loader();
+                                                   document.getElementById('id01').style.display='block';
+                                                   document.getElementById("projname").value = projectname_data;
+
+
+                                   }
+                                  
+                                   
+
+
+              });
+               
+               
+                    
+           
+  
+ }
+ 
+ function modal_project_edit(email,projectname_data,value_set){
+        
+        console.log("Project data edit features and function")
+        
+
+ }
+ 
+ //Getting the text input from the data input 
+ function findMaxNumber(numbers) {
+  if (numbers.length === 0) {
+    // Handle the case where the list is empty
+    return undefined;
+  }
+
+  let maxNumber = numbers[0]; // Assume the first number is the maximum
+
+  for (let i = 1; i < numbers.length; i++) {
+    if (numbers[i] > maxNumber) {
+      // Update the maximum number if a larger number is found
+      maxNumber = numbers[i];
+    }
+  }
+
+  return maxNumber;
+}
+ // Function to find the intersection of two arrays
+function findIntersection(arr1, arr2) {
+    return arr1.filter(value => arr2.includes(value));
+}
+
+// Function to find the similarity of two arrays
+function findSimilarity(arr1, arr2) {
+    const intersection = findIntersection(arr1, arr2);
+    const totalUniqueElements = new Set([...arr1, ...arr2]).size;
+    const similarityPercentage = (intersection.length / totalUniqueElements) * 100;
+    return similarityPercentage.toFixed(2); // Round to 2 decimal places
+}
+ 
+ function word_ninja(text){
+ 
+  const words = text.trim().split(/\s+/);
+  return words    //Returning the word ninja  
+
+ }
+ function speak(text,lang) {
+            //var textToSpeak = document.getElementById('textToSpeak').value;
+            //var rate = document.getElementById('rate').value;
+            //var language = document.getElementById('language').value;
+            const voices = window.speechSynthesis.getVoices()
+            var utterance = new SpeechSynthesisUtterance();
+            utterance.text = text;
+            utterance.rate = parseFloat("1");
+            utterance.lang = lang;
+            speechSynthesis.speak(utterance);
+
+ }
+ //Notification data input 
+ function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  }
+  function infonotify(longText) {
+    toastr.options = {
+      closeButton: true,
+      positionClass: 'toast-slider',
+      timeOut: '0',
+      extendedTimeOut: '0'
+    };
+    toastr.clear();
+
+    // Large text to demonstrate scrolling
+    //var longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi.";
+
+    // Generate a single notification with long text
+    var notification = "Answer: " + longText.repeat(5); // Repeat the long text to make it longer
+    var toastContent = $('<div class="scrollable-content"></div>').text(notification);
+    toastr.info(toastContent.prop('outerHTML'));
+    
+  } 
+ 
+ function condition_notify(success,text){
+  Command: toastr[success](text+"<br /><br /><button type='button' class='btn clear'>Close</button>")
+
+  toastr.options = {
+  "closeButton": true,
+  "debug": false,
+  "newestOnTop": false,
+  "progressBar": false,
+  "positionClass": "toast-top-center",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": 0,
+  "extendedTimeOut": 0,
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut",
+  "tapToDismiss": false
+  }
+
+ }
+
+        </script>
+    <script>
+      document.getElementsByClassName("tablink")[0].click();
+      
+      function openCity(evt, cityName) {
+        var i, x, tablinks;
+        x = document.getElementsByClassName("city");
+        for (i = 0; i < x.length; i++) {
+          x[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablink");
+        for (i = 0; i < x.length; i++) {
+          tablinks[i].classList.remove("w3-light-grey");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.classList.add("w3-light-grey");
+      }
+      </script>    
+    </body>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KGJLJB0CMY">
+    </script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-KGJLJB0CMY');
+    </script>
+</html>
+
+
+
+
+

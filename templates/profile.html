@@ -1,0 +1,2196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Project_management {{daaprofile}}</title> <!--{{daaprofile}}-->
+    <link rel="icon" type="image/png" href="../static/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/style5.css">
+    <link rel="stylesheet" href="../static/style6.css">
+  </head>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/jstree/3.1.1/themes/default/style.min.css'>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+  <script src="https://preview.babylonjs.com/ammo.js"></script>
+  <script src="https://preview.babylonjs.com/cannon.js"></script>
+  <script src="https://preview.babylonjs.com/Oimo.js"></script>
+  <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <script src='//cdnjs.cloudflare.com/ajax/libs/jstree/3.1.1/jstree.min.js'></script>
+  <!--<script src="https://cdn.jsdelivr.net/npm/jwt-simple@0.5.6/index.js"></script>-->
+  <!--<script src="https://cdn.jsdelivr.net/npm/jsonwebtoken@8.5.1/dist/jsonwebtoken.min.js"></script>-->
+
+  <style>
+
+.navbar-login
+{
+  width: 305px;
+  padding: 10px;
+  padding-bottom: 0px;
+}
+
+.navbar-login-session
+{
+  padding: 10px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+}
+
+.icon-size
+{
+  font-size: 87px;
+}
+  </style>
+
+  <script>
+  (() => {
+  /**
+   * This script injected by the installed three.js developer
+   * tools extension.
+   * https://github.com/threejs/three-devtools
+   */
+  
+  const $devtoolsReady = Symbol('devtoolsReady');
+  const $backlog = Symbol('backlog');
+  
+  // The __THREE_DEVTOOLS__ target is small and light-weight, and collects
+  // events triggered until the devtools panel is ready, which is when
+  // the events are flushed.
+  const target = new class ThreeDevToolsTarget extends EventTarget {
+    constructor() {
+      super();
+      this[$devtoolsReady] = false;
+      this[$backlog] = [];
+      this.addEventListener('devtools-ready', e => {
+        this[$devtoolsReady] = true;
+        for (let event of this[$backlog]) {
+          this.dispatchEvent(event);
+        }
+      }, { once: true });
+    }
+  
+    dispatchEvent(event) {
+      if (this[$devtoolsReady] || event.type === 'devtools-ready') {
+        super.dispatchEvent(event);
+      } else {
+        this[$backlog].push(event);
+      }
+    }
+  }
+  
+  Object.defineProperty(window, '__THREE_DEVTOOLS__', {
+    value: target,
+  });
+  })();
+
+  </script>
+  <style> 
+    .remove {
+   background: #f1f1f1;
+   td {
+     font-style: italic;
+   }
+ }
+ 
+ .table>tbody>tr>td {
+   vertical-align: middle;
+ }
+ .input-group {
+   width: 100%;
+ }
+ 
+ .editable {
+   border: none;
+   padding: 0;
+   margin: 0;
+   text-shadow: none;
+   box-shadow: none;
+ }
+ .addBtn {
+   cursor: pointer;
+ }
+ </style>
+ <style>
+  body {font-family: Arial, Helvetica, sans-serif;}
+  
+  /* The Modal (background) */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  h1 {
+   font-size: 20px;
+   text-align: center;
+   margin: 20px 0 20px;
+ }
+ h1 small {
+   display: block;
+   font-size: 15px;
+   padding-top: 8px;
+   color: gray;
+ }
+ .avatar-upload {
+   position: relative;
+   max-width: 205px;
+   margin: 50px auto;
+ }
+ .avatar-upload .avatar-edit {
+   position: absolute;
+   right: 12px;
+   z-index: 1;
+   top: 10px;
+ }
+ .avatar-upload .avatar-edit input {
+   display: none;
+ }
+ .avatar-upload .avatar-edit input + label {
+   display: inline-block;
+   width: 34px;
+   height: 34px;
+   margin-bottom: 0;
+   border-radius: 100%;
+   background: #FFFFFF;
+   border: 1px solid transparent;
+   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+   cursor: pointer;
+   font-weight: normal;
+   transition: all 0.2s ease-in-out;
+ }
+ .avatar-upload .avatar-edit input + label:hover {
+   background: #f1f1f1;
+   border-color: #d6d6d6;
+ }
+ .avatar-upload .avatar-edit input + label:after {
+   content: "\f040";
+   font-family: 'FontAwesome';
+   color: #757575;
+   position: absolute;
+   top: 10px;
+   left: 0;
+   right: 0;
+   text-align: center;
+   margin: auto;
+ }
+ .avatar-upload .avatar-preview {
+   width: 192px;
+   height: 192px;
+   position: relative;
+   border-radius: 100%;
+   border: 6px solid #F8F8F8;
+   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+ }
+ .avatar-upload .avatar-preview > div {
+   width: 100%;
+   height: 100%;
+   border-radius: 100%;
+   background-size: cover;
+   background-repeat: no-repeat;
+   background-position: center;
+ }
+ 
+
+  </style>
+<style>
+  .trigger{
+      text-align: center;
+    padding: 7px 13px;
+    background: #3e3e3e;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    font-family: cursive;
+}
+
+.modal1 {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+.modal1-content {
+  
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    width: 80%;
+    border-radius: 0.5rem;
+}
+.close-button {
+    float: right;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: lightgray;
+}
+.close-button:hover {
+    background-color: darkgray;
+}
+.show-modal1 {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close1 {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close1:hover,
+.close1:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  
+}
+
+
+</style>
+<style>
+  body {
+    font-family: Arial;
+}
+
+ul.tree li {
+    list-style-type: none;
+    position: relative;
+}
+
+ul.tree li ul {
+    display: none;
+}
+
+ul.tree li.open > ul {
+    display: block;
+}
+
+ul.tree li a {
+    color: black;
+    text-decoration: none;
+}
+
+ul.tree li a:before {
+    height: 1em;
+    padding:0 .1em;
+    font-size: .8em;
+    display: block;
+    position: absolute;
+    left: -1.3em;
+    top: .2em;
+}
+
+ul.tree li > a:not(:last-child):before {
+    content: '+';
+}
+
+ul.tree li.open > a:not(:last-child):before {
+    content: '-';
+}
+</style>
+
+<style>
+  
+  margin-left: -600px; 
+  cursor: pointer;     
+
+  </style> 
+  <style>
+
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close1 {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close1:hover,
+.close1:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+  
+}
+
+</style>
+<!--Modal function of model viewer-->
+<style>
+  body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal2 {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal2-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close2 {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close2:hover,
+.close2:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Style the tab */
+.tab2 {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab2 button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab2 button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent2 {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+</style>
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal3 {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal3-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close3 {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close3:hover,
+.close3:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Style the tab */
+.tab3 {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab3 button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab3 button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab3 button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent3 {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+</style>
+<style>
+#gramTree {
+  margin-left: 100px;
+}
+
+#gramTree ul[role=group] {
+  margin-left: 7px;
+  border-left: solid 1px #DAE7F0;
+	padding-top: 4px;  /*referenced in tree js*/
+}
+</style>
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500&amp;family=Lato:wght@400&amp;display=swap" rel="stylesheet" onload="if(!window._isAppPrerendering)this.removeAttribute('media');">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500&amp;family=Lato:wght@400&amp;display=swap" rel="preload" as="style"><link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="true"><meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="generator" content="Zyro.com Website Builder">
+    <!--<script src="static/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">-->
+    </head>
+    <body>
+     
+  <div class="sticky-trigger"></div><header data-v-29fd4db2="" class="block-header block-header--is-sticky" style="--background-color:var(--colors-light); --width:1240px; --padding-top:32px; --padding:32px 16px; --padding-right:16px; --padding-bottom:32px; --padding-left:16px; --logo-width:108px; --cartIconSize:24px; --m-logo-width:112px; --oldContentWidth:1600px; --menu-item-spacing:56px; --space-between-menu:24px; --contrastBackgroundColor:#dcdcdc;"><div data-v-29fd4db2="" class="background" style="--background-color:var(--colors-light); --m-background-color:var(--colors-light);"><!----></div>
+  <div data-v-29fd4db2="" class="block-header__content" style="--navigation-grid-template-columns:1fr; --m-navigation-grid-template-columns:1fr; --logo-grid-row:1/2; --m-logo-grid-row:0/2; --logo-grid-column:1/2; --m-logo-grid-column:2/3; --logo-justify-self:flex-start; --m-logo-justify-self:center; --logo-image-object-position:left center; --m-logo-image-object-position:center center; --links-grid-row:1/2; --m-links-grid-row:2/2; --links-grid-column:1/2; --m-links-grid-column:1/2; --cart-grid-row:1/2; --cart-grid-column:2/2; --logo-spacing:0 var(--space-between-menu) 0 0; --m-logo-spacing:0 0 var(--space-between-menu) 0; --navigation-text-align:right; --m-navigation-text-align:center; --navigation-justify-self:flex-end; --m-navigation-justify-self:center; --mobileBackground:var(--background-color, var(--background-image));"><!----><button data-v-4610f8b1="" data-v-29fd4db2="" type="button" title="Menu" class="burger block-header__burger" style="--burger-color:var(--nav-link-color);">
+  <span data-v-4610f8b1="" class="burger__bun"></span>
+  <span data-v-4610f8b1="" class="burger__meat"></span><span data-v-4610f8b1="" class="burger__bun">
+  </span></button>
+  
+  <nav data-v-29fd4db2="" class="block-header__nav"><ul data-v-29fd4db2="" class="block-header__links block-header__links--align-center"><li data-v-e0579460="" data-v-29fd4db2="" class="block-header-item" style="--dropdown-background-color:var(--colors-light); --m-dropdown-background-color:var(--contrastBackgroundColor);"><div data-v-6c697b37="" data-v-e0579460="" class="block-header-item__item item-content-wrapper"><a data-v-6c697b37="" href="/" class="item-content">{{datauser}}</a><!----></div><!----></li> 
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container"> 
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span> 
+              </button>
+              <a type="button"  class="navbar-brand" href="https://roboreactor.com/" >Roboreactor</a>
+          </div>
+          <div class="collapse navbar-collapse">
+            
+              <ul class="nav navbar-nav navbar-right">
+                  <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                          <span class="glyphicon glyphicon-user"></span> 
+                          <strong>{{dataprofile}}</strong>
+                          <span class="glyphicon glyphicon-chevron-down"></span>
+                      </a>
+                      <ul class="dropdown-menu">
+                          <li>
+                              <div class="navbar-login">
+                                  <div class="row">
+                                      <div class="col-lg-4">
+                                          <p class="text-center">
+                                              <span class="glyphicon glyphicon-user icon-size"></span>
+                                          </p>
+                                      </div>
+                                      <div class="col-lg-8">
+                                          <p class="text-left"><strong>{{dataprofile}}</strong></p>
+                                          <p class="text-left small"><a>{{emaildata_user}}</a></p>
+                                          <input type="hidden" id="ref_email" value="{{emaildata_user}}"> 
+                                          <p class="text-left">
+                                              <!--href="http://0.0.0.0:8000/profilesettings"-->
+                                              
+                                              <a type="button" class="btn btn-primary btn-block btn-sm" id="myBtn" >My profile</a>
+                                              <a type="button" class="btn btn-primary btn-block btn-sm" id="sbc_data">My project</a>
+                                              <a type="button" class="btn btn-primary btn-block btn-sm" id="code_flow_gen">Code_generator</a>
+                                            </p>
+
+                                      </div>
+                                     
+                                     
+                                  </div>
+                              </div>
+                          </li>
+                          <li class="divider"></li>
+                          <li>
+                              <div class="navbar-login navbar-login-session">
+                                  <div class="row">
+                                      <div class="col-lg-12">
+                                          <p>
+                                              <a href="https://roboreactor.com/login" class="btn btn-danger btn-block">Logout</a>
+                                          </p>
+                                      </div>
+                                  </div>
+                              </div>
+                          </li>
+                      </ul>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </div>
+  <!-- The SBC modal data-->
+  <div id="sbc_modal" class="modal">
+
+<!-- Modal content -->
+<div class="modal-content">
+  <span class="close1">&times;</span>
+  <div class="tab">
+    <button class="tablinks" onclick="openCity(event, 'SBC_current');SBC_data();">Device profile</button>
+    <button class="tablinks" onclick="openCity(event, 'Components_connected');">Created projects</button>
+    <button class="tablinks" onclick="openCity(event, 'composelect')">Components library</button>
+   <!-- <button class="tablinks" onclick="openCity(event, 'Project3d')">Project 3D model visualization</button>-->
+  </div>
+  
+  <div id="SBC_current" class="tabcontent">
+    <!--Add the function to visualize here for the data of current content-->
+   <ul> 
+   <p>Latest project connection:</p> 
+   <p style="color:black" id="project_name"></p>
+   </ul>
+    <ul>
+    <p style="color:black">System OS</p>
+    <input type="text" id="os_system" value=" ">
+    </ul>
+    <ul>
+    <p style="color:black">Architecture</p>
+    <input type="text" id="os_architecture" value=" ">
+    </ul>
+    <ul>
+    <p style="color:black">Kernel version</p>
+    <input type="text" id="os_release" value=" ">
+    </ul>
+    <ul>
+      <p style="color:black">Processor</p>
+      <input type="text" id="os_processor" value=" ">
+
+    </ul>
+  </div>
+  
+  <div id="Components_connected" class="tabcontent">
+    <ul class="tree"></ul>
+    <!--Request the email data from the input profile page-->
+  <!--<body onload="features_data_category()">-->
+   <script>
+      //Fetching current json connection from the  link API 
+      fetch('/features_category')
+            .then(function (response) {
+            return response.text();
+        }).then(function (text) {
+        var response = JSON.parse(text) 
+        if(response != {}){  
+              //console.log("Software features data",response);
+              email = document.getElementById("email").value 
+              //console.log("Features data of account",email);
+              //console.log(response[email]);
+    //delete json; // Clear json before add new list 
+    var json = response[email];    
+    delete json;
+    //var json = {'category': [{'title': 'Roboreactor', 'items': [{'title': 'face_recog_1  ======> 127.0.0.1,0,5080,5081,Non'}, {'title': 'Servo_control_2  ======> 127.0.0.1,5081,I2C,2'}]}]};
+    function expander(){
+        var tree = document.querySelectorAll('ul.tree a:not(:last-child)');
+    for(var i = 0; i < tree.length; i++){
+        tree[i].addEventListener('click', function(e) {
+            var element = e.target.parentElement; //actually this is just the elem itself
+            var parent = element.parentElement
+
+            var opensubs = parent.querySelectorAll(':scope .open');
+            console.log(opensubs);
+            var classList = element.classList;
+            if(opensubs.length !=0) {
+                    for(var i = 0; i < opensubs.length; i++){
+                    opensubs[i].classList.remove('open');
+                }
+            } 
+                classList.add('open');
+
+        });
+    }
+    }
+$(function(){
+		var tree = $("ul.tree");
+    $.each(json.category,function(category){
+    	var categoryValue = json.category[category];
+    	tree.append('<li><a href="#">'+categoryValue.title+'</a><ul></ul></li>');
+      var el = tree.children("li").children("ul");
+      $.each(categoryValue.items,function(itemId){
+      	var item = categoryValue.items[itemId];
+        $(el[category]).append('<li><a href="#">'+item.title+'</a></li>');
+        if(item.thirditems){
+        	$(el[category]).children("li").append('<ul></ul>');
+          var el1 = el.children("li").children("ul");
+          $.each(item.thirditems,function(thirdItemId){
+            var thirdItem = item.thirditems[thirdItemId];
+            console.log(el1[itemId]);
+           $(el1[itemId]).append('<li><a href="#">'+thirdItem.title+'</a><ul></ul></li>');
+          });
+        }
+       
+      });
+    });
+    expander();
+});
+ };
+});
+ //End of fetching data here inside the function of the data fetching from the back end server 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    </script> 
+  
+</div>
+<div id="composelect" class="tabcontent">
+     <!--
+     <style>
+      html, body {
+          overflow: hidden;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+      }
+    
+      #renderCanvas {
+          width: 100%;
+          height: 100%;
+          touch-action: none;
+      }
+    
+    </style>
+    
+     <canvas id="renderCanvas"></canvas>
+     <button class="trigger" type="button" hidden>Click the modal!</button>
+     <div class="modal1">
+            <div class="modal1-content">
+             <span class="close-button">×</span>
+             <div class="tab">
+             <button class="tablinks1" onclick="openComponents(event, 'Components_list')">Components configuration workbench</button>
+            <button class="tablinks1" onclick="openComponents(event, 'Components_project')">Components from projects</button>
+             <input type="hidden" id="vision_sys" value="Non">
+             
+    </div>
+  -->
+    <!--<div id="Components_list" class="tabcontent1">
+        Adding the combobox inside the modal display model to choose the component from the list-->      
+      <div id="tree"></div>  
+      <script type="text/javascript">
+       
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //var id_generate_project = [];
+    function json_tree_data(jsonData){
+    
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    
+    $('#tree').on('select_node.jstree', function(event, data) {
+
+        
+        var i, j, r = [];
+        for (i = 0, j = data.selected.length; i < j; i++) {
+            r.push(data.instance.get_node(data.selected[i]).text);
+
+            console.log(r[0]);
+            //alert(r[0]);
+            // Getting the data fromthe selected to open the list of model here 
+            // Open modal toe view the model 
+            
+            list_components = ["Vision_system","Audio_system","Motion_system","Navigation_system","Sensor_array_to_image_system","Load_components_from_project","Single_Board_computer","Motion_planning_and_Navigation","Create_URDF"]
+            if(r[0] == list_components[8]){
+               console.log("Create URDF from the zip file of the stl user uploaded into the system")
+
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+
+               document.getElementById("vision_sys").value = r[0];
+            
+            };
+            if(r[0] == list_components[7]){
+               console.log("Motion_planning_and_Navigation_system data input")
+
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+
+               document.getElementById("vision_sys").value = r[0];
+            
+            };
+            //Load component project
+            //Load_components_from_project
+            if(r[0] == list_components[5]){
+               console.log("Load_components_from_project")
+
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               document.getElementById("vision_sys").value = r[0];
+            
+            };
+            //Vision_system
+            if(r[0] == list_components[0]){
+               console.log("Vision_system data input")
+
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+
+               document.getElementById("vision_sys").value = r[0];
+            
+            };
+
+            //Audio_system
+            if(r[0] == list_components[1]){
+              console.log("Audio_system data input")
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               } 
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               document.getElementById("vision_sys").value = r[0];
+            };
+            
+            //Motion_system 
+            if(r[0] == list_components[2]){
+              console.log("Motion_system data input")
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               document.getElementById("vision_sys").value = r[0];
+            };
+
+            //Navigation_system 
+            if(r[0] == list_components[3]){
+              console.log("Navigation_system data input")
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               document.getElementById("vision_sys").value = r[0];
+            };
+            
+           //Sensor_array_image_system 
+           if(r[0] == list_components[4]){
+              console.log("Sensor_array_image_system data input")
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               document.getElementById("vision_sys").value = r[0];
+            };
+            //Single board computer 
+            if(r[0] == list_components[6]){
+               console.log("Single board computer")
+
+               var modal_2 = document.getElementById("myModal2");
+               if(r[0] != 'Select your project'){
+                   modal_2.style.display="block"; 
+               }
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+
+               document.getElementById("vision_sys").value = r[0];
+            
+            };
+
+
+        } 
+        $('#resultText').html('Selected: ' + r.join(', '));
+    }).jstree({ 'core' : {'data' : jsonData } });
+  
+  
+
+  }
+   var data_trans;
+    fetch('/project_classification')
+    .then(function (response) {
+        return response.text();
+    }).then(function (text) {
+        console.log('GET response text:');
+        var data_classification = JSON.parse(text); // Print the greeting as text
+        console.log(data_classification);
+        email = document.getElementById("ref_email").value;
+        console.log('current email',email);
+        project_items = data_classification[email]; 
+        console.log('items list',project_items);
+         // Getting the generated list of the json project  
+        var wr = 0;
+        for(wr >=0;wr <= project_items['category'].length-1;wr++){
+          try{
+              //console.log(String(wr),project_items['category'][wr]);   
+              //Parent_node 
+              console.log("Project_title ",project_items['category'][wr]['title']," Project_items ",project_items['category'][wr]["items"]);
+              id_generate_project.push({"id":String(project_items['category'][wr]['title']),"parent":"#","text":String(project_items['category'][wr]["title"])});
+              //Child data of the project 
+              var dr = 0; 
+ 
+              
+              for(dr >=0; dr <=project_items['category'][wr]['items'].length-1;dr++){
+                       console.log("Child node"+String(dr),project_items['category'][wr]['items'][dr],String(JSON.stringify(project_items['category'][wr]['items'][dr])).split(" ")[0].split(" ")[0].split(":")[1]); 
+                       Child_node = project_items['category'][wr]['items'][dr],String(JSON.stringify(project_items['category'][wr]['items'][dr])).split(" ")[0].split(" ")[0].split(":")[1];
+                       id_generate_project.push({"id":String(project_items['category'][wr]['title'])+"_"+String(dr),"parent":String(project_items['category'][wr]['title']),"text":String(JSON.stringify(Child_node)).split(" ")[0].split(" ")[0].split(":")[1]});
+              }
+         
+              console.log(id_generate_project);
+             
+            }
+         catch(err){
+              console.log("Out of range");
+         }
+        }
+        console.log("Current project",id_generate_project);
+        var wc = 0;
+        for(wc >=0;wc <= id_generate_project.length-1;wc++ ){
+                   console.log("Current project "+String(wc),id_generate_project[wc]);
+                   if(wc == id_generate_project.length-1){
+                      //jsonData = [{"id": "Roboreactor_devian_2", "parent": "#", "text": "Roboreactor_devian_2"}, {"id": "Roboreactor_devian_2_0", "parent": "Roboreactor_devian_2", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_2_1", "parent": "Roboreactor_devian_2", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_2_2", "parent": "Roboreactor_devian_2", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_2_3", "parent": "Roboreactor_devian_2", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_3", "parent": "#", "text": "Roboreactor_devian_3"}, {"id": "Roboreactor_devian_3_0", "parent": "Roboreactor_devian_3", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_3_1", "parent": "Roboreactor_devian_3", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_3_2", "parent": "Roboreactor_devian_3", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_3_3", "parent": "Roboreactor_devian_3", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_4", "parent": "#", "text": "Roboreactor_devian_4"}, {"id": "Roboreactor_devian_4_0", "parent": "Roboreactor_devian_4", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_4_1", "parent": "Roboreactor_devian_4", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_4_2", "parent": "Roboreactor_devian_4", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_4_3", "parent": "Roboreactor_devian_4", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_5", "parent": "#", "text": "Roboreactor_devian_5"}, {"id": "Roboreactor_devian_5_0", "parent": "Roboreactor_devian_5", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_5_1", "parent": "Roboreactor_devian_5", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_5_2", "parent": "Roboreactor_devian_5", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_5_3", "parent": "Roboreactor_devian_5", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_6", "parent": "#", "text": "Roboreactor_devian_6"}, {"id": "Roboreactor_devian_6_0", "parent": "Roboreactor_devian_6", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_6_1", "parent": "Roboreactor_devian_6", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_6_2", "parent": "Roboreactor_devian_6", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_6_3", "parent": "Roboreactor_devian_6", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_7", "parent": "#", "text": "Roboreactor_devian_7"}, {"id": "Roboreactor_devian_7_0", "parent": "Roboreactor_devian_7", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_7_1", "parent": "Roboreactor_devian_7", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_7_2", "parent": "Roboreactor_devian_7", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_7_3", "parent": "Roboreactor_devian_7", "text": "\"Stepper_motor_5"}]
+                      console.log("Current project new list",id_generate_project); 
+                      data_trans = [id_generate_project];                           
+                   }
+        } 
+        
+        
+
+      });
+    /*  
+    jsonData = [
+    {id: 'Roboreactor_devian_4', parent: '#', text: 'Robo_devian_4'},
+    {id: 'Roboreactor_devian_4_0', parent: 'Roboreactor_devian_4', text:"face_rec_2"}, 
+    {id: 'Roboreactor_devian_4_1', parent: 'Roboreactor_devian_4', text: "Stepper_motor_3"},
+    {id: 'Roboreactor_devian_4_2', parent: 'Roboreactor_devian_4', text: "Servo_motor_4"},
+    {id: 'Roboreactor_devian_4_3', parent: 'Roboreactor_devian_4', text: "Speech_recognition_5"}
+ 
+    ];
+    */
+               
+    //jsonData = [{"id": "Roboreactor_devian_2", "parent": "#", "text": "Roboreactor_devian_2"}, {"id": "Roboreactor_devian_2_0", "parent": "Roboreactor_devian_2", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_2_1", "parent": "Roboreactor_devian_2", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_2_2", "parent": "Roboreactor_devian_2", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_2_3", "parent": "Roboreactor_devian_2", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_3", "parent": "#", "text": "Roboreactor_devian_3"}, {"id": "Roboreactor_devian_3_0", "parent": "Roboreactor_devian_3", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_3_1", "parent": "Roboreactor_devian_3", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_3_2", "parent": "Roboreactor_devian_3", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_3_3", "parent": "Roboreactor_devian_3", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_4", "parent": "#", "text": "Roboreactor_devian_4"}, {"id": "Roboreactor_devian_4_0", "parent": "Roboreactor_devian_4", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_4_1", "parent": "Roboreactor_devian_4", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_4_2", "parent": "Roboreactor_devian_4", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_4_3", "parent": "Roboreactor_devian_4", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_5", "parent": "#", "text": "Roboreactor_devian_5"}, {"id": "Roboreactor_devian_5_0", "parent": "Roboreactor_devian_5", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_5_1", "parent": "Roboreactor_devian_5", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_5_2", "parent": "Roboreactor_devian_5", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_5_3", "parent": "Roboreactor_devian_5", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_6", "parent": "#", "text": "Roboreactor_devian_6"}, {"id": "Roboreactor_devian_6_0", "parent": "Roboreactor_devian_6", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_6_1", "parent": "Roboreactor_devian_6", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_6_2", "parent": "Roboreactor_devian_6", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_6_3", "parent": "Roboreactor_devian_6", "text": "\"Stepper_motor_5"}, {"id": "Roboreactor_devian_7", "parent": "#", "text": "Roboreactor_devian_7"}, {"id": "Roboreactor_devian_7_0", "parent": "Roboreactor_devian_7", "text": "\"face_recog_3"}, {"id": "Roboreactor_devian_7_1", "parent": "Roboreactor_devian_7", "text": "\"Servo_control_4"}, {"id": "Roboreactor_devian_7_2", "parent": "Roboreactor_devian_7", "text": "\"Speech_recognition_3"}, {"id": "Roboreactor_devian_7_3", "parent": "Roboreactor_devian_7", "text": "\"Stepper_motor_5"}]
+    jsonData = [{"id": "components", "parent": "#", "text": "Load_components_from_project"},{"id": "model_urdf", "parent": "#", "text": "Create_URDF"},{"id": "urdf", "parent": "#", "text": "Motion_planning_and_Navigation"},{"id": "vision", "parent": "#", "text": "Vision_system"},{"id": "vision_1", "parent": "vision", "text": "Regular_camera"},{"id":"vision_2","parent":"vision","text":"IR_camera"},{"id":'vision_3',"parent":"vision","text":"Thermal_camera"},{"id":'vision_4',"parent":"vision","text":"Hyperspectral_camera"},{"id": "Audio", "parent": "#", "text": "Audio_system"},{"id": "Audio_1", "parent": "Audio", "text": "Amplifier"},{"id": "Audio_2", "parent": "Audio", "text": "USB_sound_card"},{"id": "motion_system", "parent": "#", "text": "Motion_system"},{"id": "motion_system_1", "parent": "motion_system", "text": "DC_motor_driver"},{"id": "motion_system_2", "parent": "motion_system", "text": "Servo_motor_driver"},{"id": "motion_system_3", "parent": "motion_system", "text": "Stepper_motor_driver"},{"id": "motion_system_4", "parent": "motion_system", "text": "BLDC_motor_driver"},{"id": "navigation_system", "parent": "#", "text": "Navigation_system"},{"id": "navigation_system_1", "parent": "navigation_system", "text": "GPRS_module"},{"id": "navigation_system_2", "parent": "navigation_system", "text": "GPS_module"},{"id":'navigation_system_3',"parent":"navigation_system","text":"Lidar_sensor"},{"id": "sensor_system", "parent": "#", "text": "Sensor_array_to_image_system"},{"id": "sensor_system_1_0", "parent": "sensor_system", "text": "Force_sensor"},{"id": "sensor_system_1_1", "parent": "sensor_system", "text": "Temperature_sensor"},{"id": "sensor_system_1_2", "parent": "sensor_system", "text": "Optical_IR_sensor"},{"id": "sensor_system_1_3", "parent": "sensor_system", "text": "Micro_phone_sensor"},{"id": "sensor_system_1_4", "parent": "sensor_system", "text": "Ultrasonic_array"},{"id": "single_board_computer", "parent": "#", "text": "Single_Board_computer"},{"id": "sbc_1", "parent": "single_board_computer", "text": "Raspberry_pi"},{"id": "sbc_1_1", "parent": "sbc_1", "text": "Raspberry_pi_4/4GB/8GB"},{"id": "sbc_1_2", "parent": "sbc_1", "text": "Raspberry_pi_3_model_B"},{"id": "sbc_1_3", "parent": "sbc_1", "text": "Raspberry_pi_zero_w_2"},{"id": "sbc_2_1", "parent": "single_board_computer", "text": "Khadas"},{"id": "sbc_2_1_1", "parent": "sbc_2_1", "text": "Khadas_Edge_2_pro"},{"id": "sbc_3_1", "parent": "single_board_computer", "text": "NVIDIA_Jetson"},{"id": "sbc_3_1_1", "parent": "sbc_3_1", "text": "Jetson Nano"},{"id": "sbc_4_1", "parent": "single_board_computer", "text": "UP squared board"},{"id": "sbc_4_1_1", "parent": "sbc_4_1", "text": "UP Squared Series with Intel® Atom ™ x7-E3950, up to 2.0Ghz"}]    
+    json_tree_data(jsonData);
+     
+   
+    
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    
+     </script>
+
+    <div id="myModal2" class="modal">
+      
+      <!-- Modal content -->
+      <div class="modal2-content">
+        <!--<span class="close2">&times;</span>-->
+        <div class="tab">
+        <button class="tablinks2" onclick="openModel(event, 'Camera_components')">View_3D_components_for_project</button>
+         
+        </div>
+        
+        <div id="Camera_components" class="tabcontent2">
+        
+          <select id="projectlist" onChange="Project_list()">
+            
+            <option>Select your project</option>    
+                        
+          </select>
+          <button>Clear selected project</button>
+
+          <script>
+            //Feth the data from here
+             /* Writing data to fetch from here */
+             fetch('/project_classification')
+              .then(function (response) {
+              return response.text();
+             }).then(function (text) {
+                  console.log('GET response text:');
+                  console.log(text); // Print the greeting as text
+                  var message_project_list  = JSON.parse(text); //Getting the json data from the back-end 
+                  console.log("Project_list_datas",message_project_list);
+                  project_data = message_project_list[email]['category']
+                  console.log("Inner items_data",project_data)
+                  var pd = 0; 
+                  var options = [];
+                  console.log("Number of project",project_data.length); 
+                  for(pd>=0;pd <=project_data.length-1;pd++){
+                         console.log("Project_data_name",project_data[pd]['title'])
+                         options.push(project_data[pd]['title']);   
+                  }    
+            
+
+            //
+            
+            var select = document.getElementById("projectlist");    
+
+            for(var i = 0; i < options.length; i++) {
+                var opt = options[i];
+                var el = document.createElement("option");
+                el.textContent = opt;
+                el.value = opt;
+                select.appendChild(el);
+           }
+          });
+          $("button").click(function() {
+         $('select').prop('selectedIndex', 0);
+          });
+           function Project_list(){
+
+                   
+                   var select = document.getElementById('projectlist');
+                   var option = select.options[select.selectedIndex];
+                   email = document.getElementById("ref_email").value
+                   components_dat = document.getElementById("vision_sys").value;
+                   console.log("Project list data");
+                   console.log(option.text); // Getting the slected project from the list component 
+                   account_data = {"Email":email,"Project_name":option.text,'components_name':components_dat}; 
+                   console.log("Data_account_components",account_data);
+                   //Fetch send the account data into the Components request 
+                   // Components_request() route /components_request
+                   secret_data = "secret_WxkNKu_mrsX_Q4q64BrStdnCmE" 
+                   //var token = jwt.encode(account_data, secret_data); 
+                   //console.log(token) //Generated token 
+                   //Getting the id request open the button from the id html 
+                   //If components name not Motion_planning_and_Navigation using this link                   
+                   //option_ref = ['Motion_planning_and_Navigation','Create_URDF']
+                   option_ref = ["Vision_system","Audio_system","Motion_system","Navigation_system","Sensor_array_to_image_system","Load_components_from_project","Single_Board_computer","Motion_planning_and_Navigation","Create_URDF"]
+                   
+                   if (option_ref.includes(String(account_data['components_name'])) == false){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == "Motion_planning_and_Navigation"){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                  
+                   //If components name is motion planning and navigation using this link 
+                   if (String(account_data['components_name']) == "Create_URDF"){
+                                       //Change the parameters of the URL before the arguement
+                                       //Change the "Model_selected" to the urdf_creator  
+                                       console.log("URDF creator page to uploade the zip file of the stl model into the system")
+                                       payload_account = {"email":email,"project_name":option.text}
+                                       payload_encode = btoa(JSON.stringify(payload_account));
+                                       window.open("https://roboreactor.com/create_urdf/"+payload_encode, '_blank').focus();
+                   }
+                   if (String(account_data['components_name']) == option_ref[0]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == option_ref[1]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == option_ref[2]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == option_ref[3]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == option_ref[4]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == option_ref[5]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   if (String(account_data['components_name']) == option_ref[6]){
+                           console.log('Non motion planning web page')
+                           window.open("https://roboreactor.com/Model_selected/"+String(account_data['Email']+"/"+String(account_data['Project_name']+"/"+String(account_data['components_name'])+"/"+String('Non'))), '_blank').focus();
+                   } 
+                   
+              }
+           
+           </script> 
+
+
+        </div>
+       
+    
+      </div>
+
+    </div>
+     <!--End of the modal for model viewer-->
+    <!--Add the file uploader modal here--> 
+    
+
+  </div>
+  <!--
+   <div id="Components_project" class="tabcontent1">
+    <p> Select 3d component from the project </p>
+    <script>
+        email = document.getElementById("ref_email").value
+        
+    </script>
+
+   </div>-->
+        <!--</div>-->
+
+         <!--</div>-->
+     </div>
+     
+    <script type="text/javascript">
+         var id_generate_project = [];
+         
+         
+  var canvas = document.getElementById("renderCanvas");
+ 
+         var startRenderLoop = function (engine, canvas) {
+             engine.runRenderLoop(function () {
+                 if (sceneToRender && sceneToRender.activeCamera) {
+                     sceneToRender.render();
+                 }
+             });
+         }
+ 
+         var engine = null;
+         var scene = null;
+         var sceneToRender = null;
+         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+         var createScene = function () {
+             var scene = new BABYLON.Scene(engine);
+             var camera = new BABYLON.ArcRotateCamera("cam", 1.65, 1.56, 20, BABYLON.Vector3.Zero());
+             scene.clearColor = new BABYLON.Color3(0, 0, 0);
+         
+             camera.wheelDeltaPercentage = 0.01;
+             camera.attachControl(canvas, true);
+             camera.upperBetaLimit = 1.75;
+         
+             // Material
+             var groundMat = new BABYLON.PBRMaterial("groundMat", scene);
+             groundMat.albedoColor  = new BABYLON.Color4(63/255, 52/255, 97/255, 1);
+             groundMat.metallic = 0;
+             groundMat.roughness = 0.4;
+             groundMat.environmentIntensity = 0;
+         
+             // Ground
+             var ground = BABYLON.Mesh.CreatePlane("ground", 500.0, scene);
+             ground.position = new BABYLON.Vector3(0, -10, 0);
+             ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+             ground.material = groundMat;
+         
+             // Lights
+             var light = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(-17, 68, -5), scene);
+             light.intensity = 1000;
+             light.includedOnlyMeshes.push(ground);
+             
+             // Environment
+             var hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("https://playground.babylonjs.com/textures/Studio_Softbox_2Umbrellas_cube_specular.dds", scene);
+             hdrTexture.name = "envTex";
+             hdrTexture.gammaSpace = false;
+             hdrTexture.setReflectionTextureMatrix(BABYLON.Matrix.RotationY(2.4));
+             scene.environmentTexture = hdrTexture; 
+         
+             var ccMask = new BABYLON.Texture("https://models.babylonjs.com/Demos/shaderBall/ShaderBallMat_clearCoat.png", scene, undefined, false);
+            
+             
+             
+             Promise.all([
+                 BABYLON.SceneLoader.AppendAsync("https://models.babylonjs.com/Demos/shaderBall/BabylonShaderBall_Simple.gltf")
+
+             ]).then(function() {
+         
+                 // Enable clear coat on material
+                 var mainMat = scene.getMaterialByName("ShaderBallMat");
+                 mainMat.clearCoat.isEnabled = true;
+                 mainMat.clearCoat.texture = ccMask;
+         
+                 // Set up new rendering pipeline
+                 var pipeline = new BABYLON.DefaultRenderingPipeline("default", true, scene);
+         
+                 // Tone mapping
+                 pipeline.toneMappingEnabled = true;
+                 pipeline.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
+                 pipeline.exposure = 1;
+         
+                 pipeline.fxaaEnabled = true;
+         
+                 // Glow Layer
+                 var gl = new BABYLON.GlowLayer("glow", scene, { 
+                     mainTextureFixedSize: 1024,
+                     blurKernelSize: 64
+                 });
+                 gl.intensity = 0.8;
+             });
+            
+             var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        
+        var button1 = BABYLON.GUI.Button.CreateSimpleButton("but1", "Choose your components click here!");
+        button1.width = "350px"
+        button1.height = "50px";
+        button1.color = "white";
+        button1.cornerRadius = 20;
+        button1.background = "black";
+        
+        button1.onPointerUpObservable.add(function() {
+            //using the model extract from the input profile to using in the modal function 
+            //alert("you did it!");
+            var modal = document.querySelector(".modal1");
+            var trigger = document.querySelector(".trigger"); //.close-button
+            var closeButton = document.querySelector(".close-button");
+            function toggleModal() {
+                 modal.classList.toggle("show-modal1");
+            }
+            
+            function windowOnClick(event) {
+              if (event.target === modal) {
+                     toggleModal();
+                         
+                }
+            }
+                       
+             trigger.addEventListener("click", toggleModal);
+             closeButton.addEventListener("click", toggleModal);
+             window.addEventListener("click", windowOnClick);
+             toggleModal();
+             //component_feature_sending(id_generate_project);
+        
+        });
+       
+        
+         advancedTexture.addControl(button1);    
+         return scene;
+
+        };
+         
+                window.initFunction = async function() {
+                     
+                     
+                     var asyncEngineCreation = async function() {
+                         try {
+                         return createDefaultEngine();
+                         } catch(e) {
+                         console.log("the available createEngine function failed. Creating the default engine instead");
+                         return createDefaultEngine();
+                         }
+                     }
+ 
+                     window.engine = await asyncEngineCreation();
+         if (!engine) throw 'engine should not be null.';
+         startRenderLoop(engine, canvas);
+         window.scene = createScene();};
+         initFunction().then(() => {sceneToRender = scene                    
+         });
+ 
+         // Resize
+         window.addEventListener("resize", function () {
+             engine.resize();
+         });
+        
+
+     </script>
+   
+</div>
+  
+ 
+
+</div>
+
+</div> 
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+      <!-- Modal content -->
+      <div class="modal-content">
+         <span class="close">&times;</span>
+         <!-- class of the -->
+         <div class="container">
+    <h1>{{dataprofile}} 
+    </h1>
+    
+    <div class="avatar-upload" >
+      
+        <div class="avatar-edit">
+            <input type='file' id="imageUpload" accept=".png, .jpg, .jpeg" />
+            <label for="imageUpload"></label>
+        </div>
+        
+        <div class="avatar-preview">
+            <div id="imagePreview" style="background-image: url('');">
+            </div>
+        </div>
+        <!--Get the input from the text input and fetch data back from javascript to backend python instead-->
+        <h> First name <input type="text" tabindex="0" id="firstname" name="firstname" placeholder="Your firstname and lastname" value={{firstname_data}} " autocomplete="on"> </h> 
+        <h> Last name <input type="text" tabindex="0" id="lastname" placeholder="Your firstname and lastname" value={{lastname_data}} " autocomplete="on"> </h> 
+        <h> E-mail <input type="text" tabindex="0" id="email" placeholder="Your email" value="{{emaildata_user}}" autocomplete="on"> </h>
+        <h> old_password <input type="password" tabindex="0" id="old_password" placeholder="Your password"  value="{{password_data}}"  autocomplete="on"> </h>
+        <h> password <input type="password" tabindex="0" id="myInput" placeholder="Your password"  value="{{password_data}}"  autocomplete="on"> </h>
+        <h> Address <input type="text" tabindex="0" id="address" placeholder="Your address"  value="{{address_data}}"  autocomplete="on"></h>
+        <input type="hidden" tabindex="0" id="personal_email" placeholder="Your address"  value="{{emaildata_user}}"> 
+
+        <ul>
+          <li><input type="checkbox" onclick="myFunction()"> Show Password</li>
+        </ul> 
+        <ul>
+        <button type="submit" onclick="forminput()" class="btn btn-primary btn-block btn-sm"> Save edit</button> <!--Save the data of the edited profile -->
+        </ul>
+      </div>
+    
+</div>
+
+         </div>
+
+       </div>
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Projectname</th>
+            <th>Token</th>
+            <th>Secret key</th>
+           
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--Get the project generated from the javascript jwt encode-->
+          <tr id="addRow">
+            <td class="col-xs-3">
+              <input class="form-control addMain" type="text" id="Project" placeholder="Enter project name"  />
+            </td>
+          
+            <td class="col-xs-3">
+              <input class="form-control addPrefer" type="text" name="token" autocomplete="current-password" required="" id="Token" placeholder="token" />
+              
+            </td>
+            <td class="col-xs-5">
+              <input class="form-control addCommon" type="password" id="Secret_key" placeholder="secretkey" /><i class="far fa-eye" id="togglePassword" style="margin-left: 700px; cursor: pointer;"></i>
+            </td>
+            <!--<td class="col-xs-7">
+              <input class="form-control addPrefer" type="text" placeholder="expire date" />
+            </td> -->
+            <td class="col-xs-1 text-center">
+              <span class="addBtn">
+                  <i class="fa fa-plus"></i>
+                </span>
+            </td>
+          
+          </tr>
+        <!--
+          <tr>
+            <td class="col-xs-3"><input type="text" value="Alley" class="form-control editable" />  </td>
+            
+            <td class="col-xs-3"><input type="text" value="Aly" class="form-control editable" />  </td>
+            <td class="col-xs-5"><input type="text" value="Allee, AL, Ally" class="form-control editable" />  </td>
+            <td class="col-xs-1 text-center"><a href="#" onClick="deleteRow(this)"><i class="fa fa-trash-o" aria-hidden="true"></a></td>
+          </tr>
+        
+          <tr>
+            <td class="col-xs-3"><input type="text" value="Avenue" class="form-control editable" />  </td>
+            
+            <td class="col-xs-3"><input type="text" value="Ave" class="form-control editable" />  </td>
+            <td class="col-xs-5"><input type="text" value="Av, Aven, Ally" class="form-control editable" />  </td>
+            <td class="col-xs-1 text-center"><a href="#" onClick="deleteRow(this)"><i class="fa fa-trash-o" aria-hidden="true"></a></td>
+          </tr>
+        -->
+        </tbody>
+      </table>
+        <div class="col-md-1 pull-right">
+          <!--<button class="btn btn-primary pull-right" id="Download_json" onclick="Download_json(this);">Json download</button> -->
+          <a id="Download_json" onclick="Download_json(this);" class="btn"><i class="icon-download"></i> Export json</a>
+     
+          </div>
+      </div>
+           
+      </body>
+     <!--<body onLoad="autoaddrow();"></body>-->
+     <body onLoad="add_backup();"></body> 
+     <body onLoad="SBC_data();"></body>
+     <script text="text/javascript">
+          function forminput(){
+                   //Working with onclick
+                   firstname = document.getElementById("firstname").value  
+                   lastname = document.getElementById("lastname").value 
+                   email = document.getElementById("email").value 
+                   old_password = document.getElementById("old_password").value
+                   password = document.getElementById("myInput").value
+                   address = document.getElementById("address").value
+                   //Fetch to the back end for the update route of flask at the back end and send the data return in json data 
+                   fetch('/update_edit', {
+                    // Declare what type of data we're sending
+                   headers: {
+                       'Content-Type': 'application/json'
+                   },
+                   // Specify the method
+                   method: 'POST',
+                   // A JSON payload
+                   body: JSON.stringify({
+                       "firstname": firstname,"lastname":lastname,"email":email,"old_password":old_password,"password":password,"address":address 
+                   })
+                   }).then(function (response) { // At this point, Flask has printed our JSON
+                   return response.text();
+                   }).then(function (text) {
+
+                   //console.log('POST response: ');
+                   // Should be 'OK' if everything was successful
+                   //console.log(text);
+                   });
+
+         
+                  }    
+      </script>
+      
+
+      <script>
+
+        //Geting the personal sinbleboard computer data request into the system 
+        function SBC_data(){  
+        email = document.getElementById("email").value
+        fetch('/profile_sbc')
+            .then(function (response) {
+            return response.text();
+        }).then(function (text) {
+        var response = JSON.parse(text) 
+        if(response != {}){  
+              //console.log("Single board data",response); //Getting the singleboard computer data 
+              //console.log("Single Board computer data",response[email]['Architecture']); 
+              document.getElementById('os_system').value = String(response[email]['OS']);
+              document.getElementById('os_architecture').value = String(response[email]['Architecture']); 
+              document.getElementById('os_release').value= String(response[email]['Release']); 
+              document.getElementById('os_processor').value= String(response[email]['Processor']);
+              document.getElementById("project_name").innerHTML = String(response[email]['Project_name']);
+
+        };        
+      });
+    
+    }   
+      </script>
+      <script type="text/javascript">
+                function myFunction() {
+  var x = document.getElementById("myInput");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+      </script>
+       <script >
+               function formatRows(main, prefer, common) {
+    return '<tr><td class="col-xs-3"><a type="button" id="sbc_data" ><input type="button" value="' +main+ '" class="form-control editable"/></a></td>' +
+           '<td class="col-xs-3"><input type="text" name="password" autocomplete="current-password" required="" id="id_password" value="' +prefer+ '" class="form-control editable" /></td>' +
+           '<td class="col-xs-3"><input type="password" value="' +common+ '" id="Secret_key" class="form-control editable"/><i class="far fa-eye" id="togglePassword" style="margin-left: 700px; cursor: pointer;"></i></td>' +
+           '<td class="col-xs-1 text-center"><a href="#" onClick="deleteRow(this)">' +
+           '<i class="fa fa-trash-o" aria-hidden="true"></a></td></tr>';
+  };
+  Generate_id_project_data = []   
+ 
+  function component_feature_sending(id_generate_project) {
+   
+    // Delete data from database 
+    //fetch the data here to remove from database 
+    //Sending the email to request delete function in the database 
+    email = document.getElementById("email").value
+    fetch('/create_classification', {
+
+          // Declare what type of data we're sending
+         headers: {
+         'Content-Type': 'application/json'
+       },
+
+      // Specify the method
+      method: 'POST',
+      // A JSON payload send email to the database to delete the token 
+      body: JSON.stringify({
+        email:id_generate_project
+      })
+    }).then(function (response) { // At this point, Flask has printed our JSON
+    return response.text();
+    }).then(function (text) {
+    console.log('POST response: ');
+         // Should be 'OK' if everything was successful
+    var rt =0; 
+    for(rt >=0; rt<=id_generate_project.lenght;rt++){
+              Generate_id_project_data.push(id_generate_project[rt]);
+    }
+    console.log(text); 
+     
+  });
+    
+   return Generate_id_project_data;     
+  };
+
+
+ 
+  
+  //json_tree_data(jsonData);
+function send_selected_component(){
+  fetch('/component_request', {
+                       // Declare what type of data we're sending
+                       headers: {
+                         'Content-Type': 'application/json'
+                       },
+                       // Specify the method
+                       method: 'POST',
+                       // A JSON payload send email to the database to delete the token  
+                       body: JSON.stringify(account_data)
+                       }).then(function (response) { // At this point, Flask has printed our JSON
+                       return response.text();
+                        }).then(function (text) {
+                        console.log('POST response: ');
+                         // Should be 'OK' if everything was successful
+                         console.log('OK',200); 
+                         
+
+
+    });
+
+}
+
+
+  function deleteRow(trash) {
+    $(trash).closest('tr').remove();
+    // Delete data from database 
+    //fetch the data here to remove from database 
+    //Sending the email to request delete function in the database 
+    email = document.getElementById("email").value
+    fetch('/Delete_token', {
+
+          // Declare what type of data we're sending
+         headers: {
+         'Content-Type': 'application/json'
+       },
+
+      // Specify the method
+      method: 'POST',
+      // A JSON payload send email to the database to delete the token 
+      body: JSON.stringify({
+        "Email":String(email)
+      })
+    }).then(function (response) { // At this point, Flask has printed our JSON
+    return response.text();
+    }).then(function (text) {
+    console.log('POST response: ');
+         // Should be 'OK' if everything was successful
+    console.log(text); 
+    });
+    
+  };
+
+  function Download_json(el){
+    email = document.getElementById("email").value
+    
+    fetch('/token_secret_key')
+    .then(function (response) {
+        return response.text();
+    }).then(function (text) {
+        var response = JSON.parse(text) 
+      if(response != {}){  
+   
+        var data_token = response[email][0].split(".")[2];
+        var data_secret = response[email][1];
+        var data_project_name = response[email][2];
+        var obj = {
+        Account:email,
+        Token:data_token,
+        Secret:data_secret,
+        project_name: data_project_name,
+
+     };
+    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj));
+    // what to return in order to show download window?
+
+    el.setAttribute("href", "data:"+data);
+    el.setAttribute("download","data_token_secret.json");
+    
+  }   
+   });
+  }
+  function my_project(){
+        // Using fetch and for loop function to list all the project list to show in the addable table from the lsit 
+        //addRow(); // Add row to show the latest project added on the list   
+        console.log("Open current token"); 
+
+ }
+  function addRow() {
+    
+    var main = $('.addMain').val(); // Get the value from the input data from project name 
+    var preferred = $('.addPrefer').val(); // Get the value from the input data from token 
+    var common = $('.addCommon').val(); // Get the value from the secret key 
+    //Fetching the input project variable to the back end and save in the data 
+    
+    console.log(main); // Getting the input fetching data 
+    //Fetch the data send back to the back end data 
+    email = document.getElementById("email").value
+    fetch('/tokengenerator', {
+
+          // Declare what type of data we're sending
+         headers: {
+         'Content-Type': 'application/json'
+       },
+
+      // Specify the method
+      method: 'POST',
+      // A JSON payload
+      body: JSON.stringify({
+        "project_name": String(main),"Email":String(email)
+      })
+    }).then(function (response) { // At this point, Flask has printed our JSON
+    return response.text();
+    }).then(function (text) {
+    console.log('POST response: ');
+         // Should be 'OK' if everything was successful
+    console.log(text); 
+    });
+
+    autoaddrow(); 
+    
+    //$(formatRows(main,preferred,common)).insertAfter('#addRow');
+    //$(input).val('');
+       
+    
+  }
+  function add_backup(){
+    fetch('/token_secret_key')
+    .then(function (response) {
+        return response.text();
+    }).then(function (text) {
+        var response = JSON.parse(text) 
+      if(response != {}){  
+        try{
+          email = document.getElementById("email").value 
+          account_list  = Object.keys(response) 
+          //console.log("Checking account",account_list);  
+                      
+          var data_token = response[email][0].split(".")[2];
+          var data_secret = response[email][1];
+          var data_project_name = response[email][2];  
+          document.getElementById("Project").value = data_project_name;
+          document.getElementById("Token").value = data_token; 
+          document.getElementById("Secret_key").value = data_secret;  
+          $(formatRows(data_project_name,data_token,data_secret)).insertAfter('#addRow');
+          $(input).val('');
+        }
+        catch{
+          console.log("pass error");
+        }
+          
+       }
+    });
+  }
+  function autoaddrow(){
+    
+    //Fetch this data from the back end 
+    fetch('/tokengenerator')
+           .then(function (response) {
+              return response.json(); // But parse it as JSON this time
+            })
+           .then(function (json) {
+           console.log('GET response as JSON:');
+           console.log(json); // Here’s our JSON object
+    //using the json from the fetching data to add into the current sample json 
+    data_key =  Object.keys(json); 
+    data_value = Object.values(json);
+    test_data = {} // Raw json data 
+    test_data[data_key[0]] = data_value[0]
+    console.log(test_data);
+    // Running the dictionary of the project and token and secret key data loop from the database loaded into the row adder  
+    console.log("API status",test_data)  
+    if(test_data != {}){
+    console.log(Object.keys(test_data),Object.keys(test_data).length);
+    var r = 0;
+    for(r >=0;r <= Object.keys(test_data).length-1;r++){
+           keys_data = Object.keys(test_data)[r]
+           token_data = test_data[Object.keys(test_data)[r]][0]; 
+           secret_data = test_data[Object.keys(test_data)[r]][1];
+           console.log(keys_data,test_data[Object.keys(test_data)[r]][0],test_data[Object.keys(test_data)[r]][1]);
+          
+           //console.log("Display the data of token and secret key of project",keys_data);
+           // Send the same request
+           fetch('/token_secret_key')
+    .then(function (response) {
+        return response.text();
+    }).then(function (text) {
+        //console.log('GET response text:');
+        //console.log(text); // Print the greeting as text
+        var token_secret_key = JSON.parse(text);
+        email = document.getElementById("email").value // Getting the email account to verify the data of the secret key token that send in json 
+       
+        console.log("Get back end message",token_secret_key);
+        console.log("Token,scretkey",token_secret_key[email])
+        var data_token = token_secret_key[email][0].split(".")[2];
+        var data_secret = token_secret_key[email][1];
+        var data_project_name = token_secret_key[email][2];  
+        document.getElementById("Project").value = data_project_name;
+        document.getElementById("Token").value = data_token; 
+        document.getElementById("Secret_key").value = data_secret;  
+         $(formatRows(data_project_name,data_token,data_secret)).insertAfter('#addRow');
+         $(input).val('');
+           //console.log(Object.keys(test_data)[r]);
+           //console.log(keys_data,test_data[Object.keys(test_data)[r]][0],test_data[Object.keys(test_data)[r]][1]); 
+    
+          });
+    };
+    
+  }
+  if(test_data == {}){
+
+          alert("Getting started with your project please generate token and secret key");   
+  }
+ 
+    })
+  
+    
+
+  }
+  $('.addBtn').click(function()  {
+    addRow();
+  });
+       </script> 
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>  
+       <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
+        
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+        
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        
+        // When the user clicks the button, open the modal 
+        btn.onclick = function() {
+          modal.style.display = "block";
+        }
+        
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+          modal.style.display = "none";
+        }
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
+        </script>
+       
+      <script>
+        function readURL(input) {
+           if (input.files && input.files[0]) {
+               var reader = new FileReader();
+               reader.onload = function(e) {
+                   $('#imagePreview').css('background-image', 'url('+e.target.result +')');
+                   $('#imagePreview').hide();
+                   $('#imagePreview').fadeIn(650);
+               }
+       
+               reader.readAsDataURL(input.files[0]);
+           }
+       }
+       
+       $("#imageUpload").change(function() {
+           readURL(this);
+       });
+       </script>
+       <script type="text/javascript"> 
+     
+      const togglePassword = document.querySelector('#togglePassword');
+      const password = document.querySelector('#Secret_key');
+      
+      togglePassword.addEventListener('click', function (e) {
+      // toggle the type attribute
+      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+      password.setAttribute('type', type);
+      // toggle the eye slash icon
+      this.classList.toggle('fa-eye-slash');
+      
+});
+
+    </script> 
+     <script>
+      //Fetching current json connection from the  link API 
+     function features_data_category(){
+      fetch('/features_category')
+            .then(function (response) {
+            return response.text();
+        }).then(function (text) {
+        var response = JSON.parse(text) 
+        if(response != {}){  
+              console.log("Software features data",response);
+              email = document.getElementById("email").value 
+              console.log("Features data of account",email);
+              console.log(response[email]) 
+    //delete json;          
+    var json = response[email]
+    
+    //var json = {'category': [{'title': 'Roboreactor', 'items': [{'title': 'face_recog_1  ======> 127.0.0.1,0,5080,5081,Non'}, {'title': 'Servo_control_2  ======> 127.0.0.1,5081,I2C,2'}]}]};
+    function expander(){
+        var tree = document.querySelectorAll('ul.tree a:not(:last-child)');
+
+    for(var i = 0; i < tree.length; i++){
+        tree[i].addEventListener('click', function(e) {
+            var element = e.target.parentElement; //actually this is just the elem itself
+            var parent = element.parentElement
+
+            var opensubs = parent.querySelectorAll(':scope .open');
+            console.log(opensubs);
+            var classList = element.classList;
+            if(opensubs.length !=0) {
+                    for(var i = 0; i < opensubs.length; i++){
+                    opensubs[i].classList.remove('open');
+                }
+            } 
+                classList.add('open');
+
+        });
+    }
+    }
+$(function(){
+		var tree = $("ul.tree");
+    $.each(json.category,function(category){
+    	var categoryValue = json.category[category];
+    	tree.append('<li><a href="#">'+categoryValue.title+'</a><ul></ul></li>');
+      var el = tree.children("li").children("ul");
+      $.each(categoryValue.items,function(itemId){
+      	var item = categoryValue.items[itemId];
+        $(el[category]).append('<li><a href="#">'+item.title+'</a></li>');
+        if(item.thirditems){
+        	$(el[category]).children("li").append('<ul></ul>');
+          var el1 = el.children("li").children("ul");
+          $.each(item.thirditems,function(thirdItemId){
+            var thirdItem = item.thirditems[thirdItemId];
+            console.log(el1[itemId]);
+           $(el1[itemId]).append('<li><a href="#">'+thirdItem.title+'</a><ul></ul></li>');
+          });
+        }
+       
+      });
+    });
+    expander();
+    
+});
+ };
+});
+}
+ //End of fetching data here inside the function of the data fetching from the back end server 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    </script>
+    <script>
+// Get the modal
+var sbc_modal = document.getElementById("sbc_modal");
+
+// Get the button that opens the modal
+var btn_sbc = document.getElementById("sbc_data");
+
+var code_flow_data = document.getElementById("code_flow_gen");
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close1")[0];
+
+// When the user clicks the button, open the modal 
+btn_sbc.onclick = function() {
+  sbc_modal.style.display = "block";
+}
+code_flow_data.onclick = function() {
+  //Add the argument parameter for the code gen to know the code position to send the data into the project components 
+  //Getting the modal pop up  to get the host name selected to open the data with complete link 
+
+  window.location ='https://roboreactor.com/code_gen'
+}
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  sbc_modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == sbc_modal) {
+    sbc_modal.style.display = "none";
+  }
+}
+
+
+
+
+
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function openComponents(evt, cityName) {
+  var i, tabcontent1, tablinks1;
+  tabcontent1 = document.getElementsByClassName("tabcontent1");
+  for (i = 0; i < tabcontent1.length; i++) {
+    tabcontent1[i].style.display = "none";
+  }
+  tablinks1 = document.getElementsByClassName("tablinks1");
+  for (i = 0; i < tablinks1.length; i++) {
+    tablinks1[i].className = tablinks1[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function openModel(evt, cityName) {
+  var i, tabcontent2, tablinks2;
+  tabcontent2 = document.getElementsByClassName("tabcontent2");
+  for (i = 0; i < tabcontent2.length; i++) {
+    tabcontent2[i].style.display = "none";
+  }
+  tablinks2 = document.getElementsByClassName("tablinks3");
+  for (i = 0; i < tablinks2.length; i++) {
+    tablinks2[i].className = tablinks2[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function openModel(evt, cityName) {
+  var i, tabcontent3, tablinks4;
+  tabcontent3 = document.getElementsByClassName("tabcontent3");
+  for (i = 0; i < tabcontent3.length; i++) {
+    tabcontent3[i].style.display = "none";
+  }
+  tablinks4 = document.getElementsByClassName("tablinks3");
+  for (i = 0; i < tablinks4.length; i++) {
+    tablinks4[i].className = tablinks4[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function openupload(evt, cityName) {
+  var i, tabcontent3, tablinks4;
+  tabcontent3 = document.getElementsByClassName("tabcontent3");
+  for (i = 0; i < tabcontent3.length; i++) {
+    tabcontent3[i].style.display = "none";
+  }
+  tablinks4 = document.getElementsByClassName("tablinks3");
+  for (i = 0; i < tablinks4.length; i++) {
+    tablinks4[i].className = tablinks4[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KGJLJB0CMY">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KGJLJB0CMY');
+</script>
+</html>

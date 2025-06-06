@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="utf-8">
+  <title>Roboreactor image slider</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="static/slider_auto_turnpic.css">
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #slider {
+      display: flex;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <main>
+  <!--<div id="slider">-->
+    <div class="slides-container">
+      <div class="slides-inner">
+        <div class="slide"><img src="static/Cad_ed.png"></div>
+        <div class="slide"><img src="static/3Dprint_part.jpg"></div>
+        <div class="slide"><img src="static/Catbot3_photo.jpg"></div>
+        <div class="slider"><img src="static/Cat_bot_dash_board.jpg"></div>
+
+      </div>
+    </div>
+  
+</main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.2.6/Draggable.min.js'></script>
+  <script src="static/slider_ad_script.js"></script>
+</body>
+</html>

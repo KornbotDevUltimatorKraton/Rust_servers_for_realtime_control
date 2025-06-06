@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Components 3D viewer</title>
+        <link rel="icon" type="image/png" href="../static/favicon.png">
+        <input type="hidden" id="email_data" value="{{component_profile}}">
+        <input type="hidden" id="projectname" value="{{Project_name}}">
+        <input type="hidden" id="component_select" value="{{Component_selected}}">
+        <input type="hidden" id="Filenametd" value="{{filenametd}}">
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>--> 
+        <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+        
+        
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+            #my-gui-container {
+            position: absolute;
+           top: 70px;
+           left: 10px;
+           z-index: 10;
+        } 
+        </style>
+       <style>
+        body {font-family: Arial, Helvetica, sans-serif;}
+        
+        /* The Modal (background) */
+        .modal {
+          display: none; /* Hidden by default */
+          position: fixed; /* Stay in place */
+          z-index: 1; /* Sit on top */
+          padding-top: 100px; /* Location of the box */
+          left: 0;
+          top: 0;
+          width: 100%; /* Full width */
+          height: 100%; /* Full height */
+          overflow: auto; /* Enable scroll if needed */
+          background-color: rgb(0,0,0); /* Fallback color */
+          background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        
+        /* Modal Content */
+        .modal-content {
+          background-color: #fefefe;
+          margin: auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%;
+        }
+        
+        /* The Close Button */
+        .close {
+          color: #aaaaaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+        
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+        /* Style the tab */
+        .tab {
+          overflow: hidden;
+          border: 1px solid #ccc;
+          background-color: #f1f1f1;
+        }
+        
+        /* Style the buttons inside the tab */
+        .tab button {
+          background-color: inherit;
+          float: left;
+          border: none;
+          outline: none;
+          cursor: pointer;
+          padding: 14px 16px;
+          transition: 0.3s;
+          font-size: 17px;
+        }
+        
+        /* Change background color of buttons on hover */
+        .tab button:hover {
+          background-color: #ddd;
+        }
+        
+        /* Create an active/current tablink class */
+        .tab button.active {
+          background-color: #ccc;
+        }
+        
+        /* Style the tab content */
+        .tabcontent {
+          display: none;
+          padding: 6px 12px;
+          border: 1px solid #ccc;
+          border-top: none;
+        }
+        </style>
+    </head>
+
+<body>
+    
+    
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+          <!--<span class="close">&times;</span>-->
+          <div class="tab">
+          <button class="tablinks" onclick="uploadfile(event, 'upload_file')">Upload 3D model file</button>
+          
+          </div>
+          
+          <div id="upload_file" class="tabcontent">
+            <p>Upload 3d model file .wrl / .glb </p>
+            <form method='POST' enctype='multipart/form-data'>
+                {{form.hidden_tag()}}
+                {{form.file()}}
+                {{form.submit()}}
+            </form>
+           
+          </div>
+          
+         
+      
+      
+        </div>
+      
+      </div>
+      <div id="mi-modal" class="modal">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete this component from project?</h4>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" id="modal-btn-si">Yes</button>
+              <button type="button" class="btn btn-primary" id="modal-btn-no">No</button>
+            </div>
+          </div>
+        </div>
+    </div> 
+    <div id="funcdat"></div>
+    <div id="Components_function"></div>
+    <div id="category_com"></div>
+    <div id="deletecom"></div>
+    <!--Loading the high resolution of the circuit module inside the list-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.161.0/three.module.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/three-orbitcontrols@2.110.3/OrbitControls.js" type="text/javascript"></script>
+    <script src="static/VRMLLoader.js"></script>
+    <script src="static/WebGL.js"></script>
+
+    <canvas id="renderCanvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js" type="text/javascript"></script>
+   
+   
+    <script>
+        
+        var canvas = document.getElementById("renderCanvas");
+        
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3(0.8,0.8,0.8);
+            //Adding a light
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(10, 10, 10), scene);
+        
+            var groundMat = new BABYLON.PBRMaterial("groundMat", scene);
+            groundMat.albedoColor  = new BABYLON.Color4(10, 10, 10, 1);
+            groundMat.metallic = 0;
+            groundMat.roughness = 0.4;
+            groundMat.environmentIntensity = 0;
+            
+            
+            //Adding an Arc Rotate Camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0, -10, BABYLON.Vector3(0,0,-10), scene);
+            camera.attachControl(canvas, false);
+        
+            // The first parameter can be used to specify which mesh to import. Here we import all meshes
+           // BABYLON.SceneLoader.ImportMesh("", "/static/", "Mechanum_upgrade_edited.gltf", scene, function (newMeshes) {
+                // Set the target of the camera to the first imported mesh
+           //     camera.target = newMeshes[0];
+
+           // });
+        
+            // Move the light with the camera
+            scene.registerBeforeRender(function () {
+                light.position = camera.position;
+            });
+            scene.useRightHandedSystem = true;  
+            return scene;
+        }
+                window.initFunction = async function() {
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();};
+        initFunction().then(() => {sceneToRender = scene                    
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+   
+   <script>
+
+        email_data = document.getElementById("email_data").value
+        project_name = document.getElementById("projectname").value 
+        component_name = document.getElementById("component_select").value 
+        file_name_data = document.getElementById("Filenametd").value
+        console.log('check_components_status',["Vision_system","Audio_system","Motion_system","Navigation_system","Sensor_array_to_image_system",'Single_Board_computer'].includes(component_name));
+        component_status = ["Vision_system","Audio_system","Motion_system","Navigation_system","Sensor_array_to_image_system",'Single_Board_computer'].includes(component_name)
+    if(component_status == true){    
+        console.log(email_data,project_name,component_name)
+        var current_components = []; 
+        var Componentsfunction = function(){
+                         this.functionapp = '';  // Get the function from the app to list the application functoin setting in the parts 
+                         this.messages =''; // Name the part 
+                         this.positioninput = '';  // Position input from the model 
+                         this.microdata = ''; // Get the microcontroller data 
+                         this.ic = ''; // Get the ic data from the list request ajax 
+                         this.materials = ''; // Get the materials data request ajax with the property in the json 
+                         this.Imagesensor = ''; // Get the image sensor data request ajax 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Main components system 
+                         this.Vision_system = '';
+                         this.Audio_system = '';
+                         this.Motion_system = '';
+                         this.Navigation_system = ''; 
+                         this.Sensor_array_to_image_system = ''; 
+                         this.Single_Board_computer ='';
+                         this.delete_parts = 'Non-select'; 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Subsystem function of the category 
+                         this.motion_driver_board = '';
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         this.Acousticsense  = ''; // Get the acoustic sensor list 
+                         this.AcousticAmp = ''; // Get the Acoustic amplifier ic data in the list request from ajax 
+                         this.Sensearray = ''; //Get the sensers arraya request ajax data 
+                         this.Sensorpartsdata = ''; // Get the sensers array data for diferent type of the sensor 
+                         this.SenseSpec = ''; // Getting the sensor specification and communication function 
+                         this.SenseCommunic = ''; //Getting the sensor communications pins out 
+                         this.Computeronboard  = ''; //Get the computer on-board list from the ajax 
+                         this.Navigationsense = ''; //Get the Navigation sensor data list from ajax 
+                         this.CellularLTEmod = ''; //Get the celllular LTE module from the list ajax request
+                         this.Batterylist = '';  //Get the battery list from the ajax request 
+                         this.BMSmod = ''; //Get the batter list from the ajax 
+      
+            }; 
+            var componentsdat = new Componentsfunction();
+            var funcdataset = document.querySelector('#funcdat');
+            var comfunc = document.querySelector('#Components_function');
+            var catecom = document.querySelector('#category_com');    
+            var deletecomps = document.querySelector('#deletecom');
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //Camera GUI function 
+
+        var settings = {
+             project_name: project_name,
+             Camera_module:"Non-select",    
+             Roboreactorhome: function() 
+             { 
+                 window.location = "https://roboreactor.com/login";
+             },
+             Remove_components: function() //Remote this components from the list of the project by fetching the data the back end 
+             { 
+                //The component will be collect from each of the data of components selected from project 
+               console.log("Remove this components combobox selection")
+               //Add the combobox function here 
+               //Fetch the account and component with the component category into the back-end to remove the components  
+               var modal_2 = document.getElementById("mi-modal");
+               modal_2.style.display="block"; 
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               var modalConfirm = function(callback){
+
+               $("#modal-btn-si").on("click", function(){
+               callback(true);
+                console.log("Confirm delete command"); 
+                alert("Deleted : successfully!");
+                //Getting the project fetch to back end from here 
+                console.log({"email": String(email_data),"category":component_name,"project_name":project_name})
+                                                     
+                fetch('/Current_part', {
+                     // Declare what type of data we're sending
+                     headers: {
+                         'Content-Type': 'application/json'
+                    },
+                // Specify the method
+                method: 'POST',
+                // A JSON payload
+                //Fetch the temporaly database of the api database to remove the data from the link inside the server and remove the component from the reference 
+                //Fetching data 
+                
+                body: JSON.stringify({
+
+                          "email": String(email_data),"project_name":project_name,"category":component_name
+                })
+                }).then(function (response) { // At this point, Flask has printed our JSON
+                return response.text();
+                }).then(function (text) {
+                console.log('POST response: ');
+                  // Should be 'OK' if everything was successful
+                  console.log(JSON.parse(text));
+
+
+                  var current_part_data = JSON.parse(text); 
+                  selected_component = current_part_data[email_data][project_name][component_name] 
+                fetch('/Delete_TDmodel', {
+                     // Declare what type of data we're sending
+                     headers: {
+                         'Content-Type': 'application/json'
+                    },
+                // Specify the method
+                method: 'POST',
+                // A JSON payload
+                //Fetch the temporaly database of the api database to remove the data from the link inside the server and remove the component from the reference 
+                //Fetching data 
+                
+                body: JSON.stringify({
+
+                          "email": String(email_data),"project_name":project_name,"category":document.getElementById('component_select').value,"components_data":selected_component
+                })
+                }).then(function (response) { // At this point, Flask has printed our JSON
+                return response.text();
+                }).then(function (text) {
+                console.log('POST response: ');
+                  // Should be 'OK' if everything was successful
+                  //Getting the json to create the list delete function on the model delete 
+                  console.log(JSON.parse(text));
+                  var web_asseet = JSON.parse(text)
+                  if(Object.keys(web_asseet) == "Message"){
+                             alert(Object.values(web_asseet));
+                             
+                  }       
+                  else{
+                    
+                      window.location = "https://roboreactor.com/Model_selected/"+email_data+"/"+project_name+"/"+document.getElementById("component_select").value+"/"+"Non"                  
+                }
+                });
+
+
+              });
+              });
+                $("#modal-btn-no").on("click", function(){
+                callback(false);
+                console.log("Delete command");
+                });
+               };
+                modalConfirm(function(confirm){
+               if(confirm){
+                //Acciones si el usuario confirma
+                console.log("Fetch data to delete project",confirm)
+                if(confirm == true){
+                      
+                }
+               }else{
+               //Acciones si el usuario no confirma
+               console.log("False return",confirm) // False return 
+               }
+               });    
+             },
+             Uploadfile: function(){
+                     //Open the modal function here inside the upload function 
+               console.log("Modal upload file");
+               var modal_2 = document.getElementById("myModal");
+               modal_2.style.display="block"; 
+               var span_2 = document.getElementsByClassName("close");
+               span_2.onclick = function() {
+                       modal_2.style.display = "none";
+               }    
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+                  
+             
+             }
+            };
+            
+            var gui = new dat.GUI(); 
+            var customContainer = document.getElementById('my-gui-container');
+            
+            gui.add(settings, 'project_name').onChange(function (value) {
+                 
+                         
+            });  
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //Post request project name
+            console.log("Project file name",file_name_data)
+           
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //Getting the list camera from the back-end directory 
+            //Fetch the back-end data from component_3d_file
+            fetch('/component_3d_file')
+                      .then(function (response) {
+                      return response.text();
+
+            }).then(function (text) {
+               console.log('GET response text:');
+               console.log(text); // Print the greeting as text
+               data_3d_file = JSON.parse(text); //Getting the 3d file json 
+               console.log("Getting current 3D file list",data_3d_file); 
+               TD_file_name = [];
+               var tr =0; 
+               for(tr >=0;tr<=data_3d_file[component_name].length;tr++){
+                       try {
+
+                           if(data_3d_file[component_name][tr].split(".glb").length == 2){
+                                TD_file_name.push(data_3d_file[component_name][tr].split(".glb")[0]);
+                           }
+                           
+                           if(data_3d_file[component_name][tr].split(".gltf").length == 2){
+                                TD_file_name.push(data_3d_file[component_name][tr].split(".gltf")[0]);
+                           }
+                       }
+                       catch{
+                           console.log("File not found");
+                       }
+               }
+
+               console.log(String(component_name),data_3d_file[component_name]); 
+               //list_camera = ['Non-select','Raspberrypi_camera_module', 'Jetson_dev_kits_camera_module', 'Fisher_lens_camera', 'Raspberry_pi_camera_3.6MM_lens']
+               list_components = data_3d_file[component_name]
+               list_components.unshift('Non-select');
+               TD_file_name.unshift('Non-select');
+               list_filename = TD_file_name
+               console.log(list_filename);
+               Name_components = {'Vision_system':'Camera_modules','Audio_system':'Audio_components','Motion_system':'Motion_board','Navigation_system':'Navigation_components','Sensor_array_to_image_system':'Sensor_array_components','Single_Board_computer':'SBC_computer'}
+               var f1 = gui.add(componentsdat,component_name,list_filename).name(Name_components[component_name]);
+               f1.setValue("Non-select") 
+               f1.onChange(function(value){
+                   var funccom = funcdataset.style.componentsdat = value;            
+                   console.log(component_name,funccom);
+                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                   //Sending the fetch data 
+                   //Sending by Components_request data 
+                   //Getting the information of the input data to setting the category for the button 
+                   list_categories = Object.keys(Name_components)
+                   function_category = {'Vision_system':['5MPX','8MPX','12MPX'],'Motion_system':['I2C','Serial','UART','PWM','Aanalog'],'Navigation_system':['I2C','Serial','UART']}
+                   var select_spec_type = {'Vision_system':'Resolution','Motion_system':'communication','Navigation_system':'communication'}
+                   //Check if data is in list ['a', 'b', 'c'].includes('b') logic boolean true or false 
+                   listof_object = Object.keys(function_category);
+                   if(listof_object.includes(component_name) == true){
+                          console.log("Category:",component_name)
+                          list_communication = function_category[component_name] 
+                          list_communication.unshift('Non-select'); 
+                          var fc = gui.add(componentsdat,component_name,list_communication).name(select_spec_type[component_name]+'_'+component_name)
+                          fc.setValue('Non-select')                         
+                          fc.onChange(function(value){
+                             var category_component = catecom.style.componentsdat = value; 
+                             send_complete_info = {'email':email_data,'project_name':project_name,'category_component':component_name,'component_selected':funccom,'components_spec_data':category_component} 
+                             console.log(send_complete_info); 
+                             // you can adding the more component data and description of the pins and function inside this category 
+                             //fetch post the data into the back end for the component add into the project 
+                             //Project component will get the current component selected with the specification detail predata on the selection back to the system core 
+                             //System core will be using this data to communicate with the configuretion code automatically at the client side
+                             fetch('/project_components', {
+                                // Declare what type of data we're sending
+                                headers: {
+                                     'Content-Type': 'application/json' 
+                                },
+                            // Specify the method
+                            method: 'POST',
+                           // A JSON payload
+                           body: JSON.stringify(send_complete_info) 
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                            // Should be 'OK' if everything was successful
+                            console.log(text);
+                            console.log("component_project_select",JSON.parse(text));
+                       });   
+                        })  
+                   }
+                   //Rendering selected model
+                   var canvas = document.getElementById("renderCanvas");
+                   
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+        
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3(0.8,0.8,0.8);
+            //Adding a light
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(10, 10, 10), scene);
+        
+            var groundMat = new BABYLON.PBRMaterial("groundMat", scene);
+            groundMat.albedoColor  = new BABYLON.Color4(10, 10, 10, 1);
+            groundMat.metallic = 0;
+            groundMat.roughness = 0.4;
+            groundMat.environmentIntensity = 0;
+           
+            
+            //Adding an Arc Rotate Camera
+            var camera = new BABYLON.ArcRotateCamera("camera", 4.712, 1.571, 0.17, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(scene.getEngine().getRenderingCanvas());
+            camera.minX = 0.01;
+            camera.maxX = 0.01;
+            camera.minZ = 0.1;
+            camera.maxZ = 1009;
+            camera.lowerRadiusLimit = 0.01;
+            camera.upperRadiusLimit = 5;
+            camera.wheelPrecision = 100;            
+            camera.attachControl(canvas, false);
+            //camera.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
+            // The first parameter can be used to specify which mesh to import. Here we import all meshes
+            BABYLON.SceneLoader.ImportMesh("", "/static/Components_assets/"+component_name+"/", funccom+".glb", scene, function (newMeshes) {
+                // Set the target of the camera to the first imported mesh
+                camera.target = newMeshes[0];
+                camera.parent = newMeshes[0]; 
+                var a1 = meshes[0];
+                a1.setEnabled(false);
+                var a2 = meshes[1];
+                a2.position = a2.getBoundingInfo().boundingBox.centerWorld.scale(-1);
+                a2.computeWorldMatrix(true);
+               
+            });
+                         
+            // Move the light with the camera
+            scene.registerBeforeRender(function () {
+                light.position = camera.position;
+            });
+
+            scene.useRightHandedSystem = true;
+            return scene;
+        }
+                window.initFunction = async function() {
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();};
+        initFunction().then(() => {sceneToRender = scene                    
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+                 /*    
+                   fetch('/components_request', {
+                        // Declare what type of data we're sending
+                        headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Specify the method
+                    method: 'POST',
+                    // A JSON payload  Sending the email account and component selected
+                    body: JSON.stringify({
+                        "email": String(email_data),"project_name":project_name,"category_component":component_name,"components_selected":funccom            
+                    
+                    })
+
+}).then(function (response) { // At this point, Flask has printed our JSON
+return response.text();
+}).then(function (text) {
+
+console.log('POST response: ');
+
+// Should be 'OK' if everything was successful
+console.log(text);
+});
+*/
+
+                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
+               });   
+               
+               var f3 = gui.addFolder('Upload file');
+               f3.add(settings,'Uploadfile').name('Upload file'); 
+               var f4 = gui.addFolder('Roboreactor Home'); 
+               f4.add(settings, 'Roboreactorhome').name('Home profile');
+               f4.close();
+               //Remove component from the list of combobox the component will be extract from the components_project_load database inside the mysql 
+               var f5 = gui.addFolder("Remove components") 
+               f5.add(settings, 'Remove_components').name('Remove components')
+               
+
+        });  
+            //End of fetching data here 
+    }
+function Tdmodel_display(component_name,funccom){
+      //Rendering selected model
+      var canvas = document.getElementById("renderCanvas");
+                   
+
+                   var startRenderLoop = function (engine, canvas) {
+                       engine.runRenderLoop(function () {
+                           if (sceneToRender && sceneToRender.activeCamera) {
+                               sceneToRender.render();
+                           }
+                       });
+                   }
+                   
+                   var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+                   var createScene = function () {
+                       var scene = new BABYLON.Scene(engine);
+                       scene.clearColor = new BABYLON.Color3(0.8,0.8,0.8);
+                       //Adding a light
+                       var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(10, 10, 10), scene);
+                   
+                       var groundMat = new BABYLON.PBRMaterial("groundMat", scene);
+                       groundMat.albedoColor  = new BABYLON.Color4(10, 10, 10, 1);
+                       groundMat.metallic = 0;
+                       groundMat.roughness = 0.4;
+                       groundMat.environmentIntensity = 0;
+                       
+                       
+                       //Adding an Arc Rotate Camera
+                       var camera = new BABYLON.ArcRotateCamera("camera", 4.712, 1.571, 0.17, BABYLON.Vector3.Zero(), scene);
+                       camera.attachControl(scene.getEngine().getRenderingCanvas());
+                       camera.minX = 0.01;
+                       camera.maxX = 0.01;
+                       camera.minZ = 0.1;
+                       camera.maxZ = 1009;
+                       camera.lowerRadiusLimit = 0.01;
+                       camera.upperRadiusLimit = 5;
+                       camera.wheelPrecision = 100;            
+                       camera.attachControl(canvas, false);
+                       //camera.mode = BABYLON.Camera.PERSPECTIVE_CAMERA;
+                       // The first parameter can be used to specify which mesh to import. Here we import all meshes
+                       BABYLON.SceneLoader.ImportMesh("", "/static/Components_assets/"+component_name+"/", funccom+".glb", scene, function (newMeshes) {
+                           // Set the target of the camera to the first imported mesh
+                           camera.target = newMeshes[0];
+                           camera.parent = newMeshes[0]; 
+                           var a1 = meshes[0];
+                           a1.setEnabled(false);
+                           var a2 = meshes[1];
+                           a2.position = a2.getBoundingInfo().boundingBox.centerWorld.scale(-1);
+                           a2.computeWorldMatrix(true);
+                       });
+                   
+                       // Move the light with the camera
+                       scene.registerBeforeRender(function () {
+                           light.position = camera.position;
+                       });
+                       scene.useRightHandedSystem = true; 
+                       return scene;
+                   }
+                           window.initFunction = async function() {
+                               
+                               
+                               var asyncEngineCreation = async function() {
+                                   try {
+                                   return createDefaultEngine();
+                                   } catch(e) {
+                                   console.log("the available createEngine function failed. Creating the default engine instead");
+                                   return createDefaultEngine();
+                                   }
+                               }
+           
+                               window.engine = await asyncEngineCreation();
+                   if (!engine) throw 'engine should not be null.';
+                   startRenderLoop(engine, canvas);
+                   window.scene = createScene();};
+                   initFunction().then(() => {sceneToRender = scene                    
+                   });
+                   
+                   // Resize
+                   window.addEventListener("resize", function () {
+                       engine.resize();
+                   });
+}
+// Load the components selected for the project you are going to use this will be important when you load your product to add the components you have been selected to contruct the function of the code 
+function Send_components_feedback(email_data,project_name,partname,component_name,funccom){
+
+    fetch('/components_request', {
+                        // Declare what type of data we're sending
+                        headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Specify the method
+                    method: 'POST',
+                    // A JSON payload  Sending the email account and component selected
+                    body: JSON.stringify({
+                        "email": String(email_data),"project_name":project_name,"component_category":component_name,"components_selected":funccom,"part_name":partname            
+                    })
+
+}).then(function (response) { // At this point, Flask has printed our JSON
+return response.text();
+}).then(function (text) {
+
+console.log('POST response: ');
+
+// Should be 'OK' if everything was successful
+console.log(text);
+});
+
+}
+
+
+//False detection that out fit the components inside the list will be here to load the model from the project 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    if(component_status == false){
+        console.log("Getting the componens load from the project data fetching");
+        
+        console.log(email_data,project_name,component_name)
+        var current_components = []; 
+        var Componentsfunction = function(){
+                         this.functionapp = '';  // Get the function from the app to list the application functoin setting in the parts 
+                         this.messages =''; // Name the part 
+                         this.positioninput = '';  // Position input from the model 
+                         this.microdata = ''; // Get the microcontroller data 
+                         this.ic = ''; // Get the ic data from the list request ajax 
+                         this.materials = ''; // Get the materials data request ajax with the property in the json 
+                         this.Imagesensor = ''; // Get the image sensor data request ajax 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Main components system 
+                         this.Components_part = '';
+                         this.Vision_system = '';
+                         this.Audio_system = '';
+                         this.Motion_system = '';
+                         this.Navigation_system = ''; 
+                         this.Sensor_array_to_image_system = ''; 
+                         this.Single_Board_computer ='';
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         this.Acousticsense  = ''; // Get the acoustic sensor list 
+                         this.AcousticAmp = ''; // Get the Acoustic amplifier ic data in the list request from ajax 
+                         this.Sensearray = ''; //Get the sensers arraya request ajax data 
+                         this.Sensorpartsdata = ''; // Get the sensers array data for diferent type of the sensor 
+                         this.SenseSpec = ''; // Getting the sensor specification and communication function 
+                         this.SenseCommunic = ''; //Getting the sensor communications pins out 
+                         this.Computeronboard  = ''; //Get the computer on-board list from the ajax 
+                         this.Navigationsense = ''; //Get the Navigation sensor data list from ajax 
+                         this.CellularLTEmod = ''; //Get the celllular LTE module from the list ajax request
+                         this.Batterylist = '';  //Get the battery list from the ajax request 
+                         this.BMSmod = ''; //Get the batter list from the ajax 
+                          
+            }; 
+
+            var componentsdat = new Componentsfunction();
+            var funcdataset = document.querySelector('#funcdat');
+            var comfunc = document.querySelector('#Components_function')
+            
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        //Camera GUI function 
+
+        var settings = {
+             project_name: project_name,
+             Camera_module:"Non-select",    
+             Roboreactorhome: function() 
+             { 
+                 window.location = "https://roboreactor.com/login";
+             },
+             Remove_project:function() // Successfully remove data 
+             {
+
+                 //fetch the data from the project list components     
+                 console.log("Fetching to remove this project");
+                 //$("#mi-modal").modal('show');
+               var modal_2 = document.getElementById("mi-modal");
+               modal_2.style.display="block"; 
+               // When the user clicks anywhere outside of the modal, close it
+               window.onclick = function(event) {
+               if (event.target == modal_2) {
+                      modal_2.style.display = "none";
+               }      
+               } 
+               var modalConfirm = function(callback){
+
+               $("#modal-btn-si").on("click", function(){
+               callback(true);
+                console.log("Confirm delete command"); 
+                alert("Deleted : ",project_name," successfully!");
+                //Getting the project fetch to back end from here 
+                fetch('/Delete_projects', {
+                     // Declare what type of data we're sending
+                     headers: {
+                         'Content-Type': 'application/json'
+                    },
+                // Specify the method
+                method: 'POST',
+                // A JSON payload
+                body: JSON.stringify({
+                          "email": String(email_data),"project_name":project_name
+                })
+                }).then(function (response) { // At this point, Flask has printed our JSON
+                return response.text();
+                }).then(function (text) {
+                console.log('POST response: ');
+                  // Should be 'OK' if everything was successful
+                  console.log(JSON.parse(text));
+                  current_data_update = JSON.parse(text); //Getting the update deleted list 
+                  window.location = "https://roboreactor.com/login";
+               });
+            
+              });
+                $("#modal-btn-no").on("click", function(){
+                callback(false);
+                console.log("Delete command");
+                });
+               };
+                modalConfirm(function(confirm){
+               if(confirm){
+                //Acciones si el usuario confirma
+                console.log("Fetch data to delete project",confirm)
+                if(confirm == true){
+                      
+                }
+               }else{
+               //Acciones si el usuario no confirma
+               console.log("False return",confirm) // False return 
+               }
+               });
+             }
+
+            };
+            
+            var gui = new dat.GUI(); 
+            var customContainer = document.getElementById('my-gui-container');
+            gui.add(settings, 'project_name').onChange(function (value) {
+                
+                         
+            });  
+           
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            //Getting the list camera from the back-end directory 
+            //Fetch the back-end data from component_3d_file
+            fetch('/project_classification')
+                    .then(function (response) {
+                    return response.text();
+               }).then(function (text) {
+               var response = JSON.parse(text) 
+               if(response != {}){  
+                 //console.log("Software features data",response);
+                 var json = response[email_data];
+                 console.log(json,project_name);  //list the matching components inside the project
+                 console.log(json['category'])
+                 var proj =0;
+                 Re_group_project_features = {} // Getting the regroup project feature 
+                 selected_grouping_features = {} 
+                 for(proj >=0;proj<=json['category'].length-1;proj++){
+                               console.log(json['category'][proj]); 
+                               if(json['category'][proj]['title'] == project_name ){
+                                             Re_group_project_features[json['category'][proj]['title']] = json['category'][proj]['items'] 
+                                             //Getting the regroup project check the input data and re-organize data 
+                                              
+                               
+                                }
+                 } 
+                 //Getting the components name to match the list of the components
+                 console.log(Re_group_project_features);
+                 list_component_group = [];
+                 specify_component_with_name = {};
+                 var comp = 0; 
+                 for(comp >=0; comp<=Re_group_project_features[project_name].length-1; comp++) {
+                          
+                          //console.log(Re_group_project_features[project_name][comp]['title'].split('======>')[0]);
+                          //console.log(String(Re_group_project_features[project_name][comp]['title']).split('======>')[0]);
+                          component_element = String(Re_group_project_features[project_name][comp]['title']).split('======>')[0].split("_")
+                          //console.log(component_element[0]+"_"+component_element[1]);            
+                          function_match_component = {'body_detect_pub':'Vision_system','face_recog':'Vision_system','Object_recognition_pub':'Vision_system','OCR_code_scanner_pub':'Vision_system','QR_code_scanner_pub':'Vision_system','Pose_detection_pub':'Vision_system','Speech_recognition':'Audio_system','tts':'Audio_system','GPRS_data':'Navigation_system','GPS_data':'Navigation_system','Lidar':'Navigation_system','BLDC_motor_control':'Motion_system','DC_motor_control':'Motion_system','Servo_control':'Motion_system','Stepper_motor_control':'Motion_system','Sensor_array':'Sensor_array_to_image_system'}
+                          Name_components = {'Vision_system':'Camera_modules','Audio_system':'Audio_components','Motion_system':'Actuator_components','Navigation_system':'Navigation_components','Sensor_array_to_image_system':'Sensor_array_components','Single_Board_computer':'Single_Board_computer'}
+                          if(list_component_group.includes(component_element[0]+"_"+component_element[1]) == false){
+                               console.log(String(Re_group_project_features[project_name][comp]['title']),component_element.length)
+                               if(component_element.length == 2){                    
+                                  list_component_group.push(component_element[0]+"_"+component_element[1])
+                                  specify_component_with_name[String(Re_group_project_features[project_name][comp]['title']).split('======>')[0]] = component_element[0]+"_"+component_element[1]
+                               }
+                               if(component_element.length == 3){                    
+                                  list_component_group.push(component_element[0]+"_"+component_element[1])
+                                  specify_component_with_name[String(Re_group_project_features[project_name][comp]['title']).split('======>')[0]] = component_element[0]+"_"+component_element[1]
+                               }
+                               if(component_element.length == 4){
+                                   list_component_group.push(component_element[0]+"_"+component_element[1]+"_"+component_element[2])
+                                   specify_component_with_name[String(Re_group_project_features[project_name][comp]['title']).split('======>')[0]] = component_element[0]+"_"+component_element[1]+"_"+component_element[2]
+                               }
+                            
+                  }
+                 }  
+                 // Get the list of the component from the system to using the function as components search 
+                 console.log('Function to components',specify_component_with_name);
+                 console.log('Object_keys',Object.keys(specify_component_with_name))
+                 /*
+                 var dm =0; 
+                 for(dm >=0; dm <= Object.keys(specify_component_with_name).length-1;dm++){
+                        match_components = specify_component_with_name[Object.keys(specify_component_with_name)[dm]] 
+                        module_components = function_match_component[match_components]
+                        console.log(module_components)
+                
+                 }
+                 */
+                 var f0 = gui.addFolder('Select_part_from_functions'); 
+                 list_specify = Object.keys(specify_component_with_name)
+                 var fd = f0.add(componentsdat,'Components_part',list_specify).name("Select_components");
+                 fd.setValue("Non-select");
+                 fd.onChange(function(value){
+                         var component_function = comfunc.style.componentsdat = value;            
+                         console.log(component_function);
+                         match_components = specify_component_with_name[component_function] 
+                         module_components = function_match_component[match_components]
+                         console.log("Getting the component category name",module_components,Name_components[module_components])
+                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                fetch('/component_3d_file')
+                      .then(function (response) {
+                      return response.text();
+
+            }).then(function (text) {
+               console.log('GET response text:');
+               console.log(text); // Print the greeting as text
+               data_3d_file = JSON.parse(text); //Getting the 3d file json 
+               console.log("Getting current 3D file list",data_3d_file); 
+               TD_file_name = [];
+               var tr =0; 
+               for(tr >=0;tr<=data_3d_file[module_components].length;tr++){
+                       try {
+
+                           if(data_3d_file[module_components][tr].split(".glb").length == 2){
+                                TD_file_name.push(data_3d_file[module_components][tr].split(".glb")[0]);
+                           }
+                           
+                           if(data_3d_file[module_components][tr].split(".gltf").length == 2){
+                                TD_file_name.push(data_3d_file[module_components][tr].split(".gltf")[0]);
+                           }
+                       }
+                       catch{
+                           console.log("File not found");
+                       }
+               }
+              
+               console.log(String(module_components),data_3d_file[module_components]); 
+               //list_camera = ['Non-select','Raspberrypi_camera_module', 'Jetson_dev_kits_camera_module', 'Fisher_lens_camera', 'Raspberry_pi_camera_3.6MM_lens']
+               list_components = data_3d_file[module_components]
+               list_components.unshift('Non-select');
+               TD_file_name.unshift('Non-select');
+               list_filename = TD_file_name
+               console.log(list_filename);
+               //component_function
+               var f1 = f0.add(componentsdat,module_components,list_filename).name(component_function);
+               eval("f1.setValue('Non-select')") 
+               f1.onChange(function(value){
+                   var funccom = funcdataset.style.componentsdat = value;            
+                   console.log(project_name,component_function,module_components,funccom);
+                   Tdmodel_display(module_components,funccom)
+                   Send_components_feedback(email_data,project_name,component_function,module_components,funccom)
+                  
+                }); 
+
+            });
+                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            });
+
+        };
+      });
+            //Running the variable replace dynamically in the *component_name variable
+      var f3 = gui.addFolder('Roboreactor Home'); 
+      f3.add(settings, 'Roboreactorhome').name('Home profile');
+      f3.close();
+            //End of fetching data here 
+      //Remove the component by requesting the components from the project for the customer data 
+      var f4 = gui.addFolder('Remove this project'); 
+      f4.add(settings,'Remove_project').name('Remove_project'); // This will link with the project features data  
+      
+    }
+
+        //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
+// update display outside of gui
+// http://workshop.chromeexperiments.com/examples/gui/#10--Updating-the-Display-Manually
+</script>
+
+<script>
+    function uploadfile(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+</script>
+
+</body>
+
+</html>

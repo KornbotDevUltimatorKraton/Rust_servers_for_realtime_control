@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+   
+<head>
+ <title>Video Stream</title>
+ <input type="hidden" id="video_frame" value="{{video_realtime}}">
+</head>
+<body>
+ <img id="image" alt="Video Stream">
+ <script>
+ // Update the image every 500 milliseconds
+ setInterval(function() { 
+ var image_frame = document.getElementById("video_frame").value; //Get the data of the file name from the back end of the server 
+ console.log("Frame name data",image_frame);
+ var  email_splitter =  String(image_frame).split("_")[String(image_frame).split("_").length-1];
+ console.log("Email_data",email_splitter); 
+ //Check the fetch data of the 
+ fetch('/Check_frame_existance', {
+
+             // Declare what type of data we're sending
+             headers: {
+                 'Content-Type': 'application/json'
+            },
+          // Specify the method
+          method: 'POST',
+          // A JSON payload 
+          body: JSON.stringify({
+                      "email": email_splitter // report email data data and check the project name 
+          })
+          }).then(function (response) { // At this point, Flask has printed our JSON
+          return response.text();
+          }).then(function (text) {
+           console.log('POST response: ');
+           // Should be 'OK' if everything was successful
+           var check_frame_exist = JSON.parse(text);   
+           console.log(check_frame_exist,typeof(check_frame_exist));
+
+           document.getElementById("image").src = "../static/Real_time_image/"+image_frame+".jpg?" + new Date().getTime();
+          });     
+ }, 75);
+
+ </script>
+</body>
+</html>
+

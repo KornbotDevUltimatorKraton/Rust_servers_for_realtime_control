@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js webgl - GLTFloader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="../static/main.css">
+	<input type="hidden" id="email_account" value="{{userdata}}"> <!--get hte email data-->
+    <input type="hidden" id="projectname" value = {{projectnamedata}}> <!--get the project name-->
+  	<input type="hidden" id="category_comps" value="{{category_components}}"> <!--Get the components name input data-->
+  <input type="hidden" id="components_category" value="{{components}}">
+  <!--<link rel="stylesheet" href="static/modeluploader.css">-->
+     <!--Adding the notify-->
+     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script> 
+    
+
+</head>
+<style>
+    #my-gui-container {
+            position: absolute;
+           top: 70px;
+           left: 10px;
+           z-index: 10;
+    } 
+    
+</style>
+<style>
+    .toast-slider {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      max-width: 300px;
+      overflow: hidden;
+      z-index: 9999;
+    }
+
+    .toast-slider .toast {
+      cursor: pointer;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #333;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .toast-slider .toast:hover {
+      background-color: #555;
+    }
+
+    .scrollable-content {
+      max-height: 100px; /* Adjust as needed */
+      overflow-y: auto;
+    }
+</style>
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+  }
+
+  .container {
+      text-align: center;
+  }
+  .upload-box {
+            border: 2px dashed #007bff;
+            padding: 30px;
+            border-radius: 10px;
+            background-color: #fff;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .upload-box.drag-over {
+            background-color: #f1f1f1;
+        }
+
+        .upload-box p {
+            font-size: 16px;
+            color: #007bff;
+        }
+
+        #upload-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #upload-button:hover {
+            background-color: #0056b3;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+            font-weight: bold;
+        }
+  /* Button style */
+  .btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  }
+
+  .btn:hover {
+      background-color: #0056b3;
+  }
+
+  /* Modal styles */
+  .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      overflow: auto;
+      padding-top: 60px;
+      transition: all 0.3s ease;
+  }
+
+  .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 600px;
+      position: relative;
+  }
+
+  /* Close button on the left */
+  .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      left: 25px; /* Moved to the left side */
+      transition: color 0.3s;
+      cursor: pointer;
+  }
+
+  .close:hover,
+  .close:focus {
+      color: #000;
+      text-decoration: none;
+  }
+
+  /* Responsive design */
+  @media (max-width: 600px) {
+      .modal-content {
+          width: 90%;
+      }
+  }
+</style>
+<body>
+
+<!-- Import maps polyfill -->
+<!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js" type="text/javascript"></script>
+ <!-- Modal -->
+ <div id="myModal" class="modal">
+  <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span> <!-- Close button on left -->
+      <!--Add the drop box upload file data -->
+      <div class="upload-box" id="drop-area">
+        <p>Drag & Drop files here or click to select files</p>
+        <input type="file" id="file-input" class="file-input" multiple>
+    </div>
+    <div id="file-name" class="file-name"></div>
+    <button id="upload-button" disabled onclick="closeModal();">Upload</button>   
+  </div>
+</div>
+
+
+
+
+<script type="module">
+
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.114.0/build/three.module.js';
+	  import { GUI } from '../static/jsm/libs/lil-gui.module.min.js';
+    import { OrbitControls } from '../static/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from '../static/jsm/loaders/GLTFLoader.js';
+    import { RGBELoader } from '../static/jsm/loaders/RGBELoader.js';
+    let camera, scene, renderer, controls;
+    var email = document.getElementById("email_account").value; 
+    var project_name = document.getElementById("projectname").value; 
+    console.log("Components_account ",email);
+    
+    var settings = {
+             category_data: document.getElementById('projectname').value,
+             githubtok: '', //Get the github token api 
+             onshape_link:'',  // Get the onshape 
+             onshape_id_doc:{}, // Store current project id of onshape
+             sub_component: [], // List of predefined colors
+             host_list: [], //Get all host list 
+             current_host:{}, //Get the selected host name 
+             current_i2c: {}, //Current i2c select 
+             current_serial:{}, //Current serial select
+             type_components: [], //Get the list of the sub components file
+             sub_components: [],
+             protocol_com: ["I2C","SPI","UART","serial"] ,
+             currentcom_protocol:{},
+             selected_protocol: [],
+             current_protocol: [],
+             quantity_device: '',//Get the quantity of the device of the components into the data of the components assembly
+             gittoken_store:{},
+               
+
+    }
+ 
+    var comp_catdata = document.getElementById("category_comps").value; 
+    settings['category_data'] = comp_catdata; //Get the category data for the component
+    var selected_compoonent = document.getElementById("components_category").value;      
+    settings['comp_selected'] = selected_compoonent; //Get the selected component 
+    init();
+    render();
+    function fetching_logic_selection(endpoint,email,project_name,logic_state){
+           //Fetching the logic data and components posting data processing 
+           console.log('Fetching the logic and components loader data');
+           fetch('/'+endpoint, {
+
+                  // Declare what type of data we're sending
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                 // Specify the method 
+                 method: 'POST',
+                // A JSON payload
+                body: JSON.stringify({
+                   "email": email,'project_name':project_name,'logic_state':logic_state,'prop_loader':settings['comp_selected']
+                })
+                }).then(function (response) { // At this point, Flask has printed our JSON
+                return response.text();
+                }).then(function (text) {
+                console.log('POST response: ');
+                  // Should be 'OK' if everything was successful
+                      var payload_logic = JSON.parse(text); 
+                      console.log('Logic output data: ',payload_logic); //Get the logic output data state 
+
+                });
+    }
+    function init() {
+        
+        console.log(email,typeof(email));
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+
+        scene = new THREE.Scene();
+        /*
+        var ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Ambient light
+        scene.add(ambientLight);
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Directional light
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        */
+      //'studio_small_03_4k.hdr' 
+		new RGBELoader()
+            .setPath('../static/textures/equirectangular/')
+            
+            .load('room_hdr.hdr', function (texture) {
+
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+
+                scene.background = texture;
+                scene.environment = texture;
+
+                render();
+                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                //Load the components data of the 3D model input 
+                //GUI jason management 
+                var Componentsfunction = function(){
+                         this.functionapp = '';  // Get the function from the app to list the application functoin setting in the parts 
+                         this.messages =''; // Name the part 
+                         this.positioninput = '';  // Position input from the model 
+                         this.microdata = ''; // Get the microcontroller data 
+                         this.ic = ''; // Get the ic data from the list request ajax 
+                         this.materials = ''; // Get the materials data request ajax with the property in the json 
+                         this.Imagesensor = ''; // Get the image sensor data request ajax 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Main components system 
+                         this.Vision_system = '';
+                         this.Audio_system = '';
+                         this.Motion_system = '';
+                         this.Navigation_system = ''; 
+                         this.Sensor_array_to_image_system = ''; 
+                         this.Single_Board_computer ='';
+                         this.delete_parts = 'Non-select'; 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Subsystem function of the category 
+                         this.motion_driver_board = '';
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         this.Acousticsense  = ''; // Get the acoustic sensor list 
+                         this.AcousticAmp = ''; // Get the Acoustic amplifier ic data in the list request from ajax 
+                         this.Sensearray = ''; //Get the sensers arraya request ajax data 
+                         this.Sensorpartsdata = ''; // Get the sensers array data for diferent type of the sensor 
+                         this.SenseSpec = ''; // Getting the sensor specification and communication function 
+                         this.SenseCommunic = ''; //Getting the sensor communications pins out 
+                         this.Computeronboard  = ''; //Get the computer on-board list from the ajax 
+                         this.Navigationsense = ''; //Get the Navigation sensor data list from ajax 
+                         this.CellularLTEmod = ''; //Get the celllular LTE module from the list ajax request
+                         this.Batterylist = '';  //Get the battery list from the ajax request 
+                         this.BMSmod = ''; //Get the batter list from the ajax 
+                         
+            }; 
+            var projectname = document.getElementById('projectname').value;
+            console.log("Projectname: ",projectname); //Get the project name
+            
+         
+            
+            
+           
+            var gui = new dat.GUI(); 
+            var customContainer = document.getElementById('my-gui-container');
+            //Text input data 
+            gui.add(settings, 'category_data').name("Category").onChange(function (value) {
+                        console.log("Curent category data: ",value);                  
+            });  
+            
+            ///*
+            fetch('/prop_selector',{
+                // Declare what type of data we're sending
+                     headers: {
+                    'Content-Type': 'application/json'
+               },
+               // Specify the method
+                method: 'POST',
+               // A JSON payload
+              body: JSON.stringify({
+              "email": email,"project_name":projectname,"category":settings['category_data']
+          })
+          }).then(function (response) { // At this point, Flask has printed our JSON
+         return response.text();
+         }).then(function (text) {
+          console.log('POST response: ');
+          var directory_subfile = JSON.parse(text); 
+
+          console.log("keydata",email,projectname,settings['category_data']);
+          
+          console.log("Sub file data: ",directory_subfile[email]); 
+        //  */
+          //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+          
+            //Auto selected component by AI here
+            /*  
+                scene.remove(...scene.children);
+                var ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Ambient light
+                scene.add(ambientLight);
+                var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Directional light
+                directionalLight.position.set(1, 1, 1);
+                scene.add(directionalLight);
+                //console.log("Split subfile components",word_ninja(subfile)); //Get the sub file data 
+                var path_model  = '../static/Prop_components/'+email.split(".com")[0]+'/'+projectname+'/'+settings['category_data']+'/'
+                console.log("Path model file ",path_model); //Get the path model file 
+                const loader = new GLTFLoader().setPath(path_model);
+                loader.load(String('Steel_Shelf_Rack.gltf'), function (gltf) {
+                
+                    const model = gltf.scene;
+                    scene.add(model);
+                    // Calculate the bounding box of the model
+                    const boundingBox = new THREE.Box3().setFromObject(model);
+                    const center = boundingBox.getCenter(new THREE.Vector3());
+                    const size = boundingBox.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+				          	console.log("Boundary size of the 3d model ",boundingBox);
+                    console.log("Components_account_data ",email);
+                    
+
+                    // Calculate the distance for the camera based on the size of the model
+                    const distance = maxDim * 4;
+                    // Set camera position to orbit around the center of the model
+                    camera.position.copy(center);
+                    camera.position.z += distance;
+                    camera.lookAt(center);
+                    // Set up OrbitControls
+                    controls = new OrbitControls(camera, renderer.domElement);
+                    controls.addEventListener('change', render); // use if there is no animation loop
+                    controls.minDistance = 0.05 * distance;
+                    controls.maxDistance = 10 * distance;
+                    controls.target.copy(center);
+                    document.addEventListener('mousedown', onMouseDown, false);
+                    // Create a raycaster
+                    const raycaster = new THREE.Raycaster();
+                    const mouse = new THREE.Vector2();
+                    function onMouseDown(event) {
+                     // Calculate mouse position in normalized device coordinates
+                     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+                     // Update the picking ray with the camera and mouse position
+                     raycaster.setFromCamera(mouse, camera);
+                     console.log("mouse_position", mouse.x,mouse.y); 
+                     console.log("Load model into the main scene");
+                     //Fetching the component devices data 
+                     // Calculate objects intersecting the picking ray
+                     const intersects = raycaster.intersectObjects(scene.children);
+                     console.log("Intersect data ",intersects); 
+                     // Log the first intersected object
+                     if (intersects.length > 0) {
+                        console.log('Intersected object:', intersects[0].object);
+                     }
+                   }
+                    render();
+
+            }); 
+            */ 
+            settings['selected_area'] = function(){
+                    console.log("Select this prop part")
+            }
+           
+          //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+          gui.add(settings,'sub_component',directory_subfile[email]).name("components").onChange(function (value){
+                console.log("Sub components: ",value); 
+                //Load the 3D components part into the 3D loader scene 
+                scene.remove(...scene.children);
+                var ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Ambient light
+                scene.add(ambientLight);
+                var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Directional light
+                directionalLight.position.set(1, 1, 1);
+                scene.add(directionalLight);
+                //console.log("Split subfile components",word_ninja(subfile)); //Get the sub file data 
+                var path_model  = '../static/Prop_components/'+email.split(".com")[0]+'/'+projectname+'/'+settings['category_data']+'/'
+                console.log("Path model file ",path_model); //Get the path model file 
+                settings['current_path'] = path_model; //Get the current path store 
+                settings['current_comps'] = String(value); // Get the current components data 
+                const loader = new GLTFLoader().setPath(path_model);
+                loader.load(String(value), function (gltf) {
+                    settings['selected_prop'] = value; //Get the selected prop data  
+                    const model = gltf.scene;
+                    scene.add(model);
+                    // Calculate the bounding box of the model
+                    const boundingBox = new THREE.Box3().setFromObject(model);
+                    const center = boundingBox.getCenter(new THREE.Vector3());
+                    const size = boundingBox.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+				          	console.log("Boundary size of the 3d model ",boundingBox);
+                    console.log("Components_account_data ",email);
+                    
+
+                    // Calculate the distance for the camera based on the size of the model
+                    const distance = maxDim * 4;
+                    // Set camera position to orbit around the center of the model
+                    camera.position.copy(center);
+                    camera.position.z += distance;
+                    camera.lookAt(center);
+                    // Set up OrbitControls
+                    controls = new OrbitControls(camera, renderer.domElement);
+                    controls.addEventListener('change', render); // use if there is no animation loop
+                    controls.minDistance = 0.05 * distance;
+                    controls.maxDistance = 10 * distance;
+                    controls.target.copy(center);
+                    document.addEventListener('mousedown', onMouseDown, false);
+                    // Create a raycaster
+                    const raycaster = new THREE.Raycaster();
+                    const mouse = new THREE.Vector2();
+                    function onMouseDown(event) {
+                     // Calculate mouse position in normalized device coordinates
+                     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+                     // Update the picking ray with the camera and mouse position
+                     raycaster.setFromCamera(mouse, camera);
+                     console.log("mouse_position", mouse.x,mouse.y); 
+                     console.log("Load model into the main scene");
+                     //Fetching the component devices data 
+                     // Calculate objects intersecting the picking ray
+                     const intersects = raycaster.intersectObjects(scene.children);
+                     console.log("Intersect data ",intersects); 
+                     // Log the first intersected object
+                     if (intersects.length > 0) {
+                        console.log('Intersected object:', intersects[0].object);
+                     }
+                   }
+                    render();
+
+                    });
+            });
+            settings['upload_file'] = function(){
+                   console.log('Uplaod file ');
+            }
+            var upload_file = gui.addFolder("Upload model")
+
+            var upload_button = upload_file.add(settings,'upload_file').name('Upload file').onChange(function(upload_model){
+                    console.log('Upload File',upload_model);
+                    notify_data('success','Upload file'); 
+                    //Open the modal hear 
+                    openModal();
+            })
+            upload_file.open(); //Open folder of the upload button
+            var deletefile = gui.addFolder("Delete model"); 
+            settings['deletefiledat'] = function(){
+                    console.log("Delete_file");
+            }
+            deletefile.add(settings,'deletefiledat').name('Delete file').onChange(function(deletefile){
+                    console.log("Delete model file",settings['current_path'],settings['current_comps']); // Delete the file deatures 
+                    //Fetch the data to delete at the back-end 
+                    fetch('/delete_prop_model', {
+                       // Declare what type of data we're sending
+                       headers: {
+                              'Content-Type': 'application/json'
+                       },
+                      // Specify the method   
+                      method: 'POST',
+                     // A JSON payload 
+                     body: JSON.stringify({
+                        "email": email,"project_name":project_name,"path_model":settings['current_path'],"model_name":settings['current_comps'] 
+                     })
+                     }).then(function (response) { // At this point, Flask has printed our JSON
+                     return response.text(); 
+                    }).then(function (text) {
+                    console.log('POST response: ');
+                   // Should be 'OK' if everything was successful
+                   var model_delete_status = JSON.parse(text); //Delete the model data delete 
+                   console.log("Delete the model components status: ",model_delete_status); 
+                   location.reload(); // Reload the page  
+                   });
+            }) 
+            deletefile.open(); //Open the folder node to delete the file 
+            settings['quantity'] = '';
+            gui.add(settings,'quantity').name('Quantity').onChange(function(quant_value){
+                       console.log('Quantity data: ',quant_value);
+                       settings['store_quanyity'] = quant_value;
+            });
+
+            gui.add(settings,'selected_area').name('Select this').onChange(function(value){
+               console.log('Select this area'); 
+               notify_data('success','Select '+settings['selected_prop']); 
+               //Fetching the data to the logic back-end to processing the part selected into the scene of the main 3D navigation system 
+               
+               
+               fetch('/get_logic_command', {
+                     // Declare what type of data we're sending
+                     headers: {
+                              'Content-Type': 'application/json'
+                     },
+                     // Specify the method 
+                     method: 'POST',                 
+                     // A JSON payload
+                     body: JSON.stringify({
+                            "email": email,'project_name':project_name,'logic_state':'True','category':settings['category_data'],'prop_loader':settings['selected_prop'],'quantity':parseInt(settings['store_quanyity'])
+                    })
+                    }).then(function (response) { // At this point, Flask has printed our JSON
+                    return response.text();
+                    }).then(function (text) {
+                    console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                    var payload_logic = JSON.parse(text); 
+                    console.log('Logic output data: ',payload_logic); //Get the logic output data state 
+                    
+                });
+               
+            })
+            
+                 
+          });
+        
+            
+            });
+       
+         
+         
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        container.appendChild(renderer.domElement);
+
+        window.addEventListener('resize', onWindowResize);
+
+    }
+    
+function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  }
+  // Get the modal element
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        render();
+
+    }
+
+    function render() {
+
+        renderer.render(scene, camera);
+
+    }
+   
+
+</script>
+<script>
+  var email = document.getElementById("email_account").value; 
+  var project_name = document.getElementById("projectname").value; 
+  var comp_catdata = document.getElementById("category_comps").value; 
+  const dropArea = document.getElementById('drop-area');
+  const fileInput = document.getElementById('file-input');
+  const uploadButton = document.getElementById('upload-button');
+  const fileNameDisplay = document.getElementById('file-name');
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadButton = document.getElementById('upload-button');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    let fileSelected = false; // Flag to prevent duplicate triggers
+
+    // Handle drag and drop
+    dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropArea.classList.add('drag-over');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('drag-over');
+    });
+
+    dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropArea.classList.remove('drag-over');
+        if (!fileSelected) {
+            fileInput.files = e.dataTransfer.files;
+            fileSelected = true;  // Mark file as selected
+            displayFileName();
+        }
+    });
+
+    // Open file input when drop area is clicked
+    dropArea.addEventListener('click', () => {
+        if (!fileSelected) {
+            fileInput.click();
+        }
+    });
+
+    // Handle file input change
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            fileSelected = true;  // Mark file as selected
+            displayFileName();
+        }
+    });
+
+    // Display the selected file name
+    function displayFileName() {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            fileNameDisplay.textContent = `Selected file: ${fileName}`;
+            uploadButton.disabled = false;  // Enable the upload button
+        } else {
+            fileNameDisplay.textContent = '';
+            uploadButton.disabled = true;  // Disable the upload button
+            fileSelected = false;  // Reset flag if no file is selected
+        }
+    }
+
+    // Handle file upload
+    uploadButton.addEventListener('click', () => {
+        if (fileInput.files.length > 0) {
+            // Fetch input values dynamically (to ensure updated values)
+            const email = document.getElementById("email_account").value; 
+            const project_name = document.getElementById("projectname").value; 
+            const comp_catdata = document.getElementById("category_comps").value; 
+
+            const formData = new FormData();
+            for (let file of fileInput.files) {
+                formData.append('file', file);
+            }
+
+            // Add email, project_name, and comp_catdata to formData
+            formData.append('email', email);
+            formData.append('project_name', project_name);
+            formData.append('comp_catdata', comp_catdata);
+
+            fetch('/upload_prop', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    return response.json();  // Parse the JSON response
+                } else {
+                    throw new Error('Failed to upload the file.');
+                }
+            }).then(data => {
+                console.log('File uploaded successfully!', data);
+                notify_data('success', 'File uploaded successfully!');
+                fileInput.value = ''; // Clear the input after upload
+                uploadButton.disabled = true;
+                fileNameDisplay.textContent = ''; // Clear the file name
+                fileSelected = false;  // Reset the flag after successful upload
+                location.reload();
+
+            }).catch((error) => {
+                console.error('Error during upload:', error);
+                notify_data('error', 'Error during upload.');
+            });
+        }
+    });
+});
+
+
+  
+</script>
+<script>
+  function openModal() {
+      document.getElementById('myModal').style.display = 'block';
+  }
+
+  function closeModal() {
+      document.getElementById('myModal').style.display = 'none';
+  }
+
+  function triggerAction() {
+      alert('Action triggered!');
+      closeModal();
+  }
+
+  window.onclick = function(event) {
+      let modal = document.getElementById('myModal');
+      if (event.target === modal) {
+          closeModal();
+      }
+  }
+</script>
+<script>
+
+
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  } 
+  </script>
+</body>
+</html>

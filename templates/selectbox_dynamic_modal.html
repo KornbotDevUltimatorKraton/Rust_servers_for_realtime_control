@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stylish Modal with Select Box</title>
+  <style>
+    /* Modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      position: relative;
+      background-color: white;
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 50%;
+      height: 40%;
+      border-radius: 15px; /* Fillet the modal */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add shadow for better aesthetics */
+    }
+
+    /* Close button styling */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Style for the select box */
+    select {
+      margin-top: 20px; /* Space between description and select */
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+      border: 2px solid #007bff; /* Blue border */
+      border-radius: 5px; /* Rounded corners for the select box */
+      outline: none;
+      transition: box-shadow 0.3s ease; /* Smooth transition for glowing effect */
+    }
+
+    /* Glowing effect when hovering over the select box */
+    select:hover {
+      box-shadow: 0 0 10px 2px rgba(0, 123, 255, 0.8); /* Glowing blue light */
+    }
+
+    /* Optional: Glow effect on focus */
+    select:focus {
+      box-shadow: 0 0 15px 4px rgba(0, 123, 255, 0.8); /* Stronger glow when selected */
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal -->
+  <div id="resizableModal" class="modal">
+    <div id="modalContent" class="modal-content">
+      <span class="close-btn" onclick="closeModal()">×</span>
+
+      <!-- Shortened description -->
+      <p>Please select the protocol for components</p>
+
+      <!-- Dynamic Select Box -->
+      <select id="dynamicSelect" onchange="handleSelectChange()">
+        <option value="">-- Select Protocol --</option>
+      </select>
+      
+      <!-- Output for the selected option -->
+      <p id="output"></p>
+    </div>
+  </div>
+
+  <script>
+    // Example array of communication protocols
+    const optionsArray = ['I2C', 'SPI', 'UART', 'Serial','CAN'];
+
+    // Populate the select box dynamically
+    function populateSelectBox() {
+      const selectBox = document.getElementById('dynamicSelect');
+      optionsArray.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.text = option;
+        optionElement.value = option;
+        selectBox.add(optionElement);
+      });
+    }
+
+    // Function to handle select box change and display the selected option
+    function handleSelectChange() {
+      const selectedValue = document.getElementById('dynamicSelect').value;
+      document.getElementById('output').textContent = selectedValue ? `Selected: ${selectedValue}` : '';
+      console.log("Current selected value",selectedValue); 
+    }
+
+    // Function to open the modal and populate the select box
+    function openModal() {
+      const modal = document.getElementById("resizableModal");
+      populateSelectBox(); // Populate select box when modal opens
+      modal.style.display = "flex";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      const modal = document.getElementById("resizableModal");
+      modal.style.display = "none";
+    }
+
+    // Test function to open modal
+    openModal();
+  </script>
+</body>
+</html>

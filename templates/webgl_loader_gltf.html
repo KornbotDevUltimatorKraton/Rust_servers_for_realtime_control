@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js webgl - GLTFloader</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="../static/main.css">
+	<input type="hidden" id="email_account" value="{{userdata}}"> <!--get hte email data-->
+  <input type="hidden" id="projectname" value = {{projectnamedata}}> <!--get the project name-->
+  <input type="hidden" id="projectlistdat" value = {{project_listdat}}>
+	<input type="hidden" id="components_name" value="{{componentsname}}"> <!--Get the components name input data-->
+  <input type="hidden" id="components_category" value="{{componentscategory}}">
+  <input type='hidden' id="current_category" value="{{Current_sub_category}}"> <!--Get the current sub category-->
+  <input type='hidden' id="current_file" value="{{currentfile}}">
+  <!--<link rel="stylesheet" href="static/modeluploader.css">-->
+     <!--Adding the notify-->
+     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script> 
+    
+
+</head>
+<style>
+    #my-gui-container {
+            position: absolute;
+           top: 70px;
+           left: 10px;
+           z-index: 10;
+    } 
+    
+</style>
+<style>
+    .toast-slider {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      max-width: 300px;
+      overflow: hidden;
+      z-index: 9999;
+    }
+
+    .toast-slider .toast {
+      cursor: pointer;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #333;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .toast-slider .toast:hover {
+      background-color: #555;
+    }
+
+    .scrollable-content {
+      max-height: 100px; /* Adjust as needed */
+      overflow-y: auto;
+    }
+</style>
+<style>
+  /* Modal Styles */
+  .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+  }
+
+  /* Close Button */
+  .close {
+      color: #aaa;
+      float: right;
+      font-size: 18px;
+      font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+  }
+  .close2 {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+  }
+
+  .close2:hover,
+  .close2:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+  }
+</style>
+<style>
+  /* Modal styling */
+  .modal2 {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content2 {
+    position: relative;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Ensure content stays within modal bounds */
+  }
+
+  /* Close button styling */
+  .close-btn2{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  /* iFrame should fill the entire modal content area */
+  iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<body>
+
+<!-- Import maps polyfill -->
+<!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min.js" type="text/javascript"></script>
+ <!-- Modal -->
+ <div id="resizableModal" class="modal2">
+  <div id="modalContent" class="modal-content2" style="width: 70%; height: 70%;">
+    <span class="close-btn2" onclick="closeModal()">×</span>
+    <!-- iFrame inside the modal content -->
+    <iframe id="dynamicIframe" src=""  scrolling="yes" ></iframe>
+   
+  </div>
+</div>
+<div id="myModal" class="modal">
+ 
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h1>Upload your component model in glb or gltf</h1>
+   <!--<select id="selectBox">
+      <option value="Non-selected">Select category type</option>
+      <option value="Non-selected">Fetch category type </option>
+
+     
+    </select>
+    <select id="selectCom">
+      <option value="Component-communication">Select communication component type</option>
+      <option value="Non-selected">Fetch communication protocol </option>
+
+    </select>
+    Upload your component-->
+    <form method="post" enctype="multipart/form-data" onsubmit="return submitForm()">
+      
+      {{ form.csrf_token }}
+      <div>
+          {{ form.file.label }}
+          {{ form.file(onchange="updateFileName(this)") }}
+      </div>
+      <div>
+          {{ form.submit }}
+      </div>
+
+  </form>
+  <script>
+    function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  }
+    function updateFileName(input) {
+        var fileName = input.files[0].name;
+        console.log("Selected file:", fileName);
+        // Do whatever you need with the file name, like checking its existence
+        //Fetch the data of the directory at the back-end 
+        //Json structure to check existance {email:{"project_name":""}}
+        //Check the file extension data 
+        var emailaccount = document.getElementById('email_account').value;
+        var extension_type = ["gltf","glb"] //support file
+        var file_extension = fileName.split(".")[1];
+        //console.log(components_specification);
+        //components_specification['filename'] = fileName;
+
+        if(extension_type.includes(file_extension) == true){
+          //current_file = fileName;
+        document.getElementById('current_file').value = fileName.split(".")[0]  
+        var current_category_select = document.getElementById('current_category').value; 
+        console.log("Check category before upload: ",current_category_select);   
+        fetch('/project_file_existance', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+
+                 body: JSON.stringify({"email":emailaccount,"filename":fileName,"components_class":document.getElementById('current_category').value}) //Get the file name check existance 
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var file_existance = JSON.parse(text);
+                     console.log(file_existance); //Feth to save the project sub category 
+                     var list_check = Object.keys(file_existance);
+
+                     if(file_existance["notify"] == "warning"){
+                             console.log("Notify warning!")
+                             notify_data("warning","This file is already exist!");
+                     }
+                     if(file_existance["notify"] == "success"){
+                             console.log("Notify success!")
+                             notify_data("success",file_existance["status"]) 
+                     }
+                  
+        })
+        /*
+        fetch('/check_semantic_components_search', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+
+                 body: JSON.stringify({"email":emailaccount,"search_data":fileName,"components_class":document.getElementById('current_category').value})
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var reference_data = JSON.parse(text);
+                     console.log("Reference data semantic: ",reference_data);
+                     var logic = reference_data['logic']
+                     if(logic !=true){
+                           notify_data('warning','You may need to check specification or category of this component before upload.Please recheck name of your component');      
+                     }
+                     if(logic == true){
+                           notify_data('success','Component category and specification matching');
+                     }     
+                             
+                     
+                 });
+              */
+      
+      };
+      if(extension_type.includes(file_extension) != true){
+                    notify_data("error","File extension "+"."+file_extension+" is not support we only support gltf and glb file");
+      };
+      
+      
+    }
+  
+    //Return the submit form data to show the trigger send back data to the back-end 
+  function submitForm(){
+       console.log("Trigger to send data to back-end ");
+       //console.log("Class",components_specification); 
+       var current_class = document.getElementById('current_category').value;
+       notify_data('success','Uploading file please wait.You can upload again if fail');
+       //Before fetching check the input of the selection is in the category or not 
+       //Check that the components uploaded require only class or the component require communication protocol too 
+       
+       var currentfiledat = document.getElementById('current_file').value;
+       console.log("Current file: ",currentfiledat); 
+       var emailaccount = document.getElementById('email_account').value;
+
+       fetch('/get_subcatreload', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({'email':emailaccount,'filename':currentfiledat,'components_class':current_class})
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var components_spec = JSON.parse(text);
+                     console.log("Sub project category: ",components_spec); //Feth to save the project sub category 
+                     //components_specification = {}; //Clear all the selection components data of current selected components 
+                      
+        });     
+                     
+  }
+  </script>
+  </div>
+
+</div>
+<div id="pdfmodal" class="modal">
+
+<div class="modal-content">
+  <span class="close2">&times;</span>
+  <h1>Upload your PDF of components</h1>
+ <!-- <select id="select_category">
+    <option value="Non-selected">Components type </option>
+    <option value="Non-selected">Fetch components file </option>  
+  </select>-->
+  <form method="post" enctype="multipart/form-data" onsubmit="return pdfuploaderfile()">
+      
+    {{ form.csrf_token }}
+    <div>
+        {{ form.file.label }}
+        {{ form.file(onchange="updatePDFfile(this)") }}
+    </div>
+    <div>
+        {{ form.submit }}
+    </div>
+    </form>
+
+  </div>
+
+</div>
+</div>
+<script>
+  function updatePDFfile(input) {
+        var emailaccount = document.getElementById("email_account").value;  
+        var fileName = input.files[0].name;
+        console.log("Selected PDF file:", fileName);
+        var extension_pdf = ["pdf","PDF"] //Extension file of the pdf data 
+        //Extract the extension data features 
+        var extract_len_ext = fileName.split(".");
+        console.log("Length of the data: ",extract_len_ext,extract_len_ext.at(-1));
+        var file_pdfextension = extract_len_ext.at(-1)  //fileName.split(".")[1]; 
+        //console.log(components_specification);
+        //components_specification['filename'] = fileName;         
+        //Check the file name pdf 
+        console.log("Check PDF file extension ",file_pdfextension); 
+        if(extension_pdf.includes(file_pdfextension) == true){
+                      console.log("PDF file detected ");
+                      //Check the project file existance 
+              try{        
+                      fetch('/current_components', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({"email":emailaccount})
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var current_components_spec = JSON.parse(text);
+                     console.log("Current_project structure: ",current_components_spec); //Feth to save the project sub category 
+                     //components_specification = {}; //Clear all the selection components data of current selected components 
+                     //components_specification["project_structure"] = current_components_spec 
+                     //console.log("Current components: ",components_specification["project_structure"]); 
+                
+                      fetch('/document_file_existance',{
+                           headers: {
+                                'Content-Type': 'application/json'
+                           },
+                          // Specify the method
+                          method: 'POST', 
+                          // A JSON payload
+                         body: JSON.stringify({"email":emailaccount,"filename":fileName,"components_doc":current_components_spec}) //Get the file name check existance 
+                         }).then(function (response) { // At this point, Flask has printed our JSON
+                         return response.text();
+                         }).then(function (text) {
+                         console.log('POST response: ');
+                                var components_pdf = JSON.parse(text); //Get the json components text 
+                                console.log("Components_pdf match json pdf",components_pdf); // get the pdf to transfer to the server
+                                
+                      })
+                });   
+              }
+             catch{
+                   console.log("You haven't selected the 3D model component or specified the quantity to match the documentation.");
+                   notify_data('warning',"You haven't selected the 3D model component or specified the quantity to match the documentation."); 
+
+             }                          
+        }
+        if(extension_pdf.includes(file_pdfextension) == false){
+               notify_data("error","File extension"+"."+file_pdfextension+" is not support we only support pdf and PDF file");
+               
+        }
+
+    }
+
+</script>
+<script>
+  const userAgent = navigator.userAgent;
+  console.log("Detecting browser .... ",userAgent); 
+  fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": document.getElementById("email_account").value
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          document.getElementById('projectname').value = data_projectadd['project_name'];
+            
+    });
+    fetch('/components_loadfile', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": document.getElementById("email_account").value,"project_name":document.getElementById('projectname').value
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                                var request_com = JSON.parse(text); 
+                                console.log("Get the components requests",request_com);
+                                var comdatas_projs = request_com[document.getElementById("email_account").value]; 
+                                var rpj = 0; 
+                                console.log("Get list components ",comdatas_projs); 
+                                //console.log(settings['project_list']); 
+                                format_list = {"project_list":comdatas_projs}; 
+                                document.getElementById('projectlistdat').value = JSON.stringify(format_list); 
+                                console.log("new list ",format_list);
+    });                           
+    
+</script>
+<script type="module">
+
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.114.0/build/three.module.js';
+	  import { GUI } from '../static/jsm/libs/lil-gui.module.min.js';
+    import { OrbitControls } from '../static/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from '../static/jsm/loaders/GLTFLoader.js';
+    import { RGBELoader } from '../static/jsm/loaders/RGBELoader.js';
+
+    let camera, scene, renderer, controls;
+    var email = document.getElementById("email_account").value; 
+    var project_namesdat = document.getElementById('projectname').value;
+    var projectlist = JSON.parse(document.getElementById('projectlistdat').value)['project_list']
+    console.log("Components_account ",email);
+    
+    var settings = {
+             project_name: project_namesdat,
+             githubtok: '', //Get the github token api 
+             onshape_link:'',  // Get the onshape 
+             onshape_id_doc:{}, // Store current project id of onshape
+             project_list: projectlist, // List of predefined colors
+             host_list: [], //Get all host list 
+             current_host:{}, //Get the selected host name 
+             current_i2c: {}, //Current i2c select 
+             current_serial:{}, //Current serial select
+             type_components: [], //Get the list of the sub components file
+             sub_components: [],
+             protocol_com: ["I2C","SPI","UART","serial"] ,
+             currentcom_protocol:{},
+             selected_protocol: [],
+             current_protocol: [],
+             quantity_device: '',//Get the quantity of the device of the components into the data of the components assembly
+             gittoken_store:{},
+             currentprojectfile:[],  //Store the current project file 
+             Uploadfile: function(){
+                   console.log("Uploading the 3D model file");
+                    
+                   triggerButtonClick();
+                  
+                   
+             },
+             Uploadpdf: function(){
+                   console.log("Upload the pdf file");
+                  
+                   pdfcomponents(); 
+             },
+             Deleteproject: function(){
+                   console.log("Delete this project ",settings["project_name"]); 
+                  // delete_projectdir(settings["project_name"]);
+                 
+            notify_data("success","Delete current project",settings['project_name']);
+            var emaildat = document.getElementById("email_account").value;
+            settings['project_list'] = '';
+            fetch('/delete_project', {
+                       // Declare what type of data we're sending
+                       headers: {
+                          'Content-Type': 'application/json'
+                       },
+                       // Specify the method
+                      method: 'POST',
+                      // A JSON payload
+                      body: JSON.stringify({"email":emaildat,"project_name":settings["project_name"]})
+                      }).then(function (response) { // At this point, Flask has printed our JSON
+                      return response.text();
+                      }).then(function (text) {
+                      console.log('POST response: ');
+                      var delete_projdir = JSON.parse(text); 
+                      console.log("delete project directory ",delete_projdir);
+                        
+            });
+                   setTimeout(function() {
+                    location.reload()},3000); 
+             },
+             Deletefile: function(){
+                   console.log("Delete the this file ",settings["projectselected"]['sub_file']);
+                   delete_filename(settings["projectselected"]);
+                   notify_data('success','Delete '+settings["projectselected"]['sub_file']+" file");  
+                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                   //Fetching current file to delete in current selected status end-point 
+                   
+                   //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                   setTimeout(function() { 
+                   location.reload()},3000); 
+                   
+             },
+           
+             selectfile: function(){
+                //fetch data from the modal API input  
+                fetch('/components_selected', {
+                                              // Declare what type of data we're sending
+                                            headers: {
+                                                        'Content-Type': 'application/json'
+                                            },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify(settings['projectselected'])
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                           console.log('POST response: ');
+                                           var transfer_selected = JSON.parse(text); 
+                                           console.log("Transfer project selected ",transfer_selected[email]);
+                                           
+                    });
+                  
+
+
+             },
+             upload_host: function(){
+                 console.log("Upload the project into the single board computer");
+                 notify_data('success','Upload code to single board computer host');upload_host
+                 console.log("Added github into current project generator: ",settings['projectselected']); 
+                 var email = document.getElementById('email_account').value;
+                 var project_namesdat = document.getElementById('projectname').value;
+                 fetch('/upload_projectdata', {
+                                              // Declare what type of data we're sending
+                                            headers: {
+                                                        'Content-Type': 'application/json'
+                                            },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify({'email':email,'project_name':project_namesdat})
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                            console.log('Processing post request upload ....');
+                                            var project_upload  = JSON.parse(text); 
+                                            console.log("Project upload selected: ",project_upload); 
+                                            //Check the status of upload successful or fail uploading code hon the system 
+                                            //notify_data('warning','Fail upload code ');
+                    });
+
+             },
+             uploadgithub: function(){
+                  console.log("Upload code to github repository...");
+                  console.log("Current project name: ",settings['project_name'],settings['githubtok']);      
+                  notify_data('success','Upload code to your github '+settings['project_name']);
+                  //Fetch the data processing 
+                  fetch('/uploadgithubcode', {
+                                              // Declare what type of data we're sending
+                                            headers: {
+                                                        'Content-Type': 'application/json'
+                                            },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify({"email":email,"project_name":settings['project_name'],"Gittoken":settings['githubtok']})
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                            console.log('Github token processing ....');
+                                            var project_upload  = JSON.parse(text); 
+                                            console.log("gitdata: ",project_upload); 
+                                            //Check the status of upload successful or fail uploading code hon the system 
+                                            //notify_data('warning','Fail upload code ');
+                  });
+                    
+                    
+             },
+             downloadcode: function(){
+                  console.log("Download code generated from the server...");
+                  notify_data('success',"Download code project");
+             },
+             generatecodefunc: function(){
+                  console.log("Generate code from the components selected");
+                   //Fetch the data processing
+                   notify_data('success','Generating code for project ...'); 
+                  
+                   fetch('/generatecodeproject', {
+                                              // Declare what type of data we're sending
+                                            headers: {
+                                                        'Content-Type': 'application/json'
+                                            },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify({"email":email,"project_name":settings['project_name']})
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                            console.log('Generate code processing');
+                                            var project_upload  = JSON.parse(text); 
+                                            console.log("generate code: ",project_upload); 
+                                            //Check the status of upload successful or fail uploading code hon the system 
+                                            //notify_data('warning','Fail upload code ');
+                  });
+             },
+             generate_urdf_file: function(){
+                      console.log("Generate URDF file for the robotics and automation part motion and navigation control"); 
+                      console.log("Project ID function: ",settings['onshape_id_doc']); //Show the current project id data 
+                      //Fetch the project after hit the button 
+                      notify_data('sucess','Generate project ID:');
+             },
+             motioncontroller: function(){
+                        console.log("Activate the motion controller");
+                        var emailaccount = document.getElementById('email_account').value; 
+                        const encode_project = btoa(JSON.stringify({'email':emailaccount,'project_name':settings['project_name']}))
+                        //openModal("https://roboreactor.com/motion_control/"+encode_project,'700','400')
+             },
+             navigationsystem:function(){
+                        console.log("Navigation system");
+             },
+             physicsystem:function(){
+                         console.log("Physics simulation system");
+             }
+
+    }
+    //Fetch the data of the project name 
+    fetch('/current_projs', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                          var data_projectadd = JSON.parse(text);
+                          console.log("Get current project data",data_projectadd); 
+                          settings['project_name'] = data_projectadd['project_name']
+            
+    });
+    
+    //Fetch the data of the components loadfile 
+    fetch('/components_loadfile', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email,"project_name":project_namesdat
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                                var request_com = JSON.parse(text); 
+                                console.log("Get the components requests",request_com);
+                                var comdatas_projs = request_com[email]; 
+                                var rpj = 0; 
+                                console.log("Get list components ",comdatas_projs); 
+                                //console.log(settings['project_list']); 
+                                settings['project_list'] = comdatas_projs; 
+                                console.log("new list ",settings);
+    });                           
+    
+    init();
+    render();
+
+    function init() {
+        
+        console.log(email,typeof(email));
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+
+        scene = new THREE.Scene();
+        /*
+        var ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Ambient light
+        scene.add(ambientLight);
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Directional light
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        */
+		new RGBELoader()
+            .setPath('../static/textures/equirectangular/')
+            .load('room_hdr.hdr', function (texture) {
+
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+
+                scene.background = texture;
+                scene.environment = texture;
+
+                render();
+                //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                //Load the components data of the 3D model input 
+                //GUI jason management 
+                var Componentsfunction = function(){
+                         this.functionapp = '';  // Get the function from the app to list the application functoin setting in the parts 
+                         this.messages =''; // Name the part 
+                         this.positioninput = '';  // Position input from the model 
+                         this.microdata = ''; // Get the microcontroller data 
+                         this.ic = ''; // Get the ic data from the list request ajax 
+                         this.materials = ''; // Get the materials data request ajax with the property in the json 
+                         this.Imagesensor = ''; // Get the image sensor data request ajax 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Main components system 
+                         this.Vision_system = '';
+                         this.Audio_system = '';
+                         this.Motion_system = '';
+                         this.Navigation_system = ''; 
+                         this.Sensor_array_to_image_system = ''; 
+                         this.Single_Board_computer ='';
+                         this.delete_parts = 'Non-select'; 
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         //Subsystem function of the category 
+                         this.motion_driver_board = '';
+                         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                         this.Acousticsense  = ''; // Get the acoustic sensor list 
+                         this.AcousticAmp = ''; // Get the Acoustic amplifier ic data in the list request from ajax 
+                         this.Sensearray = ''; //Get the sensers arraya request ajax data 
+                         this.Sensorpartsdata = ''; // Get the sensers array data for diferent type of the sensor 
+                         this.SenseSpec = ''; // Getting the sensor specification and communication function 
+                         this.SenseCommunic = ''; //Getting the sensor communications pins out 
+                         this.Computeronboard  = ''; //Get the computer on-board list from the ajax 
+                         this.Navigationsense = ''; //Get the Navigation sensor data list from ajax 
+                         this.CellularLTEmod = ''; //Get the celllular LTE module from the list ajax request
+                         this.Batterylist = '';  //Get the battery list from the ajax request 
+                         this.BMSmod = ''; //Get the batter list from the ajax 
+                         
+            }; 
+            var projectname = document.getElementById('projectname').value;
+            console.log("Projectname: ",projectname); //Get the project name
+            settings['currentfile'] = {};  
+            
+            
+           
+            var gui = new dat.GUI(); 
+            var customContainer = document.getElementById('my-gui-container');
+            //Text input data 
+
+            gui.add(settings, 'project_name').listen();  
+            
+           try{
+            fetch('/getcomponents_info', {
+                                              // Declare what type of data we're sending
+                                            headers: {
+                                                        'Content-Type': 'application/json'
+                                            },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify({'email':email})
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                           console.log('POST response: ');
+                                           var com_protocol_selected = JSON.parse(text); 
+                                           console.log("Transfer project selected ",com_protocol_selected);
+                                           var hostname = Object.keys(com_protocol_selected);
+                                           if(hostname[0] != "status"){
+                                           var sbc =0; 
+                                           settings['host_list'] = hostname;
+                                           
+                                           /*
+                                           for(sbc >0; sbc < hostname.length;sbc++){
+                                                      
+                                                      console.log("Host added: ",settings.host_list.push(hostname[sbc]),hostname[sbc]);  
+                                                      console.log("List host in settings: ",settings.host_list);
+                                           }
+                                          */
+                                           ///*
+                                           var host_comp = gui.addFolder('Select your current host');
+                                           function clearSubNodes() {
+                                                                 // Remove all controllers from the folder except the dropdown
+                                                                  host_comp.__controllers.slice(1).forEach(controller => {
+                                                                  console.log("Controller list in selected host: ",controller); 
+                                                                  try{
+                                                                    console.log("Removing node ",controller); 
+                                                                     host_comp.remove(controller);
+                                                                  }
+                                                                  catch{
+                                                                        console.log("Error removing node");
+                                                                  }
+                                                           });
+                                                    }
+                                           host_comp.open();
+                                           host_comp.add(settings,'host_list',settings['host_list']).setValue('Non-select').name("Host list").onChange(function(hostselect){
+                                                     console.log("Host selected: ",hostselect); 
+                                                     //Add the folder
+                                                     settings['current_host'] = hostselect; 
+                                                     console.log("Get selected current ",settings['current_host']); 
+                                                     //Extract the device list communication protocol 
+                                                     var commu_compare = {"Camera_port":"Vision_system","I2C":"i2c_devices","serial":"serial_devices"}  
+                                                     var comlistdev = Object.keys(commu_compare); //Get the list of the communication device protocol 
+                                                     //Generate the list for the communication protcol in each 
+                                                     var internal_com = com_protocol_selected[settings['current_host']]
+                                                     console.log("Internal port: ",internal_com);
+                                                    
+                                                     clearSubNodes(); // Clear existing sub-nodes
+                                                     //Add setting data pot into the 
+                                               
+                                                     var camera_list = com_protocol_selected[settings['current_host']]['Vision_system']['camera_array']; 
+                                                     var i2c_list = com_protocol_selected[settings['current_host']]['i2c_devices']['I2C'];
+                                                     var serial_list = com_protocol_selected[settings['current_host']]['serial_devices']; 
+                                                     console.log("Camera list: ",camera_list); 
+                                                     console.log("I2C list: ",i2c_list); 
+                                                     console.log("Serial list: ",serial_list); 
+                                                     //Non select set default value
+                                                     settings['Camera_port'] ='Non-selected';
+                                                     settings['I2C'] = 'Non-selected';
+                                                     settings['serial'] = 'Non-selected';
+                                                     //Port list 
+                                                     settings['Camera_port'] = camera_list;
+                                                     settings['I2C'] = i2c_list; 
+                                                     settings['serial'] = serial_list; 
+                                                     //Set devault 
+                                                    
+                                                     
+                                                     var cameraselect = host_comp.add(settings,"Camera_port",camera_list).name("Camera_port").onChange(function(camera_port){
+                                                                                console.log("Select camera list",camera_port) 
+                                                                                settings['current_camera_port'] = camera_port; 
+                                                                                console.log('Get the current settings list: ',settings);
+                                                     });   
+                                                     cameraselect.setValue('Non-selected');       
+                                                     var i2cselect =   host_comp.add(settings,"I2C",i2c_list).name("I2C_port").onChange(function(i2cdev){
+                                                                                    
+                                                                                    console.log("Select I2C data: ",i2cdev);
+                                                                                    settings['current_i2c'] = i2cdev; 
+                                                                                    console.log('Get the current settings list: ',settings);
+
+                                                     });
+                                                     i2cselect.setValue('Non-selected');
+                                                     var serialselect = host_comp.add(settings,"serial",serial_list).name("Serial_port").onChange(function(serialdev){
+                                                                                  
+                                                                                  console.log("Select Serial data: ",serialdev);cameraselect
+                                                                                  settings['current_serial'] = serialdev; 
+                                                                                  console.log("Get the current settings list: ",settings);
+                                                     });
+                                                     serialselect.setValue('Non-selected');
+                                                     /*
+                                                     var rtc = 0; 
+                                                     for(rtc >0; rtc< comlistdev.length; rtc++){
+                                                              console.log("Current com device: ",comlistdev[rtc],commu_compare[comlistdev[rtc]]);
+                                                              if(comlistdev[rtc] == "Camera_port"){
+                                                                      console.log("Add the camera device: ",commu_compare,com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])  
+                                                                      console.log("Get current Camera port list: ",Object.values(com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])) 
+                                                                      settings[comlistdev[rtc]]= Object.values(com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])
+                                                                      console.log("Added current Camera port list: ",comlistdev[rtc],settings[comlistdev[rtc]])
+                                                                      console.log("Split the camera port data: ",settings[comlistdev[rtc]][0])
+                                                                      settings[comlistdev[rtc]][0].push('Non-select');
+                                                                      var cameraselect = host_comp.add(settings,comlistdev[rtc],settings[comlistdev[rtc]][0]).name(comlistdev[rtc]).onChange(function(camera_port){
+                                                                                   
+                                                                                    console.log("Camera port data: ",camera_port);
+                                                                                    settings['current_camera_port'] = camera_port; 
+                                                                                    console.log("Get the current settings list: ",settings);
+                                                                          
+                                                                      });
+                                                                     
+                                                              }  
+                                                              if(comlistdev[rtc] == "I2C"){
+                                                                      console.log("Add the I2C device list protocol: ",commu_compare,com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]]);   
+                                                                      //Add the function feature of the i2c list retrieve here 
+                                                                      console.log("Get current I2C list: ",Object.values(com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])); 
+                                                                      settings[comlistdev[rtc]]= Object.values(com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])
+                                                                      console.log("Added current i2c list: ",comlistdev[rtc],settings[comlistdev[rtc]])
+                                                                      settings[comlistdev[rtc]][0].push('Non-select');
+                                                                      var i2cselect = host_comp.add(settings,comlistdev[rtc],settings[comlistdev[rtc]][0]).name(comlistdev[rtc]).onChange(function(i2cdev){
+                                                                                    
+                                                                                    console.log("I2C data: ",i2cdev);
+                                                                                    settings['current_i2c'] = i2cdev; 
+                                                                                    console.log("Get the current settings list: ",settings);
+
+                                                                      });
+                                                                    
+                                                                      
+                                                              }              
+                                                              if(comlistdev[rtc] == 'serial'){
+                                                                      console.log("Add the serial list protocol",commu_compare,com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]]);
+                                                                      //Add the function feature of the serial list retrieve here 
+                                                                      console.log("Get current serial list: ", Object.keys(com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])); 
+                                                                      settings[comlistdev[rtc]]= Object.keys(com_protocol_selected[settings['current_host']][commu_compare[comlistdev[rtc]]])
+                                                                      console.log("Added current serial list: ",comlistdev[rtc],settings[comlistdev[rtc]])
+                                                                      settings[comlistdev[rtc]].push('Non-select');
+                                                                      var serialselect = host_comp.add(settings,comlistdev[rtc],settings[comlistdev[rtc]]).name(comlistdev[rtc]).onChange(function(serialdev){
+                                                                                  
+                                                                                  console.log("Serial data: ",serialdev);
+                                                                                  settings['current_serial'] = serialdev; 
+                                                                                  console.log("Get the current settings list: ",settings); 
+                                                                      });
+                                                                      
+                                                              }
+                                                                      
+                         
+                                                     };
+                                                     */
+                                                    
+                                                    
+
+                                          })
+                                          //*/
+                                        }
+                                        if(hostname[0] == "status"){
+                                          console.log("You haven't connect API to the single board computer or onboard computer for robot");
+                                          notify_data('warning',"You haven't connect API to the single board computer or onboard computer for robot"); 
+ 
+                                        }
+                                          
+            })
+          }    
+          catch{
+                console.log("You haven't connect API to the single board computer or onboard computer for robot");
+
+          }    
+         
+    
+            //Get the component featch the data to reconfigureble the components in the list  
+            //Use eval data to generate the code of the function features 
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                   //Dynamic change components processing
+            //Fetch the internal components data first        
+            
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                 //Static model selection function     
+            var main_func = gui.addFolder('Model components');
+            function clearSubNodes_project() {
+                                                                 // Remove all controllers from the folder except the dropdown
+                   main_func.__controllers.slice(1).forEach(controller => {
+                   console.log("Controller list in selected host: ",controller); 
+                   try{
+                      console.log("Removing node ",controller); 
+                      main_func.remove(controller);
+                      settings['ref_subdat'] = {}; 
+                   }
+                   catch{
+                             console.log("Error removing node");
+                      }
+                  });
+            }
+            settings.project_list.push("Non-selected");
+            main_func.add(settings, 'project_list', settings.project_list).onChange(function(projectnamedata) {
+            //Set the default Non-select in the list dat.gui.js 
+            // Change background color to selected color from combo box
+                 console.log("Components_selected ",projectnamedata);
+                 clearSubNodes_project(); //Clear sub nodes when chaning project 
+                 
+            //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>       
+                 //eval("var project_"+value+" = main_func.addFolder('"+value+"');")
+                 Save_edit_data(); //Save edit data of the current project  
+                 function Save_edit_data(){
+              //Get the email account data and get the project name to send back to the back-end and rename data in the project into the name for the directory 
+              var email = document.getElementById("email_account").value; 
+              //var jwt_code = document.getElementById("encode_jwt").value;
+              //var project_edit_backend = document.getElementById("projname").value;
+              console.log("Save edit data",email,projectnamedata);
+              //Fetch to save data of the project name  
+              manual_create_project(email,projectnamedata); //Get the project edit data  
+              function manual_create_project(email,projectname_data){
+              
+              fetch('/add_projectname',{
+                // Declare what type of data we're sending
+                     headers: {
+                    'Content-Type': 'application/json'
+               },
+               // Specify the method
+                method: 'POST',
+               // A JSON payload
+              body: JSON.stringify({
+              "email": email,"projectname":projectname_data  // Get the destiny language data to translate back the server reference   
+          })
+          }).then(function (response) { // At this point, Flask has printed our JSON
+         return response.text();
+         }).then(function (text) {
+          console.log('POST response: ');
+          var data_projs= JSON.parse(text); 
+          console.log("project data",data_projs);
+          if(Object.keys(data_projs[email]) == "Existing_project"){
+                           console.log("This project is already created"); // Existing project detected
+                           notify_data("success","This project is already created");
+                           //translate_lang("This project was already created in date "+datedata,value_set)
+                           notify_data("success","This project was already created in date") //+datedata);
+                          
+                           document.getElementById('projectname').value = projectname_data;
+                           var list_compare = ['Audio_system','Microconroller','Motion_system','Vision_system','Sensors','Odometry_system','Battery','Single_Board_Computer','Commmunication_system','Navigation_system','Materials']
+                           if(list_compare.includes(projectname_data) != true){ 
+                              settings['project_name'] = projectname_data;
+                            }
+
+          }   
+          if(Object.keys(data_projs[email]) != "Existing_project"){
+               
+                          console.log("This project have not been created");
+                          //Activate the project directory to created 
+                          //Fetch to create the project data 
+                         // mesh_model_loader();
+          }
+         
+          
+
+
+        });
+     }
+               
+
+       } 
+       fetch('/components_loadfile', {
+                              // Declare what type of data we're sending
+                              headers: {
+                              'Content-Type': 'application/json'
+                            },
+                           // Specify the method
+                           method: 'POST',
+                          // A JSON payload
+                          body: JSON.stringify({
+
+                                   "email": email, "project_name":projectnamedata //Send the project directory to the server
+                          })
+                          }).then(function (response) { // At this point, Flask has printed our JSON
+                          return response.text();
+                          }).then(function (text) {
+                          console.log('POST response: ');
+                                var request_com = JSON.parse(text); 
+                                console.log("Get the components requests",request_com);
+                                var comdatas_projs = request_com[email]; 
+                                var rpj = 0; 
+                                console.log("Get list components ",comdatas_projs); 
+                                
+                                //console.log(settings['project_list']); 
+                                settings['project_list'] = comdatas_projs; 
+                                console.log("new list ",settings);
+                                settings[projectnamedata] = [];
+                                settings['ref_subdat'] = {};                                             
+                                var funcdatmain = main_func.add(settings,projectnamedata, settings.project_list).onChange(function(projectfile) {
+                                                    
+                                              console.log("Type of the components project",projectfile);
+                                              
+                                              //Fetch the internal file 
+                                              fetch('/default_components', {
+                                              // Declare what type of data we're sending
+                                                       headers: {
+                                                        'Content-Type': 'application/json'
+                                                      },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify({
+
+                                                    "email": email, "project_name":projectnamedata,"sub_file":projectfile //Send the project directory to the server
+                                             })
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                           console.log('POST response: ');
+                                           var sub_com = JSON.parse(text); 
+                                           console.log("sub components data",sub_com);
+                                           var subcom_proj = sub_com[email]; 
+                                           //Use sub components store into the settings to referent current components selected 
+                                           console.log("Get sub components ",subcom_proj);  
+
+                                            //console.log(settings['project_list']); 
+                                           settings['sub_components'] = subcom_proj; 
+                                            
+                                           //Fetching the value and store in setting for list of data sub components project 
+                                           fetch('/subcategory_proj', {
+                                                   // Declare what type of data we're sending
+                                                   headers: {
+                                                  'Content-Type': 'application/json'
+                                                  },
+                                                  // Specify the method
+                                                  method: 'POST', 
+                                                 // A JSON payload
+                                                 body: JSON.stringify({
+                                                    "email": email,"project_name":projectnamedata,"sub_category":projectfile
+                                                })
+                                               }).then(function (response) { // At this point, Flask has printed our JSON
+                                               return response.text();
+                                               }).then(function (text) {
+                                               console.log('POST response: ');
+                                              // Should be 'OK' if everything was successful
+                                              var sub_project = JSON.parse(text);
+                                              console.log("Sub project category: ",sub_project); //Feth to save the project sub category 
+                                              //settings['ref_subdat'] = sub_project; 
+
+                                            settings[projectfile] = [] ; //Get the project file data  
+                                            //main_func.remove(subdat)
+                                            //settings['ref_subdat'][sub_project[projectnamedata]] = sub_project; //Get the sub project referent 
+                                            //console.log("Get the reference data: ",settings['ref_subdat']);  
+                                            if(Object.keys(settings['ref_subdat']).includes(sub_project[projectnamedata]) != true){
+                                             settings['ref_subdat'][sub_project[projectnamedata]] = sub_project; //Get the sub project referent 
+                                             console.log("Get the reference data: ",settings['ref_subdat']);
+                                             var current_subdat = document.getElementById('current_category'); 
+                                             current_subdat.value = Object.keys(settings['ref_subdat'])[0];  
+                                            var subdat =  main_func.add(settings,projectfile, settings.sub_components).onChange(function(subfile) {
+                                                  console.log("Sub file data", subfile); 
+                                                 
+                                                  notify_data('success','Loading components model '+subfile); //Loading the 3D model subfile data
+                                                  
+                                                  //Check the communication  device components 
+                                              
+               var list_commu_device = ["Sensors","Battery","Motion_system","Navigation_system","Sensors","Odometry_system","Communication_system","Vision_system"] 
+               //Add the projectfile into the array to check the length and file selected if length >=2 then close the protocol_com  
+               settings['currentprojectfile'].push(subfile); 
+               if(list_commu_device.includes(projectfile) == true){
+                          
+                          console.log("Detected the communication device protocol",projectfile); //Get the project file of the communication type protocol
+                          
+                          var sub_comdevice = main_func.add(settings,'protocol_com',["Non-select","I2C","SPI","UART","serial","Camera_port"])
+                          
+                          sub_comdevice.setValue('Non-select'); 
+                          sub_comdevice.onChange(function(comdevice){
+                                             
+                                             console.log("Select communication device protocol: ",comdevice);
+                                             settings["selected_protocol"] = comdevice; //Get the selected device  
+                                             settings["current_protocol"] = "com_device";
+                                             //Fetch the communication protocol data input 
+                                             var commu_compare = {"Camera_port":"Vision_system","I2C":"i2c_devices","serial":"serial_devices"}  
+                                             fetch('/getcomponents_info', {
+                                              // Declare what type of data we're sending
+                                            headers: {
+                                                        'Content-Type': 'application/json'
+                                            },
+                                             // Specify the method
+                                             method: 'POST',
+                                             // A JSON payload
+                                             body: JSON.stringify({'email':email})
+                                            }).then(function (response) { // At this point, Flask has printed our JSON
+                                           return response.text();
+                                           }).then(function (text) {
+                                           console.log('POST response: ');
+                                           var com_protocol_selected = JSON.parse(text); 
+                                           if(Object.keys(com_protocol_selected)[0] != 'status'){
+                                            
+                                           //Check if the serial devices or i2c is inside the list of the hardware data collection is exisintg 
+                                           var list_address_comp = ['i2c_devices','serial_devices']
+                                          
+                                           console.log("Get device info: ",com_protocol_selected[settings['host_list']][commu_compare[comdevice]]);
+                                             
+                                           var commu_prot = com_protocol_selected[settings['host_list']][commu_compare[comdevice]];
+                                           if(comdevice == "Camera_port"){
+                                              settings[comdevice] = settings['Camera_port'] //Object.values(commu_prot); 
+                                              console.log('Camera device port: ',settings[comdevice],comdevice);   
+                                           }
+                                           if(comdevice == "I2C"){
+                                              settings[comdevice] = Object.values(commu_prot)[0]; //Get the project commu data  
+                                              //check if the data is undefined then classified then add the default statement into the system 
+
+                                           }
+                                           if(comdevice == "serial"){
+                                            settings[comdevice] = Object.keys(commu_prot);
+                                            var pre_listdevice = ['UART','serial'];
+                                            var default_setting = {'UART':'/dev/ttyS0','serial':'/dev/ttyUSB0'}; //Set the dedault data detected
+                                            //Check if the data is undefined correctly then add the default statement into the system 
+                                            if(Object.keys(commu_prot) == undefined){
+                                                  //Detecting the undefined then classified for the default data inside the list 
+                                                  console.log("Detect the undefined list element of the communication protocol ",comdevice); 
+                                                  if(pre_listdevice.includes(comdevice) == true){ 
+                                                              console.log("Check if the communication protocol "+comdevice+" is in the list"); 
+                                                              settings[comdevice] = default_setting[comdevice]; // Add the default data into the list 
+                                                              
+                                                  }
+                                            }
+                                           }
+                                            
+                                           }
+                                           if(Object.keys(com_protocol_selected)[0] == 'status'){
+                                                   console.log("You haven't connect API with single board computer");
+                                                   notify_data('warning',"You haven't connect API to the single board computer or onboard computer for robot"); 
+                                           }
+                                           
+                                      }); 
+                                      //Check if the category selection is detecting change in the list with len >=2 then remove the sub_comdevice node 
+                                       
+                                           main_func.remove(sub_comdevice)
+                                      
+
+                          });   
+                      
+                           
+               }
+               
+              
+               if(list_commu_device.includes(projectfile) != true){
+                         console.log("Non communication device protocol");
+                         settings["current_protocol"] = "non_com_device"
+                        
+               }
+               //Select box data to select the components with the list components generated from AI 
+                var account_split = email.split(".com")[0];
+                console.log("Account user",account_split); 
+                scene.remove(...scene.children);
+                var ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Ambient light
+                scene.add(ambientLight);
+                var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Directional light
+                directionalLight.position.set(1, 1, 1);
+                scene.add(directionalLight);
+                //console.log("Split subfile components",word_ninja(subfile)); //Get the sub file data 
+                var path_model  = '../static/Client_projects/'+account_split+'/'+projectnamedata+'/'+projectfile+'/'
+                console.log("Path model file ",path_model); //Get the path model file 
+                const loader = new GLTFLoader().setPath(path_model);
+                loader.load(String(subfile), function (gltf) {
+                
+                    const model = gltf.scene;
+                    scene.add(model);
+                    // Calculate the bounding box of the model
+                    const boundingBox = new THREE.Box3().setFromObject(model);
+                    const center = boundingBox.getCenter(new THREE.Vector3());
+                    const size = boundingBox.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+				          	console.log("Boundary size of the 3d model ",boundingBox);
+                    console.log("Components_account_data ",email);
+                    
+
+                    // Calculate the distance for the camera based on the size of the model
+                    const distance = maxDim * 4;
+                    // Set camera position to orbit around the center of the model
+                    camera.position.copy(center);
+                    camera.position.z += distance;
+                    camera.lookAt(center);
+                    // Set up OrbitControls
+                    controls = new OrbitControls(camera, renderer.domElement);
+                    controls.addEventListener('change', render); // use if there is no animation loop
+                    controls.minDistance = 0.05 * distance;
+                    controls.maxDistance = 10 * distance;
+                    controls.target.copy(center);
+                    document.addEventListener('mousedown', onMouseDown, false);
+                    // Create a raycaster
+                    const raycaster = new THREE.Raycaster();
+                    const mouse = new THREE.Vector2();
+                    function onMouseDown(event) {
+                     // Calculate mouse position in normalized device coordinates
+                     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+                     // Update the picking ray with the camera and mouse position
+                     raycaster.setFromCamera(mouse, camera);
+                     console.log("mouse_position", mouse.x,mouse.y); 
+                     console.log("Load model into the main scene");
+                     //Fetching the component devices data 
+                     
+     
+
+    
+                     try{
+                        console.log("Communication camera list: ",settings['Camera_port'],typeof(settings['Camera_port']));
+                        if(settings['Camera_port'] == undefined){
+                                          settings['Camera_port'] = -1; //Setting default camera port
+                        }
+                        
+                     }
+                     catch{
+                          console.log("Camera communication protcol not found"); 
+                     }   
+                     try{
+                        console.log("Communication serial list: ",settings['serial'],typeof(settings['serial']));
+                       
+                     }
+                     catch{
+                          console.log("Serial communication protcol not found"); 
+                     }   
+                     try{                
+                        console.log("Commuincation i2c list: ",settings['I2C'],typeof(settings['I2C']));
+                       
+                     }
+                     catch{
+                         console.log("I2C communication protocol not found");
+                     }
+                        //Fetch the data back to get the model from the selected list and path data 
+                      
+                     //Fetch the internal file 
+                     //Save current part 
+                     document.getElementById("components_category").value = projectfile; //Get the project file name category data 
+                     if(settings["current_protocol"] == "non_com_device"){
+                            console.log("Commu_check",settings["current_protocol"]);
+                            settings["projectselected"] = {"email":email,"project_name":projectnamedata,"subdir":projectfile,"sub_file":subfile,"quantity":settings["quantity_device"]}
+                            console.log(settings["projectselected"]); 
+                     }
+                     if(settings["current_protocol"] == "com_device"){
+                            console.log("Commu_check",settings["current_protocol"]);
+                            var list_config_protocol = ["I2C"]
+                            if(list_config_protocol.includes(settings["selected_protocol"]) != true){
+                                try{
+                                     settings["projectselected"] = {"email":email,"project_name":projectnamedata,"subdir":projectfile,"sub_file":subfile,"com_device":settings['current_serial'],"quantity":settings["quantity_device"]}
+                                     console.log("Communincation protcol: ",settings["selected_protocol"],settings[settings["selected_protocol"]]);
+                                     console.log(settings["projectselected"]);
+                                     if(settings['selected_protocol'] == "Camera_port"){
+                                                   console.log('Detect camera port');
+                                                   settings["projectselected"] = {"email":email,"project_name":projectnamedata,"subdir":projectfile,"sub_file":subfile,"com_device":settings[settings["selected_protocol"]],"quantity":settings["quantity_device"]}  
+
+                                     }
+                                }
+                                catch{
+                                      console.log("Switching data into the default address to communicate with the board device");
+                                      settings['serial_devices'] = "/dev/ttyUSB0";
+                                      settings["projectselected"] = {"email":email,"project_name":projectnamedata,"subdir":projectfile,"sub_file":subfile,"com_device":settings['serial_devices'],"quantity":settings["quantity_device"]}
+                                      console.log("Communincation protcol: ",settings["selected_protocol"],settings[settings["selected_protocol"]]);
+                                      console.log(settings["projectselected"]);
+                                                  
+                                }      
+                            }
+                            if(list_config_protocol.includes(settings["selected_protocol"]) == true){
+                                 try{
+                                     settings["projectselected"] = {"email":email,"project_name":projectnamedata,"subdir":projectfile,"sub_file":subfile,"com_device":settings['current_i2c'],"quantity":settings["quantity_device"]}
+                                     console.log("Communincation protcol: ",settings["selected_protocol"],settings['current_i2c']);
+                                     console.log(settings["projectselected"]);
+                                 }
+                                 catch{
+                                     console.log("Switching data into the default address to communicate with the board device");
+                                     settings['current_i2c'] = '0x68';
+                                     settings["projectselected"] = {"email":email,"project_name":projectnamedata,"subdir":projectfile,"sub_file":subfile,"com_device":settings['current_i2c'],"quantity":settings["quantity_device"]}
+                                     console.log("Communincation protcol: ",settings["selected_protocol"],settings['current_i2c']);
+                                     console.log(settings["projectselected"]); 
+                                 } 
+                            }
+                     }
+                     
+                     
+                    
+                    
+                   
+
+                     //Get the current path data with file and name and project name to request the part correctly from input function data 
+                     // Calculate objects intersecting the picking ray
+                     const intersects = raycaster.intersectObjects(scene.children);
+                     console.log("Intersect data ",intersects); 
+                     // Log the first intersected object
+                     if (intersects.length > 0) {
+                        console.log('Intersected object:', intersects[0].object);
+                     }
+                   }
+                    render();
+
+                    });
+               //Extract the data of the inner file data
+               
+               
+                 });
+                
+                }
+
+              }); 
+            
+                    }); 
+                                          
+                                           
+                });     
+                                           //Crear the middle subnodes data 
+                                       
+                                           
+                                         
+          });
+                                     
+       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      
+            }); //Ending project list function 
+         
+           function Send_backend_data(endpoint,data_payload){
+            fetch('/'+endpoint, {
+
+                      // Declare what type of data we're sending
+                      headers: {
+                             'Content-Type': 'application/json'
+            },
+
+            // Specify the method
+            method: 'POST',
+            // A JSON payload
+            body: JSON.stringify(data_payload)
+                  }).then(function (response) { // At this point, Flask has printed our JSON
+                  return response.text();
+            }).then(function (text) {
+            console.log('POST response: ');
+                 // Should be 'OK' if everything was successful
+                   var data_payload = JSON.parse(text);
+                   console.log("Data_payload: ",data_payload); 
+          });       
+           };
+           //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                                                     //Upload the 3D model 
+            var f6 = gui.addFolder('Quantity');
+            f6.add(settings, 'quantity_device').name("Quantity").onChange(function (quant) {
+                            console.log("Quantity_value of the components: ",quant); 
+                                       
+              });  
+            var f2 = gui.addFolder('Select this component'); //Get the selected part components 
+            f2.add(settings,'selectfile').name('Select this component').onChange(function(comp_device){
+                           console.log("Components device selected!");
+                           notify_data("success","Components device selected!");
+                          
+            });
+        
+            var f4 = gui.addFolder('Delete project');
+            f4.add(settings,"Deleteproject").name('Delete project');
+            var f5 = gui.addFolder('Delete file');
+            f5.add(settings,"Deletefile").name('Delete file');  
+            var f3 = gui.addFolder('Upload model file');
+            f3.add(settings,'Uploadfile').name('Upload model file'); 
+            var f3 = gui.addFolder('Upload PDF file'); // Get the extract pdf uploader file 
+            f3.add(settings,'Uploadpdf').name('Upload pdf file');
+            var f7 = gui.addFolder('Generate code');
+            f7.add(settings,'generatecodefunc').name('Generate code'); 
+            var f6 = gui.addFolder('Code upload manager');
+          
+            f6.add(settings,'upload_host').name('Upload to host');
+
+        
+            var f8 = gui.addFolder("URDF model from onshape"); 
+            var onshape = f8.add(settings, 'onshape_link').name("onshape assembly link").onChange(function(onshape_url){
+                            console.log("Get onshape assembly link: ",onshape_url); 
+                            var ext_id = onshape_url.split("/");
+                            console.log("Extract project ID part: ",ext_id[4],typeof(ext_id));  
+                            //Extract the id to send into the project data
+                            settings['onshape_id_doc'] = ext_id[4]; //Store project id  
+                            
+            });
+            f8.add(settings,'generate_urdf_file').name("Generate URDF file").onChange(function(dataurdf){
+                          console.log("Activate URDF generator protocol"); 
+                          //Get activation function fetch the data here to run the function 
+                          var transfer_projectid = {"email":email,"project_name":settings['project_name'],"project_id":settings['onshape_id_doc']}
+                          notify_data('success',"Generate the project ID: "+String(settings['onshape_id_doc']));
+                          console.log("Current project URDF structure transfer data: ",transfer_projectid); //Transfer the project via data fetching 
+                          Send_backend_data("URDF_generator",transfer_projectid);
+                          
+            });
+          
+            f6.add(settings,'downloadcode').name("Download code"); 
+            //Append the control element of components features selected by AI to show the list of the selected components 
+            var full_controller  = gui.addFolder("Robotic simulation and control") 
+            full_controller.add(settings,'motioncontroller').name("Motion_controller").onChange(function(motioncontrol){
+                              console.log("Motion control function ...");
+                              var emailaccount = document.getElementById('email_account').value; 
+                              //Encode btoa the json format for the email and project_name to base64 data format 
+                              console.log("Current email and project: ",settings['project_name'],emailaccount); 
+                              const encode_project = btoa(JSON.stringify({'email':emailaccount,'project_name':settings['project_name']}))
+                              window.open("https://roboreactor.com/motion_control/"+String(encode_project));
+            });
+            full_controller.add(settings,'navigationsystem').name("Navigation system").onChange(function(navigation){
+                              console.log("Navigation system function ..."); 
+                              var emailaccount = document.getElementById('email_account').value; 
+                              //Encode btoa the json format for the email and project_name to base64 data format 
+                              console.log("Current email and project: ",settings['project_name'],emailaccount); 
+                              const encode_project = btoa(JSON.stringify({'email':emailaccount,'project_name':settings['project_name']}))
+            });
+           /*
+            full_controller.add(settings,'physicsystem').name("Physics system").onChange(function(physics){
+                              console.log("Physics simulation function ...");
+                              //Encode btoa the json format for the email and project_name to base64 data format 
+                              console.log("Current email and project: ",settings['project_name'],emailaccount); 
+                              const encode_project = btoa(JSON.stringify({'email':emailaccount,'project_name':settings['project_name']}))
+
+            });
+            */
+            
+           //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ 
+         });
+         
+         
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        container.appendChild(renderer.domElement);
+
+        window.addEventListener('resize', onWindowResize);
+
+    }
+
+      // Function to open the modal and set the iFrame source dynamically
+    function openModal(url,x,y) {
+      resizeModal(x, y)
+      const modal = document.getElementById("resizableModal");
+      const iframe = document.getElementById("dynamicIframe");
+      
+      // Set the iframe src dynamically
+      iframe.src = url;
+      
+      // Open the modal
+      modal.style.display = "flex";
+
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      const modal = document.getElementById("resizableModal");
+      modal.style.display = "none";
+    }
+
+    // Function to resize the modal content and adjust iframe size proportionally
+    function resizeModal(width, height) {
+      const modalContent = document.getElementById("modalContent");
+
+      // Set the modal content size
+      modalContent.style.width = width + "px";
+      modalContent.style.height = height + "px";
+    }
+    function word_ninja(text){
+ 
+ const words = text.trim().split(/\s+/);
+ return words    //Returning the word ninja  
+
+}
+//Detecting the digit number of the component in the system 
+function isAllDigits(input) {
+  return /^\d+$/.test(input);
+}
+function post_selected_status(endpoint,email,project_name,payload_selected){
+  fetch('/'+endpoint, {
+                         // Declare what type of data we're sending
+                        headers: {
+                      'Content-Type': 'application/json'
+                       },
+                        // Specify the method
+                      method: 'POST',
+                      // A JSON payload
+                    body: JSON.stringify({
+                    "email":email,"project_name":project_name,"status_current":payload_selected 
+                   })
+                  }).then(function (response) { // At this point, Flask has printed our JSON
+                  return response.text();
+                  }).then(function (text) {
+                  console.log('POST response: ');
+                  // Should be 'OK' if everything was successful
+                  var status_select = JSON.parse(text);
+                  console.log("Status select: ",status_select);
+
+                  
+                 });
+}
+function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  }
+  // Get the modal element
+  var modal = document.getElementById("myModal");
+  var modal2 = document.getElementById("pdfmodal");
+ // Get the button that opens the modal
+  var btn = document.getElementById("openModalBtn");
+
+  // Get the <span> element that closes the modal
+  var span = document.getElementsByClassName("close")[0];
+  var span2 = document.getElementsByClassName("close2")[0];
+  function triggerButtonClick() {
+    modal.style.display = "block";
+   
+  }
+  
+  function pdfcomponents(){
+    modal2.style.display = "block";
+  } 
+    
+  // When the user clicks on <span> (x), close the modal
+  span.onclick = function() {
+    modal.style.display = "none";
+    
+  }
+  
+  span2.onclick = function(){
+    modal2.style.display = "none";  
+  }
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+    
+}
+window.onclick = function(event){
+  if (event.target == modal2){
+        modal2.style.display = "none"; 
+    }
+}
+
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        render();
+
+    }
+
+    function render() {
+
+        renderer.render(scene, camera);
+
+    }
+    
+</script>
+<script>
+  // Function to add options to select box from an array
+ /*
+  var emailaccount = document.getElementById('email_account').value;
+  var components_specification = {}; 
+  function addOptionsFromList(selectElement, list) {
+  // Get all current options in the select element
+  const existingValues = Array.from(selectElement.options).map(option => option.value);
+
+  // Add new options from the list if they don't already exist
+  list.forEach(function(item) {
+    const value = item.toLowerCase(); // Ensure case consistency
+    if (!existingValues.includes(value)) { // Check for duplicates
+      var option = document.createElement("option");
+      option.text = item;
+      option.value = value;
+      selectElement.add(option);
+    }
+  });
+}
+
+  function addOptionsFromList(selectElement, list) {
+      // Clear the existing options
+      //selectElement.innerHTML = '';
+
+      // Add new options from the list
+      list.forEach(function(item) {
+        var option = document.createElement("option");
+        option.text = item;
+        option.value = item.toLowerCase(); // You can set the value as per your requirement
+        selectElement.add(option);
+      });
+      
+    }
+
+  // Example list of elements get the list from the account and project selected from the list data 
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //Fetch the list of the comonents element data 
+  //Element of the category data  
+  //Components and data categorization in dictionary and list hybrid
+
+  var listcategory_elem = {
+  "Vision_system":["Camera"],
+  "Motion_system":["Servo-motor","BLDC-motor","Stepper-motor","DC-motor"],
+  "Audio_system":["audio_port"],
+  "Single_Board_computer":["Single-Board-Computer"],
+  "Navigation_system":["GPS","Wifilocalization","Cellular-network","Lidar-UART","Lidar-serial","Beacon-nav","Ultra-wideband (UWB)"],
+  "Sensors":["Mechanical_force-array","Temperature-array","Optical-array","Acoustic-array","Electromagnetic-array"],
+  "Odometry_system":["imus","encoders","visual-odometry","gps","radar","optic-flow"],
+  "Communication_system":["communication-network"]
+  };
+  
+  var components_specification = {}; 
+  var selectBox = document.getElementById("selectBox");
+  //addOptionsFromList(selectBox, listcategory_elem["Motion_system"]);  //Select the element of the category key input into the components list selection  
+  // Add event listener to get selected value
+  var emailaccount = document.getElementById("email_account").value;
+  
+  selectBox.addEventListener("change", function() {
+    var selectedValue = selectBox.value;
+    console.log("Selected value:", selectedValue);
+    if(selectedValue  == "Non-selected"){
+            //console.log("Project_category", project_category);
+            //Fetch the components selection from the back-end with the account selection current category data 
+            fetch('/get_subcatreload', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({
+                    "email": emailaccount
+                 })
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var sub_project = JSON.parse(text);
+                     console.log("Sub project category: ",sub_project); //Feth to save the project sub category 
+                     var emailaccount = document.getElementById('email_account').value;
+                     var project_selected = Object.keys(sub_project[emailaccount])[0];
+                     var category_typedata = sub_project[emailaccount][project_selected];
+                     components_specification[emailaccount] = {"component_category":category_typedata}; //Get the class of the subcategory components 
+                     console.log("Get components class: ",components_specification);
+                     addOptionsFromList(selectBox, listcategory_elem[category_typedata]); 
+                     
+           }); 
+          
+            
+    }
+    if(selectedValue != "Non-selected"){
+                   //Add the components class data into the system 
+                   console.log("Select the components ",selectedValue); 
+                   components_specification[emailaccount]['class_components'] = selectedValue; //Get the selected components class 
+                   console.log("Append the components class: ",components_specification); //Get the current component append into the data dictionary
+                   //settings["projectselected"]['com_device'] = {"serial":settings['serial'],"I2C":settings['I2C']}
+    }
+  });
+  
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  //Fetch and check the type of the component communication protocol existing in the list system 
+  //Check if the communication protocol is inside the list then activate the communication protocol 
+  var list_serialavailable =["Motion_system","Navigation_system","Sensors","Odometry_system","Communication_system"]
+  var emailaccount = document.getElementById('email_account').value;
+  if(list_serialavailable.includes(components_specification[emailaccount]["component_category"]) == true){
+                  console.log("Components serial found: ",components_specification[emailaccount]["component_category"]);
+
+  }
+  
+  
+  
+  var listcommu = ["I2C","SPI","serial","UART"]
+  var selectCom = document.getElementById("selectCom"); 
+  //addOptionsFromList(selectCom, listcommu); 
+  var ref_select = {};
+  //Select the communication protocol on the system if the system is consist of the communication type then add the list of the data com into the selection 
+  selectCom.addEventListener("change", function(){
+     var selectedcomValue = selecomponent_categorctCom.value;
+     var email_account = document.getElementById('email_account').value; 
+     console.log("Select com value: ", selectedcomValue);  
+     console.log("Check the serial protocol: ",components_specification[emailaccount]["component_category"])
+     if(list_serialavailable.includes(components_specification[emailaccount]["component_category"]) == true){
+          components_specification[emailaccount]["communication"] = selectedcomValue; //Get the components specs  
+          console.log("Get the communication class: ",components_specification)
+          ref_select["protocol"] = "detected";
+          //check the protocol referecnce 
+          var ref_protocol = Object.keys(ref_select)
+          addOptionsFromList(selectCom, listcommu); 
+          
+    }
+     
+  })
+  console.log("Category_components: ",listcategory_elem); // Get the category data of each eliment components 
+  //This part will select the category to match the components type category 
+  var ref_category_select = {}; //Get the reference category components selection 
+  var selectCategory = document.getElementById("select_category"); // Extract the component category from the list of the system  
+ 
+  selectCategory.addEventListener("change", function(){
+           var selectCatvalue = selectCategory.value; //Get the data value selection of the category 
+           console.log("Select category data: ", selectCatvalue); 
+           if(selectCatvalue == "Non-selected"){
+                    console.log("Fetching category project file");    
+                    fetch('/current_categorydata', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({
+                    "email": emailaccount,"current_category":selectCatvalue
+                 })
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                   var category_data  = JSON.parse(text); 
+                   console.log("Get current project category: ",category_data);
+                   var datcatshift = listcategory_elem[category_data];                  
+                   addOptionsFromList(selectCategory,listcategory_elem[category_data]);  
+                 });
+           }
+           if(selectCatvalue != "Non-selected"){
+            fetch('/current_categorydata', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({
+                    "email": emailaccount,"current_category":selectCatvalue
+                 })
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                   var category_data  = JSON.parse(text); 
+                   console.log("Get current project category: ",category_data);
+                   
+                 });
+
+           }
+
+  })  
+  
+   //
+  
+  var list_category_file = ["Vision_system","Audio_system","Communication_system","Motion_system","Single_Board_computer","Odometry_system","Navigation_system","Sensor_array_to_image_system"]
+  var select_components = document.getElementById("select_components"); //Get the ID select box 
+  select_components.addEventListener("change", function(){
+        var selectcomponentsValue = select_components.value; 
+        console.log("Select components PDF doc value: ",selectcomponentsValue);
+        if(selectcomponentsValue  == "Non-selected"){
+              console.log("Fetch the data of the components category");
+              addOptionsFromList(select_components,list_category_file); 
+              
+        }
+        if(selectcomponentsValue != "Non-selected"){  
+              console.log("Select the components to generated the ")
+              components_specification[emailaccount] = selectcomponentsValue;
+              console.log("Components name for matching document ",components_specification); //Get the current components matching data 
+              
+        }  
+  })  
+  */
+  //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status == 'warning'){
+              toastr.warning(text); 
+           }
+           if(status == 'error'){
+              toastr.error(text); 
+           }
+            
+  }
+
+  //var current_file = settings['current_file']
+  //Check the existing file 
+  /*
+  function updateFileName(input) {
+        var fileName = input.files[0].name;
+        console.log("Selected file:", fileName);
+        // Do whatever you need with the file name, like checking its existence
+        //Fetch the data of the directory at the back-end 
+        //Json structure to check existance {email:{"project_name":""}}
+        //Check the file extension data 
+        var extension_type = ["gltf","glb"] //support file
+        var file_extension = fileName.split(".")[1];
+        console.log(components_specification);
+        //components_specification['filename'] = fileName;
+
+        if(extension_type.includes(file_extension) == true){
+          //current_file = fileName;
+          
+        fetch('/project_file_existance', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({"email":emailaccount,"filename":fileName,"components_class":{}}) //Get the file name check existance 
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var file_existance = JSON.parse(text);
+                     console.log(file_existance); //Feth to save the project sub category 
+                     
+                     if(file_existance["notify"] == "warning"){
+                             console.log("Notify warning!")
+                             notify_data("warning","This file is already exist!");
+                     }
+                     if(file_existance["notify"] == "success"){
+                             console.log("Notify success!")
+                             notify_data("success",file_existance["status"]) 
+                     }
+                  
+        })
+      };
+      if(extension_type.includes(file_extension) != true){
+                    notify_data("error","File extension "+"."+file_extension+" is not support we only support gltf and glb file");
+      };
+      
+    }*/
+   /*
+    function updatePDFfile(input) {
+        var fileName = input.files[0].name;
+        console.log("Selected PDF file:", fileName);
+        var extension_pdf = ["pdf","PDF"] //Extension file of the pdf data 
+        //Extract the extension data features 
+        var extract_len_ext = fileName.split(".");
+        console.log("Length of the data: ",extract_len_ext,extract_len_ext.at(-1));
+        var file_pdfextension = extract_len_ext.at(-1)  //fileName.split(".")[1]; 
+        console.log(components_specification);
+        components_specification['filename'] = fileName;         
+        //Check the file name pdf 
+        console.log("Check PDF file extension ",file_pdfextension); 
+        if(extension_pdf.includes(file_pdfextension) == true){
+                      console.log("PDF file detected ");
+                      //Check the project file existance 
+              try{        
+                      fetch('/current_components', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify({"email":emailaccount})
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var current_components_spec = JSON.parse(text);
+                     console.log("Current_project structure: ",current_components_spec); //Feth to save the project sub category 
+                     //components_specification = {}; //Clear all the selection components data of current selected components 
+                     components_specification["project_structure"] = current_components_spec 
+                     console.log("Current components: ",components_specification["project_structure"]); 
+                
+                      fetch('/document_file_existance',{
+                           headers: {
+                                'Content-Type': 'application/json'
+                           },
+                          // Specify the method
+                          method: 'POST', 
+                          // A JSON payload
+                         body: JSON.stringify({"email":emailaccount,"filename":fileName,"components_doc":components_specification[emailaccount],"project_structure":components_specification["project_structure"]}) //Get the file name check existance 
+                         }).then(function (response) { // At this point, Flask has printed our JSON
+                         return response.text();
+                         }).then(function (text) {
+                         console.log('POST response: ');
+                                var components_pdf = JSON.parse(text); //Get the json components text 
+                                console.log("Components_pdf match json pdf",components_pdf); // get the pdf to transfer to the server
+                                
+                      })
+                });   
+              }
+             catch{
+                   console.log("You haven't selected the 3D model component or specified the quantity to match the documentation.");
+                   notify_data('warning',"You haven't selected the 3D model component or specified the quantity to match the documentation."); 
+
+             }                          
+        }
+        if(extension_pdf.includes(file_pdfextension) == false){
+               notify_data("error","File extension"+"."+file_pdfextension+" is not support we only support pdf and PDF file");
+               
+        }
+
+    }
+   */ 
+  function delete_projectdir(projectdir){
+            //The file contain the email account and project name in order to select the position of the directory to delete the right data 
+            console.log("Delete project directory data");
+            notify_data("success","Delete current project",projectdir);
+            fetch('/delete_project', {
+                       // Declare what type of data we're sending
+                       headers: {
+                          'Content-Type': 'application/json'
+                       },
+                       // Specify the method
+                      method: 'POST',
+                      // A JSON payload
+                      body: JSON.stringify({"email":emailaccount,"project_name":projectdir})
+                      }).then(function (response) { // At this point, Flask has printed our JSON
+                      return response.text();
+                      }).then(function (text) {
+                      console.log('POST response: ');
+                      var delete_projdir = JSON.parse(text); 
+                      console.log("delete project directory ",delete_projdir);
+                        
+            });
+            
+            
+  }  
+  function delete_filename(delete_projectfile){// the file contain email account project name and file name selected in the data 
+            //The file contain email account project name and file name selected in the data  
+            console.log("Delete the project file name"); 
+            notify_data("success","Delete this file");
+            fetch('/delete_file', {
+                       // Declare what type of data we're sending
+                       headers: {
+                          'Content-Type': 'application/json'
+                       },
+                       // Specify the method
+                      method: 'POST',
+                      // A JSON payload
+                      body: JSON.stringify(delete_projectfile)
+                      }).then(function (response) { // At this point, Flask has printed our JSON
+                      return response.text();
+                      }).then(function (text) {
+                      console.log('POST response: ');
+                      var delete_projfile = JSON.parse(text); 
+                      console.log("delete project file ",delete_projfile);
+                      //Sending the components to delete from the generated project
+                      //Reload the page 
+            });
+                
+  }
+  /*
+  //Return the submit form data to show the trigger send back data to the back-end 
+  function submitForm(){
+       console.log("Trigger to send data to back-end ");
+       console.log("Class",components_specification); 
+       notify_data('success','Uploading file please wait.You can upload again if fail');
+       //Before fetching check the input of the selection is in the category or not 
+       //Check that the components uploaded require only class or the component require communication protocol too 
+       var currentfiledata = current_file["current_file"];
+       console.log("Current file: ",currentfiledata); 
+       fetch('/get_subcatreload', {
+                  // Declare what type of data we're sending
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  // Specify the method
+                  method: 'POST', 
+                 // A JSON payload
+                 body: JSON.stringify(components_specification)
+                 }).then(function (response) { // At this point, Flask has printed our JSON
+                 return response.text();
+                 }).then(function (text) {
+                   console.log('POST response: ');
+                    // Should be 'OK' if everything was successful
+                     var components_spec = JSON.parse(text);
+                     console.log("Sub project category: ",components_spec); //Feth to save the project sub category 
+                     components_specification = {}; //Clear all the selection components data of current selected components 
+                      
+        });     
+                     
+  }
+  */ 
+  function pdfuploaderfile(){
+        console.log("Trigger the pdf uploader function");
+        //Get the data from the combobox inside the select box 
+        //console.log("Class",components_specification); 
+       //Before fetching check the input of the selection is in the category or not 
+       //Check that the components uploaded require only class or the component require communication protocol too 
+       var currentfiledata = document.getElementById("current_file").value;
+       console.log("Current file: ",currentfiledata); 
+       //Get the current selected project file to confirm the current data selected 
+             
+  }
+  </script>
+</body>
+</html>

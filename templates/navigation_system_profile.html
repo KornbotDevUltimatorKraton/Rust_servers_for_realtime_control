@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roboreactor Profile </title>
+    <link rel="icon" type="image/svg" href="../static/images/favicon.ico"><!-- HEAD_svelte-1bqi44g_END --><!-- HEAD_svelte-1q0x54r_START --><!-- HEAD_svelte-1q0x54r_END -->
+
+    <!--Write the parameters input for the current data input -->
+    <input type="hidden" id="datauser" value="{{userdata}}"> 
+    <input type="hidden" id="encoded_arg" value="{{encodeuser}}"> <!--Get the encodeuser -->
+    <input type="hidden" id="plan_arg" value="{{planuser}}"> <!--Get the plan user -->
+    <input type="hidden" id="current_projectdata" value="{{current_project_payload}}">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css'>
+    <link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css'><link rel="stylesheet" href="/static/dash_style.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+    <style>
+      /* Style the iframe container to take up full width and height */
+      #iframe-container {
+          padding-top: 44px;
+          padding-left: 10px;
+          width: 100%;
+          height: 100vh; /* Set the height to viewport height */
+          overflow: hidden; /* Hide any overflow content */
+          position: relative;
+      }
+
+      /* Style the iframe itself to fill the container */
+      #iframe-container iframe {
+          width: 100%;
+          height: 100%;
+          border: 0; /* Optional: Remove iframe border */
+      }
+  </style>
+</head>
+<body>
+<!-- partial:index.partial.html -->
+
+<section>
+    <header>
+        <nav class="rad-navigation">
+            <div class="rad-logo-container">
+                <a href="#" class="rad-logo">Roboreactor</a>
+                <a href="#" class="rad-toggle-btn pull-right"><i class="fa fa-bars"></i></a>
+            </div>
+            <!--
+            <div class="rad-top-nav-container">
+              ... (your navigation code)
+            </div>-->
+        </nav>
+    </header>
+</section>
+<aside>
+    <nav class="rad-sidebar">
+        <ul>
+            <li>
+                <a onclick="dashboardsensor();" class="inbox">
+                    <i class="fa fa-dashboard"><span class="icon-bg rad-bg-success"></span></i>
+                    <span class="rad-sidebar-item">Sensor dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a onclick="API_key_auth();">
+                    <i class="fa fa-key">
+                        <span class="icon-bg rad-bg-danger"></span>
+                    </i>
+                    <span class="rad-sidebar-item">API keys</span>
+               </a>
+            </li>
+
+            <li><a onclick="Codegendat();" class="done"><i class="fa fa-code"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Code Generator</span></a></li>
+            <li><a href="#" class="snooz"><i class="fa fa-compass"><span class="icon-bg rad-bg-primary"></span></i><span class="rad-sidebar-item">Navigation systems</span></a></li>
+            <li><a onclick="motion_controller_dash();" class="done"><i class="fa fa-gamepad"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Motion controller</span></a></li>
+            <li><a onclick="manufacturing_account_dash();" class="done"><i class="fa fa-gear"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Manufacturing AAI</span></a></li>
+            <li><a onclick="settings_dash();"><i class="fa fa-wrench"><span class="icon-bg rad-bg-violet"></span></i><span class="rad-sidebar-item">Settings</span></a></li>
+            <li><a href="/signin" class="done"><i class="fa fa-arrow-left"><span class="icon-bg rad-bg-violet"></span></i><span class="rad-sidebar-item">Logout</span></a></li>
+             
+        </ul>
+    </nav>
+</aside>
+
+<div id="iframe-container">
+  <iframe id="navigation_system" frameborder="0"></iframe> <!-- Replace with your URL -->
+</div>
+<script>
+        var iframe = document.getElementById("navigation_system"); 
+        //Fetch the current project data to get the 
+        try{
+           var  url_navigation = "https://roboreactor.com/Navigation_system/";
+           var email_account = document.getElementById("datauser").value; 
+           var current_project = document.getElementById("current_projectdata").value; 
+           var convert_json = JSON.parse(current_project); 
+           var structured_payload = JSON.stringify({"email":email_account,"project_name":convert_json[email_account]['project_name']}); 
+           var encode_payload = btoa(structured_payload); 
+           var jwt_encode = document.getElementById("encoded_arg").value;
+           //console.log("Current_payload: ",structured_payload,typeof(encode_payload),current_project,convert_json,typeof(convert_json)); 
+           iframe.setAttribute('src',url_navigation+encode_payload);  
+        }
+        catch{
+           var  url_navigation = "https://roboreactor.com/Navigation_system/";
+           var email_account = document.getElementById("datauser").value; 
+           //var current_project = document.getElementById("current_projectdata").value; 
+           //var convert_json = JSON.parse(current_project); 
+           var structured_payload = JSON.stringify({"email":email_account,"project_name":"Create_your_project"}); 
+           var encode_payload = btoa(structured_payload); 
+           //console.log("Current_payload: ",structured_payload,typeof(encode_payload),current_project,convert_json,typeof(convert_json)); 
+           iframe.setAttribute('src',url_navigation+jwt_encode);
+
+        }
+</script>
+
+<!-- partial -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+<script src="/static/script_dash.js"></script>
+<script type="text/javascript">
+    var user_account = document.getElementById('datauser').value; 
+    var user_encode = document.getElementById('encoded_arg').value; 
+    console.log(user_encode); 
+      //Extract the project name from the settings list to get the 
+      //Using the current project data fetch input selection from the 
+      function Codegendat(){
+         window.location.href = "https://roboreactor.com/CodeGenerator/"+user_encode;
+      }
+      function dashboardsensor(){
+        window.location.href = "https://roboreactor.com/dashboard_profile/"+user_encode;
+      }  
+      function API_key_auth(){
+           window.location.href = "https://roboreactor.com/Api_keys/"+user_encode; 
+      }
+      function urdf_wizard(){
+    
+                window.location.href = "https://roboreactor.com/urdf_creator/"+user_encode;      
+      }
+      function motion_controller_dash(){
+                      
+                 window.location.href = "https://roboreactor.com/motion_controller/"+user_encode;      
+      }
+      function manufacturing_account_dash(){
+         
+                 window.location.href = "https://roboreactor.com/Manufacturing_assist/"+user_encode;  
+      }
+
+      function settings_dash(){
+                
+                 window.location.href = "https://roboreactor.com/settings/"+user_encode;
+      }
+</script>
+</body>
+</html>

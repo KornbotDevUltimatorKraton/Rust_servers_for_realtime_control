@@ -1,0 +1,43 @@
+<!DOCTYPE html> 
+<html>
+      <head>
+         <title>Verify email post request data</title>
+         <input type="hidden" id="data_payload" value={{data_arg}}> 
+      <script type="text/javascript">
+            var data = document.getElementById("data_payload").value;    
+            console.log(data);
+          
+              function sendPostRequest() {
+      var url = 'https://roboreactor.com/verification'; // Replace with your Flask server URL        
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"payload_data":data}),
+      })
+        .then(response => response.json())
+        .then(responseData => {
+          // Process the response from the server
+          console.log(responseData);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+    sendPostRequest();
+    setTimeout(function() {
+    window.location.href = "https://roboreactor.com/login"; // Replace with the desired URL
+  }, 1000); // Time in milliseconds (e.g., 3000ms = 3 seconds)
+   
+  </script>
+                    
+      </script>
+      </head> 
+      <body>
+           <!--<h3>Verify email</h3>-->
+           <!--<button onClick="sendPostRequest()">Verify email</button>-->
+
+      </body>    
+</html>
+

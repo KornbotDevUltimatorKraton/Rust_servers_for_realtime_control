@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Roboreactor Profile</title>
+  <link rel="icon" type="image/svg" href="../static/images/favicon.ico"><!-- HEAD_svelte-1bqi44g_END --><!-- HEAD_svelte-1q0x54r_START --><!-- HEAD_svelte-1q0x54r_END -->
+
+  <!--Write the parameters input for the current data input -->
+  <input type="hidden" id="datauser" value="{{userdata}}"> 
+  <input type="hidden" id="encoded_arg" value="{{encodeuser}}"> <!--Get the encodeuser -->
+  <input type="hidden" id="plan_arg" value="{{planuser}}"> <!--Get the plan user -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css'>
+<link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+<link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css'><link rel="stylesheet" href="/static/dash_style.css">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+<script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css'>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script>
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<section>
+  <header>
+    <nav class="rad-navigation">
+      <div class="rad-logo-container">
+        <a href="#" class="rad-logo">Roboreactor</a>
+        <a href="#" class="rad-toggle-btn pull-right"><i class="fa fa-bars"></i></a>
+      </div>
+      <!--
+      <div class="rad-top-nav-container">
+        <ul class="links">
+             <li>
+              <div class="bubbleplot" data-num="7">
+                    Select project: <select class="projectdata">
+                    </select>
+              </div>
+             
+            </ul>
+      </div>
+    -->
+      <!--<script type="text/javascript">
+             var user_account = document.getElementById('datauser').value; // Get the data from the user id 
+             console.log("User account: ",user_account);
+             
+      </script>-->
+      <!--
+      <div class="rad-top-nav-container">
+        <ul class="links">
+          <li>
+            <a class="rad-menu-item" href="#"><i class="fa fa-comment-o"></i></a>
+          </li>
+          <li class="rad-dropdown"><a class="rad-menu-item" href="#"><i class="fa fa-envelope-o"><span class="rad-menu-badge">3</span></i></a>
+            <ul class="rad-dropmenu-item">
+              <li class="rad-dropmenu-header"><a href="#">Your Notifications</a></li>
+              <li class="rad-notification-item">
+                <a class="rad-notification-content" href="#">
+
+                </a>
+              </li>
+              <li class="rad-dropmenu-footer"><a href="#">See all notifications</a></li>
+            </ul>
+          </li>
+          <li class="rad-dropdown"><a class="rad-menu-item" href="#"><i class="fa fa-bell-o"><span class="rad-menu-badge">49</span></i></a>
+            <ul class="rad-dropmenu-item">
+              <li class="rad-dropmenu-header"><a href="#">Your Alerts</a></li>
+              <li class="rad-notification-item">
+                <a class="rad-notification-content" href="#">
+
+                </a>
+              </li>
+              <li class="rad-dropmenu-footer"><a href="#">See all alerts</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>-->
+    </nav>
+  </header>
+</section>
+<aside>
+  <nav class="rad-sidebar">
+    <ul>
+      <li>
+        <a onclick="dashboardsensor();" class="inbox">
+          <i class="fa fa-dashboard"><span class="icon-bg rad-bg-success"></span></i>
+          <span class="rad-sidebar-item">Sensor dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a onclick="API_key_auth();">
+          <i class="fa fa-key">
+						<span class="icon-bg rad-bg-danger"></span>
+					</i>
+          <span class="rad-sidebar-item">API keys</span>
+        </a>
+      </li>
+      <!--<i class="fa-solid fa-circle-info"></i>-->
+      <!--<i class="fa-solid fa-right-from-bracket"></i>-->
+      <!--Tricker the link from the javascript to passing the argument data for the profile page instead of using href-->
+      <li><a onclick="Codegendat();" class="done"><i class="fa fa-code"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Code Generator</span></a></li>
+      <li><a onclick="navigation_system();" class="snooz"><i class="fa fa-compass"><span class="icon-bg rad-bg-primary"></span></i><span class="rad-sidebar-item">Navigation systems</span></a></li>
+      <li><a onclick="motion_controller_dash();" class="done"><i class="fa fa-gamepad"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Motion controller</span></a></li>
+      <li><a onclick="manufacturing_account_dash();" class="done"><i class="fa fa-gear"><span class="icon-bg rad-bg-warning"></span></i><span class="rad-sidebar-item">Manufacturing AAI</span></a></li>
+      <li><a onclick="settings_dash();" class="done"><i class="fa fa-wrench"><span class="icon-bg rad-bg-violet"></span></i><span class="rad-sidebar-item">Settings</span></a></li>
+     <!-- <li><a href="#" class="done"><i class="fa fa-folder"><span class="icon-bg rad-bg-violet"></span></i><span class="rad-sidebar-item">Documentation</span></a></li>-->
+      <li><a href="/signin" class="done"><i class="fa fa-arrow-left"><span class="icon-bg rad-bg-violet"></span></i><span class="rad-sidebar-item">Logout</span></a></li>
+      
+    </ul>
+  </nav>
+</aside>
+<main>
+  <section>
+    <div class="rad-body-wrapper">
+      <div class="container-fluid">
+        <div class="row">
+         <!--Environment sensor grid-->
+          
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Environment Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="0">
+                      Environment_sensor: <select class="environmentdata">
+                      </select>
+                      <div id="EnvironmentSensor" class="rad-chart"></div>
+                     </div>
+                   </div>
+              </div>
+            </div>
+          </div>
+        
+          <!--Motion sensor grid-->
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Motion Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="1">
+                      Motion_sensor: <select class="motiondata">
+                      </select>
+                      <div id="MotionSensor" class="rad-chart"></div>
+                     </div>
+                   </div>
+              </div>
+            </div>
+          </div>
+          <!--Chemical sensor grid-->
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Chemical Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="2">
+                      Chemical_sensor: <select class="chemicaldata">
+                      </select>
+                      <div id="ChemicalSensor" class="rad-chart"></div>
+                     </div>
+                   </div> 
+              </div>
+            </div>
+          </div>
+           <!--Sound sensor grid-->
+           <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Sound Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="3">
+                      Sound_sensor: <select class="sounddata">
+                      </select>
+                      <div id="SoundSensor" class="rad-chart"></div>
+                     </div>
+                   </div>
+              </div>
+            </div>
+          </div>
+           <!--Array sensor grid-->
+           <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Array Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="4">
+                      Array_sensor: <select class="arraydata">
+                      </select>
+                      <div id="ArraySensor" class="rad-chart"></div>
+                     </div>
+                   </div> 
+              </div>
+            </div>
+          </div>
+
+
+           <!--Position sensor grid-->
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Position Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="5">
+                      Position_sensor: <select class="positiondata">
+                      </select>
+                      <div id="PositionSensor" class="rad-chart"></div>
+                     </div>
+                   </div>
+              </div>
+            </div>
+          </div>
+
+          <!--Biometric sensor grid-->
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Biometric Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   <div id="bubbleplots">
+                     <div class="bubbleplot" data-num="6">
+                       Biometric_sensor: <select class="biometricdata">
+                      </select>
+                      <div id="BiometricSensor" class="rad-chart"></div>
+                     </div>
+                   </div>
+              </div>
+            </div>
+          </div>
+         
+          <!--Phase imaging sensor grid-->
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Phase image Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   
+                     <div class="bubbleplot" data-num="7">
+                      Phase_image_sensor: <select class="Phase_imagingdata">
+                      </select>
+                      <div id="Phase_imagingSensor" class="rad-chart"></div>
+                     </div>
+              </div>
+            </div>
+          </div>
+
+          <!--Imaging sensor grid-->
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Image Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   
+                     <div class="bubbleplot" data-num="8">
+                      Image_sensor: <select class="Imagingdata">
+                      </select>
+                      <div id="ImagingSensor" class="rad-chart"></div>
+                     </div>
+              </div>
+            </div>
+          </div>
+          <!--Mapping and localization
+          <div class="col-lg-4 col-md-6 col-xs-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Mapping and localization Sensor</h3>
+              </div>
+              <div class="panel-body">
+                   
+                     <div class="bubbleplot" data-num="9">
+                      Mapping_localization sensor: <select class="mappingdata">
+                      </select>
+                      <div id="MappingSensor" class="rad-chart"></div>
+                     </div>
+              </div>
+            </div>
+          </div>-->
+            <!--BMS sensor-->
+            <div class="col-lg-4 col-md-6 col-xs-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">BMS Sensor</h3>
+                </div>
+                <div class="panel-body">
+                     
+                       <div class="bubbleplot" data-num="10">
+                        BMS sensor: <select class="bmsdata">
+                        </select>
+                        <div id="BMSSensor" class="rad-chart"></div>
+                       </div>
+                </div>
+              </div>
+            </div>
+           
+          
+        <div class="col-lg-4 col-md-6 col-xs-12">
+        
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+<!-- partial -->
+<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js'></script>
+<!--<script  src="/static/script.js"></script> -->
+<script type="text/javascript">
+$(function() {
+//Extracting the account data to get the feature classification plan for each client selected 
+var user_account = document.getElementById('datauser').value; // Get the data from the user id 
+
+console.log("User account: ",user_account);
+$(document).on("click", function(e) {
+  var $item = $(".rad-dropmenu-item");
+  if ($item.hasClass("active")) {
+    $item.removeClass("active");
+  }
+});
+
+$(".rad-toggle-btn").on('click', function() {
+  $(".rad-sidebar").toggleClass("rad-nav-min");
+  $(".rad-body-wrapper").toggleClass("rad-nav-min");
+  setTimeout(function() {
+    initializeCharts();
+  }, 200);
+});
+
+$(".rad-dropdown >.rad-menu-item").on('click', function(e) {
+  e.stopPropagation();
+  $(".rad-dropmenu-item").removeClass("active");
+  $(this).next(".rad-dropmenu-item").toggleClass("active");
+});
+//Setting the default sensor parameters 
+var hexcolor = {};
+var inverse_hex = {}; //Get the inverse hexcolor 
+var sensor_Minput = {};
+var sensor_categ = {}; //Get the sensor category data to get the list of the sensor 
+var project_listdat = {}; //Get the project list data 
+var r =0; 
+console.log(sensor_Minput);
+console.log("List sensor object data",Object.keys(sensor_Minput)); 
+function getInverseColor(hexColor) {
+  // Remove the '#' character from the hex color if present
+  hexColor = hexColor.replace('#', '');
+
+  // Convert the hex color to RGB components
+  const R = parseInt(hexColor.substring(0, 2), 16);
+  const g = parseInt(hexColor.substring(2, 4), 16);
+  const b = parseInt(hexColor.substring(4, 6), 16);
+
+  // Calculate the inverse of each RGB component
+  const inverseR = 255 - R;
+  const inverseG = 255 - g;
+  const inverseB = 255 - b;
+
+  // Convert the inverse RGB components back to hex
+  const inverseHexColor = `#${inverseR.toString(16).padStart(2, '0')}${inverseG.toString(16).padStart(2, '0')}${inverseB.toString(16).padStart(2, '0')}`;
+
+  return inverseHexColor;
+}
+function getRandomHexColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+//Initialize sensors
+var hexcolor = {};
+var sensor_Minput = {}
+var c = 0; 
+var r =0; 
+console.log(sensor_Minput);
+console.log("List sensor object data",Object.keys(sensor_Minput)); 
+function getRandomHexColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+/*
+var colors = [
+  '#E94B3B',
+  '#39C7AA',
+@app.route("/sankey_graph")
+def sankey_graphdata():
+
+      return render_template("sankey_graph.html")
+
+@app.route("/grahph_type")
+def sensor_graph_classification():
+     try:  
+          res_connection = requests.get('https://raw.githubusercontent.com/KornbotDevUltimatorKraton/Graph_type_sensor_match/main/sensor_graph.json')
+          return jsonify(res_connection)  
+     except:
+         print("Lost network connection") 
+if __name__ == "__main__":
+
+       app.run(debug=True,threaded=True,host="0.0.0.0",port=5899)
+
+  '#1C7EBB',
+  '#F98E33'
+];
+*/
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+//This function will select the data from the back end function to classify the authentication method for sensor input
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+var panelList = $('.col-lg-4 col-md-6 col-xs-12');
+
+panelList.sortable({
+  handle: '.col-lg-4 col-md-6 col-xs-12',
+  update: function() {
+    $('.panel', panelList).each(function(index, elem) {
+      var $listItem = $(elem),
+        newIndex = $listItem.index();
+    });
+  }
+});
+//This default only show up when no signal in the list found this will recall the function from here 
+function default_graph_nosignal_input(){
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      //Add default code here for the controller parameter  
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      //Environment sensor
+      notify_data("Warning","Please check your device network")
+      var trace1_e = {
+         x: [1, 2, 3, 4],
+         y: [0, 2, 3, 5],
+         fill: 'tozeroy',
+         type: 'scatter'
+      };
+      var trace2_e = {
+         x: [1, 2, 3, 4],
+         y: [3, 5, 1, 7],
+         fill: 'tonexty',
+         type: 'scatter'
+      };
+      var data_e = [trace1_e, trace2_e];
+      Plotly.newPlot('EnvironmentSensor', data_e, {}, {showSendToCloud:true}); 
+      
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
+      //Motion sensor 
+       var trace1_m = {
+           x: [0, 1, 2, 3, 4, 5], 
+           y: [1.5, 1, 1.3, 0.7, 0.8, 0.9], 
+          type: 'scatter'
+      };  
+      var trace2_m = {
+         x: [0, 1, 2, 3, 4, 5], 
+         y: [1, 0.5, 0.7, -1.2, 0.3, 0.4], 
+         type: 'bar'
+      };
+  
+      var data_m = [trace1_m, trace2_m]; //Get this list from the object.keys() to input the function of the key list data 
+         
+       Plotly.newPlot('MotionSensor', data_m, {}, {showSendToCloud: true});
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      //Chemical sensor
+      var myPlot = document.getElementById('ChemicalSensor'),
+      d3 = Plotly.d3,
+      N = 100,
+      x = d3.range(N),
+      y1 = d3.range(N).map( d3.random.normal() ),
+      y2 = d3.range(N).map( d3.random.normal(-2) ),
+      y3 = d3.range(N).map( d3.random.normal(2) ),
+      trace1 = { x:x, y:y1, type:'scatter', mode:'lines', name:'PH' },
+      trace2 = { x:x, y:y2, type:'scatter', mode:'lines', name:'Temperature' },
+      trace3 = { x:x, y:y3, type:'scatter', mode:'lines', name:'Nitrogen' },
+      data = [ trace1, trace2, trace3 ],
+      layout = {
+          hovermode:'closest',
+          title:'Chemical fusion sensors'
+       };
+
+       Plotly.newPlot('ChemicalSensor', data, layout, {showSendToCloud: true});
+       
+      
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      //Sound sensor
+      d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/polar_dataset.csv', function(err, rows){
+      function unpack(rows, key) {
+                return rows.map(function(row) { return row[key]; });
+      }
+      var trace1 = {
+      r: unpack(rows, 'x1'),
+      theta: unpack(rows, 'y'),
+      mode: 'lines',
+      name: 'Figure8',
+      line: {color: 'peru'}, 
+      type: 'scatterpolar'
+      };
+      var trace2 = {
+      r: unpack(rows, 'x2'),
+      theta: unpack(rows, 'y'),
+      mode: 'lines',
+      name: 'Cardioid',
+      line: {color: 'darkviolet'},
+      type: 'scatterpolar'
+     };
+     var trace3 = {
+     r: unpack(rows, 'x3'),
+     theta: unpack(rows, 'y'),
+     mode: 'lines',
+     name: 'Hypercardioid',
+     line: {color: 'deepskyblue'},
+     type: 'scatterpolar'
+     };
+     var trace4 = {
+     r: unpack(rows, 'x4'),
+     theta: unpack(rows, 'y'),
+     mode: 'lines',
+     name: 'Subcardioid',
+     line: {color: 'orangered'},
+     type: 'scatterpolar'
+     };
+     var trace5 = {
+     r: unpack(rows, 'x5'),
+     theta: unpack(rows, 'y'),
+     mode: 'lines',
+     name: 'Supercardioid',
+     marker: {
+           color: 'none',
+           line: {color: 'green'}
+     },
+     type: 'scatterpolar'
+    };
+    var data_sound = [trace1, trace2, trace3, trace4, trace5];
+    var layout_sound = {
+           title: 'Mic Patterns',
+           font: {
+              family: 'Arial, sans-serif;',
+              size: 12,
+              color: '#000'
+           },
+          showlegend: true,
+          orientation: -90
+     };
+            Plotly.newPlot('SoundSensor', data_sound, layout_sound);
+    }); 
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //Get 3D surface sensor graph data 
+    // Input the arrray sensor data in here in post request 
+    z1 = [
+     [8.83,8.89,8.81,8.87,8.9,8.87],
+     [8.89,8.94,8.85,8.94,8.96,8.92],
+     [8.84,8.9,8.82,8.92,8.93,8.91],
+     [8.79,8.85,8.79,8.9,8.94,8.92],
+     [8.79,8.88,8.81,8.9,8.95,8.92],
+     [8.8,8.82,8.78,8.91,8.94,8.92],
+     [8.75,8.78,8.77,8.91,8.95,8.92],
+     [8.8,8.8,8.77,8.91,8.95,8.94],
+     [8.74,8.81,8.76,8.93,8.98,8.99],
+     [8.89,8.99,8.92,9.1,9.13,9.11],
+     [8.97,8.97,8.91,9.09,9.11,9.11],
+     [9.04,9.08,9.05,9.25,9.28,9.27],
+     [9,9.01,9,9.2,9.23,9.2],
+     [8.99,8.99,8.98,9.18,9.2,9.19],
+     [8.93,8.97,8.97,9.18,9.2,9.18]
+     ];
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  
+    var data_z1 = {z: z1, showscale: true, opacity:0.9, type: 'surface'};
+   
+    Plotly.newPlot('ArraySensor', [data_z1]);
+
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     //Position sensor 
+     
+     var pointCount = 31;
+     var it, rx;
+     var x_p = [];
+     var y_p= [];
+     var z_p = [];
+     var c_p = [];
+     for(var it = 0; it <pointCount; it++) 
+     {
+     rx = 10 * Math.cos(it / 10);
+     x_p.push(rx * Math.cos(it));
+     y_p.push(rx * Math.sin(it));
+     z_p.push(it);
+     c_p.push(it)
+     }
+     Plotly.newPlot('PositionSensor', [{
+      type: 'scatter3d',
+      mode: 'lines+markers',
+      x: x_p,
+      y: y_p,
+      z: z_p,
+      line: {
+           width: 6,
+           color: c_p,
+           colorscale: "Viridis"},
+      marker: {
+             size: 3.5,
+             color: c_p,
+             colorscale: "Greens",
+             cmin: -20,
+             cmax: 50
+      }},                  
+      ]);
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      //Biometric sensor data 
+      var data_polar = [
+       {
+         type: "scatterpolar",
+         mode: "lines+markers",
+         r: [1,2,3,4,5],
+         theta: [0,90,180,360,0],
+         line: {
+         color: "#ff66ab"
+        },
+        marker: {
+        color: "#8090c7",
+        symbol: "square",
+        size: 8
+        },
+        subplot: "polar"
+      },
+      {
+         type: "scatterpolar",
+         mode: "lines+markers",
+         r: [1,2,3,4,5],
+         theta: [0,90,180,360,0],
+         line: {
+         color: "#ff66ab"
+         },
+         marker: {
+         color: "#8090c7",
+         symbol: "square",
+         size: 8
+         },
+         subplot: "polar2"
+       }
+     ]
+     var layout_polar = {
+     showlegend: false,
+     polar: {
+      domain: {
+        x: [0,0.4],
+        y: [0,1]
+      },
+      radialaxis: {
+        tickfont: {
+          size: 8
+        }
+      },
+      angularaxis: {
+        tickfont: {
+          size: 8
+        },
+        rotation: 90,
+        direction: "counterclockwise"
+      }
+     },
+     polar2: {
+      domain: {
+        x: [0.6,1],
+        y: [0,1]
+      },
+      radialaxis: {
+        tickfont: {
+          size: 8
+        }
+      },
+      angularaxis: {
+        tickfont: {
+          size: 8
+        },
+        direction: "clockwise"
+        }
+      }
+     }
+     Plotly.newPlot('BiometricSensor', data_polar, layout_polar)
+     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+     //Surface plot phase array imaging 
+     d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv', function(err, rows){
+     function unpack(rows, key) {
+             return rows.map(function(row) { return row[key]; });
+     }
+     var z_data=[ ]
+     for(i=0;i<24;i++)
+     {
+          z_data.push(unpack(rows,i)); 
+     }
+     var data_phase = [{
+          z: z_data,
+          type: 'surface',
+          contours: {
+          z: {
+              show:true,
+              usecolormap: true,
+              highlightcolor:"#42f462",
+              project:{z: true}
+          }
+         }
+     }];
+     var layout_phase = {
+     title: 'Materials surface',
+     scene: {camera: {eye: {x: 1.87, y: 0.88, z: -0.64}}},
+     autosize: true,
+     margin: {
+         l: 65,
+         r: 50,
+         b: 65,
+         t: 90,
+     }
+    };
+    Plotly.newPlot('Phase_imagingSensor', data_phase, layout_phase);  
+    });
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //BMS sensor  
+    var trace1_bms = {
+           x: [0, 1, 2, 3, 4, 5], 
+           y: [1.5, 1, 1.3, 0.7, 0.8, 0.9], 
+          type: 'scatter'
+    };  
+    var trace2_bms = {
+         x: [0, 1, 2, 3, 4, 5], 
+         y: [1, 0.5, 0.7, -1.2, 0.3, 0.4], 
+         type: 'bar'
+    };
+  
+    var data_bms = [trace1_bms, trace2_bms]; //Get this list from the object.keys() to input the function of the key list data 
+    var layout_bms = {
+         title:"BMS_1"
+    }     
+    Plotly.newPlot('BMSSensor', data_bms, layout_bms, {showSendToCloud: true});
+
+
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+function initializeCharts() {
+  notify_data("success","Successfully connected to this project");
+  $(".rad-chart").empty();
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ try{ 
+ fetch('/sensor_dashboard', {  
+          // Declare what type of data we're sending
+       headers: {
+             'Content-Type': 'application/json'
+      },
+    // Specify the method
+    method: 'POST',
+    // A JSON payload
+    body: JSON.stringify({
+           "email": user_account
+    })
+    }).then(function (response) { // At this point, Flask has printed our JSON
+     return response.text();
+    }).then(function (text) {
+          console.log('POST response: ');
+        // Should be 'OK' if everything was successful
+        //{"status":"Waiting_connection"
+        var sensor_dash_out = JSON.parse(text); 
+        console.log("Sensor output",sensor_dash_out);
+        if(Object.keys(sensor_dash_out)[0] != "status"){
+               
+               var list_sensor = Object.keys(sensor_dash_out); 
+               console.log(list_sensor); 
+
+               for(r>0; r< list_sensor.length;r++){
+                         
+                      console.log(sensor_dash_out[list_sensor[r]])   
+                        
+                      if(list_sensor[r] == "Environment_sensor"){
+                                     console.log("Environment_sensor",Object.keys(sensor_dash_out[list_sensor[r]]))
+                                     assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]), environment_sensor); 
+                      }
+                      
+                      if(list_sensor[r] == "Motion_sensor"){
+                                    console.log("Motion_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),motion_sensor);
+                      }     
+                      if(list_sensor[r] == "Chemical_sensor"){
+                                    console.log("Chemical_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),chemical_sensor);
+                      }     
+                      if(list_sensor[r] == "Sound_sensor"){
+                                    console.log("Sound_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),sound_sensor);         
+                          
+                      }
+                      if(list_sensor[r] == "Array_sensor"){
+                                    console.log("Array_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),array_sensor); 
+                                            
+                          
+                      }
+                      
+                      if(list_sensor[r] == "Position_sensor"){
+                                    console.log("Position_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),position_sensor);         
+                          
+                      }
+                      
+                      if(list_sensor[r] == "Biometric_sensor"){
+                                    console.log("Biometric_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),biometric_sensor);         
+                      }
+
+                      if(list_sensor[r] == "Phase_sensor"){
+                                    console.log("Phase_sensor",Object.keys(sensor_dash_out[list_sensor[r]])) 
+                                    assignOptions(Object.keys(sensor_dash_out[list_sensor[r]]),position_sensor);        
+
+
+                      }
+                      
+                      
+                      
+                       
+               }
+               
+         }
+         //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+           //Status input dash 
+        if(Object.keys(sensor_dash_out)[0] == "status"){
+           console.log("No sensors hardware connected")
+           default_graph_nosignal_input();      
+           //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+           //Array sensor plot default sensor data 
+           var data_z1 = {z: z1, showscale: true, opacity:0.9, type: 'surface'};
+           Plotly.newPlot('ArraySensor', [data_z1]);
+           //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+           //Position sensor plot default sensor data 
+           Plotly.newPlot('PositionSensor', [{
+           type: 'scatter3d',
+           mode: 'lines+markers',
+           x: x_p,
+           y: y_p,
+           z: z_p,
+           line: {
+              width: 6,
+              color: c_p,
+              colorscale: "Viridis"},
+           marker: {
+             size: 3.5,
+             color: c_p,
+             colorscale: "Greens",
+             cmin: -20,
+             cmax: 50
+           }},                  
+           ]);
+           //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+           //Biometric sensor plot default sensor data 
+           Plotly.newPlot('BiometricSensor', data_polar, layout_polar)
+
+           //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+           //Surface plot phase array imaging 
+           d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv', function(err, rows){
+           function unpack(rows, key) { 
+                    return rows.map(function(row) { return row[key]; });
+           }
+           var z_data=[ ]
+           for(i=0;i<24;i++)
+           {
+                 z_data.push(unpack(rows,i));
+           }
+
+           var data_phase = [{
+           z: z_data,
+           type: 'surface',
+           contours: {
+           z: {
+              show:true,
+              usecolormap: true,
+              highlightcolor:"#42f462",
+              project:{z: true}
+          }
+         }
+         }];
+         var layout_phase = {
+         title: 'Material surface',
+         scene: {camera: {eye: {x: 1.87, y: 0.88, z: -0.64}}},
+         autosize: true,
+         margin: {
+           l: 65,
+           r: 50,
+           b: 65,
+           t: 90,
+         }
+        };
+        Plotly.newPlot('Phase_imagingSensor', data_phase, layout_phase); 
+          });
+        Plotly.newPlot('BMSSensor', data_bms, layout_bms, {showSendToCloud: true});
+
+          
+      };
+      //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      //
+   
+   
+});
+ }
+ catch{
+      console.log("Fetching no device connected ....");
+ }
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+}
+
+initializeCharts(); // This can be running the loop to check if there is non update in the list then add the feature parameter inside the list sensor category dynamically
+var innerContainer_environment = document.querySelector('[data-num="0"]');
+var innerContainer_motion = document.querySelector('[data-num="1"]');
+var innerContainer_chemical = document.querySelector('[data-num="2"]');
+var innerContainer_sound = document.querySelector('[data-num="3"]');
+var innerContainer_array = document.querySelector('[data-num="4"]'); 
+var innerContainer_position = document.querySelector('[data-num="5"]');
+var innerContainer_biometric = document.querySelector('[data-num="6"]');
+var innerContainer_phase = document.querySelector('[data-num="7"]'); 
+var innerContainer_imaging = document.querySelector('[data-num="8"]'); 
+var innerContainer_mapping = document.querySelector('[data-num="9"]');
+var innerContainer_bms = document.querySelector('[data-num="10"]'); 
+
+var environment_sensor = innerContainer_environment.querySelector('.environmentdata');
+var motion_sensor = innerContainer_motion.querySelector('.motiondata');
+var chemical_sensor = innerContainer_chemical.querySelector('.chemicaldata');
+var sound_sensor = innerContainer_sound.querySelector('.sounddata');
+var array_sensor = innerContainer_array.querySelector('.arraydata');
+var position_sensor = innerContainer_position.querySelector('.positiondata');
+var biometric_sensor = innerContainer_biometric.querySelector('.biometricdata');
+var phase_imaging_sensor = innerContainer_phase.querySelector('.Phase_imagingdata'); 
+var imaging_sensor = innerContainer_imaging.querySelector('.Imageingdata'); 
+//var mapping_sensor = innerContainer_mapping.querySelector('.mappingdata');
+var bms_sensor = innerContainer_bms.querySelector('.bmsdata');
+
+//assignOptions(['Atlete_robotics','Smart_bots','True_arm_robotics'], project_data)
+function assignOptions(textArray, selector) {
+  console.log(textArray);
+  for (var d = 0; d < textArray.length; d++) {
+      var currentOption= document.createElement('option');
+      //console.log("Sensor_data",currentOption)
+      currentOption.text = textArray[d];
+      selector.appendChild(currentOption);
+  }
+}
+
+//Fetch update data from each sensor category 
+function fetch_data_environment(category_sensor,chosenSensor){
+        try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             var check_status = Object.keys(sensor_dash_out)[0];
+             if(check_status != "status"){
+             console.log("Sensor output",chosenSensor,sensor_dash_out); 
+             try{ 
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+             if(category_sensor == "Environment_sensor"){
+                        console.log("Environment sensor category ");
+                        var trace1_e = {
+                           y: selected_sensor_data,
+                           fill: 'tozeroy',
+                           type: 'scatter',
+                           marker:{color:hexcolor[category_sensor][chosenSensor]}
+                        };
+                        var trace2_e = {
+                             y: [3, 5, 1, 7],
+                             fill: 'tonexty',
+                             type: 'scatter'
+                        };
+                        var data_e = [trace1_e];//, trace2_e];
+                        Plotly.newPlot('EnvironmentSensor', data_e,); 
+                        Plotly.update('EnvironmentSensor',data_e,);
+
+             }
+            }
+            catch{
+                console.log("No device input to the category data");
+            }
+            }
+             if(check_status == "status"){
+                      console.log("Environment sensor not found");
+             }
+            });
+          }
+   catch{
+        console.log("Fetching data no device found");
+   }       
+}
+function fetch_data_motion(category_sensor,chosenSensor){
+        try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             var check_status = Object.keys(sensor_dash_out)[0];
+             if(check_status != "status"){
+             console.log("Sensor output",chosenSensor,sensor_dash_out);
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+             if(category_sensor == "Motion_sensor"){
+                        console.log("Motion sensor category");
+                        var trace1_m = {
+                             y: selected_sensor_data,
+                             type:'bar', 
+                             marker: { color: hexcolor[category_sensor][chosenSensor] }
+                             };
+                        var trace2_m = {
+                             y:selected_sensor_data, 
+                             type: 'scatter',
+                             marker:{color: inverse_hex[category_sensor][chosenSensor]}
+            }
+            var data_m = [trace1_m,trace2_m];
+            //Add the sensor title right here from the sensor selection 
+            var layout_m = {
+                    title: chosenSensor+'<br>'
+                    
+            };
+            Plotly.newPlot('MotionSensor', data_m, layout_m, {showSendToCloud: true});
+            Plotly.update('MotionSensor', data_m, layout_m);
+
+             }
+            }
+            if(check_status =="status"){
+                 console.log("Motion sensor not found"); 
+                 
+
+            }
+
+             });
+            
+
+            }
+        catch{
+             console.log("Fetching data no device found");
+        }    
+
+}
+function fetch_data_chemical(category_sensor,chosenSensor){
+        try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             if(check_status != "status"){ 
+             console.log("Sensor output",chosenSensor,sensor_dash_out);  
+            try{
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+             var check_status = Object.keys(selected_sensor_data)[0]; 
+             
+             if(category_sensor == "Chemical_sensor"){
+                        console.log("Chemical sensor category"); 
+                        //var myPlot = document.getElementById('ChemicalSensor'),
+                        //d3 = Plotly.d3,
+                        //N = 100,
+                        
+                        y1 = selected_sensor_data,
+                        //y2 = sensor_dash_out[category_sฯensor]["AngleDegY"],
+                        //y3 = sensor_dash_out[category_sensor]["AngleDegZ"],
+                        trace1 = {y:y1, type:'scatter', mode:'lines', name:'PH' },
+                        //trace2 = {y:y2, type:'scatter', mode:'lines', name:'Temperature' },
+                        //trace3 = {y:y3, type:'scatter', mode:'lines', name:'Nitrogen' },
+                        data_c = [trace1] //, trace2, trace3 ],
+                        layout_c = {
+                              hovermode:'closest',
+                              title:chosenSensor
+                        };
+
+                        Plotly.newPlot('ChemicalSensor', data_c, layout_c, {showSendToCloud: true});
+                        Plotly.update('ChemicalSensor',data_c,layout_c) 
+             }
+            }
+             catch{
+                 console.log("No device input to the category data");
+             }
+            }
+            if(check_status  == "status"){
+
+                 console.log("Chemical sensor not found");
+            }
+             
+
+             });
+            }
+            catch{
+                 console.log("Fetching no device found");
+            }
+}
+function fetch_data_sound(category_sensor,chosenSensor){
+           try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             var check_status = Object.keys(sensor_dash_out)[0]; 
+             if(check_status != "status"){ 
+             console.log("Sensor output",chosenSensor,sensor_dash_out);  
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+             
+             if(category_sensor == "Sound_sensor"){
+                        console.log("Sound sensor category");
+                        console.log("Chemical sensor category"); 
+                        var myPlot = document.getElementById('SoundSensor'),
+                        //d3 = Plotly.d3,
+                        //N = 100,
+                        
+                        y1 = selected_sensor_data,
+                        //y2 = sensor_dash_out[category_sensor]["AngleDegY"],
+                        //y3 = sensor_dash_out[category_sensor]["AngleDegZ"],
+                        trace1 = {y:y1, type:'scatter', mode:'lines', name:chosenSensor },
+                        //trace2 = {y:y2, type:'scatter', mode:'lines', name:'Temperature' },
+                        //trace3 = {y:y3, type:'scatter', mode:'lines', name:'Nitrogen' },
+                        data_s = [trace1] //, trace2, trace3 ],
+                        layout_s = {
+                              hovermode:'closest',
+                              title: chosenSensor
+                        };
+
+                        Plotly.newPlot('SoundSensor', data_s, layout_s, {showSendToCloud: true});
+                        Plotly.update('SoundSensor',data_s,layout_s) 
+                       
+
+             }
+            }
+            if(check_status == "status"){
+                  console.log("Sound sensor not found");
+            }
+
+             });
+            }
+            catch{
+                  console.log("Fetching no device found");
+            }
+}
+
+function fetch_data_array(category_sensor,chosenSensor){
+          try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             var check_status = Object.keys(sensor_dash_out)[0]; 
+             if(check_status != "status"){ 
+             console.log("Sensor output",chosenSensor,sensor_dash_out);  
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+           
+             if(category_sensor == "Array_sensor"){
+                        console.log("Array sensor category");
+                       z1 = selected_sensor_data
+                       //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                       var data_z1 = {z: z1, showscale: true, opacity:0.9, type: 'surface'};
+                       layout_s = {
+                              hovermode:'closest',
+                              title:chosenSensor
+                        };
+
+                       Plotly.newPlot('ArraySensor', [data_z1]);
+                       Plotly.update('ArraySensor',data_z1,layout_s); 
+
+             }
+            }
+            if(check_status == "status"){
+                 console.log("Array sensor not found");
+            }
+           
+             });
+            }
+            catch{
+                  console.log("Fetching no device found");
+            }
+}
+function fetch_data_position(category_sensor,chosenSensor){
+         try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             var check_status = Object.keys(sensor_dash_out)[0]; 
+             if(check_status != "status"){ 
+             console.log("Sensor output",chosenSensor,sensor_dash_out);  
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+           
+             if(category_sensor == "Position_sensor"){
+                console.log("Position sensor category"); 
+                function getRandomNumber(min, max) {
+                           // Generate a random floating-point number between 0 (inclusive) and 1 (exclusive)
+                    const randomFloat = Math.random();
+                    // Scale and shift the random number to the desired range
+                    const randomNumber = min + (randomFloat * (max - min));
+                    return randomNumber;
+                }
+                // Example usage:
+                const minBoundary = 10;
+                const maxBoundary = 40;
+                const randomValue = getRandomNumber(minBoundary, maxBoundary);
+                        //Position sensor 
+                        var pointCount = randomValue;
+                        var ir, rc;
+                        var xp = [];
+                        var yp = [];
+                        var zp = [];
+                        var cp = [];
+                        for(ir = 0; ir < pointCount; ir++) 
+                        {
+                        rc = 10 * Math.cos(ir / 10);
+                        xp.push(rc * Math.cos(ir));
+                        yp.push(rc * Math.sin(ir)); 
+                        zp.push(ir);
+                        cp.push(ir)
+                        }
+                        var data_pos = {
+                        type: 'scatter3d',
+                        mode: 'lines+markers',
+                        x: xp,
+                        y: yp,
+                        z: zp,
+                        line: {
+                           width: 6,
+                           color: cp,
+                           colorscale: "Viridis"},
+                        marker: {
+                              size: 3.5,
+                              color: cp,
+                              colorscale: "Greens",
+                              cmin: -20,
+                              cmax: 50
+                        }}
+                        layout_s = {
+                              hovermode:'closest',
+                              title:chosenSensor
+                        };
+
+                        Plotly.newPlot('PositionSensor', [data_pos],layout_s); 
+                        Plotly.update('PositionSensor',[data_pos],layout_s); 
+                    
+
+             } 
+             }
+             if(check_status == "status"){
+
+                  console.log("Position sensor not found");
+             }
+             
+
+             });
+            }
+            catch{
+                 console.log("Fetching no device found");
+            }
+}
+function fetch_data_biometric(category_sensor,chosenSensor){
+  try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text); 
+             var check_status = Object.keys(sensor_dash_out)[0]; 
+             if(check_status != "status"){ 
+             console.log("Sensor output",chosenSensor,sensor_dash_out);  
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+             
+             if(category_sensor == "Biometric_sensor"){
+                        console.log("Biometric sensor category")
+                        var data_bio = [
+                        {
+                           z: selected_sensor_data,
+                           type: 'heatmap'
+                           }
+                        ];
+                        layout_s = {
+                              hovermode:'closest',
+                              title:chosenSensor
+                        };
+
+                        Plotly.newPlot('BiometricSensor', data_bio,layout_s); 
+                        Plotly.update('BiometricSensor',data_bio,layout_s); 
+
+             }
+            }
+            if(check_status){
+                  console.log("Biometric sensor not found");
+            }
+
+             
+
+             });
+            }
+        catch{
+             console.log("Fetching no device found");
+        }
+}
+
+function fetch_data_phase_imaging(category_sensor,chosenSensor){
+       try{
+               fetch('/sensor_dashboard', {
+                   // Declare what type of data we're sending
+                   headers: {
+                     'Content-Type': 'application/json'
+                  },
+               // Specify the method
+               method: 'POST',
+              // A JSON payload
+              body: JSON.stringify({
+                           "email": user_account
+              })
+              }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+             // Should be 'OK' if everything was successful
+             var sensor_dash_out = JSON.parse(text);
+             var check_status = Object.keys(sensor_dash_out)[0]; 
+             if(check_status != "status"){  
+             console.log("Sensor output",chosenSensor,sensor_dash_out);  
+             var selected_sensor_data = sensor_dash_out[category_sensor][chosenSensor]; 
+             console.log(chosenSensor,selected_sensor_data); 
+             
+             if(category_sensor == "Phase_sensor"){
+                        console.log("Phase sensor category")
+                        d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv', function(err, rows){
+                        function unpack(rows, key) {
+                               return rows.map(function(row) { return row[key]; });
+                        }
+                        var z_data=[ ]
+                        for(i=0;i<24;i++)
+                        {
+                             z_data.push(unpack(rows,i));
+                        }
+                        var data_phase = [{
+                        z: z_data,
+                        type: 'surface',
+                        contours: {
+                                z: {
+                                show:true,
+                                usecolormap: true,
+                                highlightcolor:"#42f462",
+                                project:{z: true}
+                                }
+                        }
+                        }];
+                        var layout_phase = {
+                              title: 'Materials surface',
+                              scene: {camera: {eye: {x: 1.87, y: 0.88, z: -0.64}}},
+                              autosize: true,
+                              margin: {
+                              l: 65,
+                              r: 50,
+                              b: 65,
+                              t: 90,
+                              }
+                        };
+                        Plotly.newPlot('Phase_imagingSensor', data_phase, layout_phase);
+
+                      });
+
+             }
+            }
+            if(check_status == "status"){
+                 console.log("Phase imaging sensor not found");
+            }
+             
+
+             });
+            }
+            catch{
+                 console.log("Fetching no device found");
+            }
+}
+function environment_updateSensor(){
+      function environment_updateGraph(){
+         console.log("Environment_sensor",environment_sensor.value); 
+         //Add the update parameters here for the specific sensor
+         fetch_data_environment("Environment_sensor",environment_sensor.value);
+         setTimeout(environment_updateGraph,1);  
+      }   
+      environment_updateGraph();
+         console.log("Area graph color",getRandomHexColor()); 
+         if("Environment_sensor" in Object.keys(hexcolor) == false){
+
+                        hexcolor["Environment_sensor"]={};
+                        hexcolor["Environment_sensor"][environment_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Motion_sensor"] = {};
+                        inverse_hex["Motion_sensor"][motion_sensor.value] = getInverseColor(getRandomHexColor()); 
+         }
+        
+
+}
+
+function motion_updateSensor(){
+        function motion_updateGraph() {
+     
+         console.log("Motion_sensor",motion_sensor.value); 
+         //Add the update parameters here for the specific sensor
+         fetch_data_motion("Motion_sensor",motion_sensor.value);
+         setTimeout(motion_updateGraph, 1); // 1000ms = 1 second
+
+        }
+        motion_updateGraph();
+         console.log("Motion graph color",getRandomHexColor()); 
+         if("Motion_sensor" in Object.keys(hexcolor) == false){
+
+                        hexcolor["Motion_sensor"]={};
+                        hexcolor["Motion_sensor"][motion_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Motion_sensor"] = {};
+                        inverse_hex["Motion_sensor"][motion_sensor.value] = getInverseColor(getRandomHexColor()); 
+
+         }
+}
+function chemical_updateSensor(){
+       function checmical_updateGraph(){ 
+         console.log("Chemical_sensor",chemical_sensor.value); 
+         //Add the update parameters here for the specific sensor
+         fetch_data_chemical("Chemical_sensor",chemical_sensor.value); 
+         setTimeout(checmical_updateGraph,1);
+       }
+       checmical_updateGraph();  
+       console.log("Chemical graph color",getRandomHexColor()); 
+       if("Chemical_sensor" in Object.keys(hexcolor) == false){
+
+                        hexcolor["Chemical_sensor"]={};
+                        hexcolor["Chemical_sensor"][chemical_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Chemical_sensor"] = {};
+                        inverse_hex["Chemical_sensor"][chemical_sensor.value] = getInverseColor(getRandomHexColor()); 
+        }
+}
+function sound_updateSensor(){
+        function sound_updateGraph(){  
+          console.log("Sound_sensor",sound_sensor.value);
+          //Add the update parameters here for the specific sensor 
+          fetch_data_sound("Sound_sensor",sound_sensor.value); 
+          setTimeout(sound_updateGraph,1); 
+        }
+        sound_updateGraph(); 
+        console.log("Sound graph color",getRandomHexColor()); 
+        if("Sound_sensor" in Object.keys(hexcolor) == false){
+                        hexcolor["Sound_sensor"]={};
+                        hexcolor["Sound_sensor"][sound_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Sound_sensor"] = {};
+                        inverse_hex["Sound_sensor"][sound_sensor.value] = getInverseColor(getRandomHexColor());            
+        }
+        
+}
+function array_updateSensor(){
+       function array_updateGraph(){
+          console.log("Array_sensor",array_sensor.value);
+          //Add the update parameters here for the specific sensor
+          fetch_data_array("Array_sensor",array_sensor.value);
+          setTimeout(array_updateGraph,1); 
+       } 
+       array_updateGraph(); 
+       console.log("Array graph color",getRandomHexColor()); 
+       if("Array_sensor" in Object.keys(hexcolor) == false){
+                        hexcolor["Array_sensor"]={};
+                        hexcolor["Array_sensor"][array_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Array_sensor"] = {};
+                        inverse_hex["Array_sensor"][array_sensor.value] = getInverseColor(getRandomHexColor());            
+       }
+}  
+
+function position_updateSensor(){
+        function position_updateGraph(){
+          console.log("Position_sensor",position_sensor.value);
+          //Add the update parameters here for the specific sensor 
+          fetch_data_position("Position_sensor",position_sensor.value);  
+          setTimeout(position_updateGraph,1); 
+        }
+        position_updateGraph();
+        console.log("Position graph color",getRandomHexColor()); 
+        if("Position_sensor" in Object.keys(hexcolor) == false){ 
+                        hexcolor["Position_sensor"]={};
+                        hexcolor["Position_sensor"][sound_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Position_sensor"] = {};
+                        inverse_hex["Position_sensor"][sound_sensor.value] = getInverseColor(getRandomHexColor());            
+
+        }
+        
+}
+function biometric_updateSensor(){
+                     
+        function biometric_updateGraph(){
+          console.log("Biometric_sensor",biometric_sensor.value); 
+          //Add the update paramerts here for the specific sensor 
+          fetch_data_biometric("Biometric_sensor",biometric_sensor.value); 
+          setTimeout(biometric_updateGraph,1);  
+        }
+        biometric_updateGraph(); 
+        console.log("Biometric graph color",getRandomHexColor()); 
+        if("Biometric_sensor" in Object.keys(hexcolor) == false){
+                        hexcolor["Biometric_sensor"]={};
+                        hexcolor["Biometric_sensor"][biometric_sensor.value] = getRandomHexColor(); 
+                        console.log("Add graph color",hexcolor);
+                        inverse_hex["Biometric_sensor"] = {};
+                        inverse_hex["Biometric_sensor"][biometric_sensor.value] = getInverseColor(getRandomHexColor());               
+        }
+
+}
+function phase_image_updateSensor(){
+                     
+                     function phase_image_updateGraph(){
+                       console.log("Phase_imaging_sensor",phase_imaging_sensor.value); 
+                       //Add the update paramerts here for the specific sensor 
+                       fetch_data_phase_imaging("Phase_imaging_sensor",phase_imaging_sensor.value); 
+                       setTimeout(biometric_updateGraph,1);  
+                     }
+                     phase_image_updateGraph(); 
+                     console.log("Phase imaging graph color",getRandomHexColor()); 
+                     if("Phase_imaging_sensor" in Object.keys(hexcolor) == false){
+                                     hexcolor["Phase_imaging_sensor"]={};
+                                     hexcolor["Phase_imaging_sensor"][phase_imaging_sensor.value] = getRandomHexColor(); 
+                                     console.log("Add graph color",hexcolor);
+                                     inverse_hex["Phase_imaging_sensor"] = {};
+                                     inverse_hex["Phase_imaging_sensor"][phase_imaging_sensor.value] = getInverseColor(getRandomHexColor());               
+                     }
+             
+}
+function mapping_updateSensor(){
+        function mapping_sensor_updateGraph(){
+
+        }
+        mapping_sensor_updateGraph(); 
+        if("imaging_sensor" in Object.keys(hexcolor) == false){
+                    hexcolor["mapping_sensor"]={};
+                    hexcolor["mapping_sensor"][mapping_sensor.value] = getRandomHexColor(); 
+                    console.log("Add graph color",hexcolor);
+                    inverse_hex["mapping_sensor"] = {};
+                    inverse_hex["mapping_sensor"][mapping_sensor.value] = getInverseColor(getRandomHexColor());               
+        }
+ 
+}
+function imaging_updateSensor(){
+                 function image_sensor_updateGraph(){
+
+
+                 }
+                 image_sensor_updateGraph(); 
+                 if("imaging_sensor" in Object.keys(hexcolor) == false){
+                                     hexcolor["imaging_sensor"]={};
+                                     hexcolor["imaging_sensor"][Phase_imagin_sensor.value] = getRandomHexColor(); 
+                                     console.log("Add graph color",hexcolor);
+                                     inverse_hex["imaging_sensor"] = {};
+                                     inverse_hex["imaging_sensor"][Phase_imagin_sensor.value] = getInverseColor(getRandomHexColor());               
+                 }
+
+}
+function bms_updateSensor(){
+                 function image_sensor_updateGraph(){
+
+
+                 }
+                 image_sensor_updateGraph(); 
+                 if("bms_sensor" in Object.keys(hexcolor) == false){
+                                     hexcolor["bms_sensor"]={};
+                                     hexcolor["bms_sensor"][bms_sensor.value] = getRandomHexColor(); 
+                                     console.log("Add graph color",hexcolor);
+                                     inverse_hex["bms_sensor"] = {};
+                                     inverse_hex["bms_sensor"][bms_sensor.value] = getInverseColor(getRandomHexColor());               
+                 }
+
+}
+environment_updateSensor(); 
+motion_updateSensor();
+chemical_updateSensor(); 
+array_updateSensor();
+sound_updateSensor();
+position_updateSensor();
+biometric_updateSensor();
+phase_image_updateSensor();
+imaging_updateSensor(); 
+bms_updateSensor(); 
+
+environment_sensor.addEventListener('change', environment_updateSensor, false);
+motion_sensor.addEventListener('change',motion_updateSensor,false); 
+chemical_sensor.addEventListener('change',chemical_updateSensor,false);
+sound_sensor.addEventListener('change',sound_updateSensor,false); 
+array_sensor.addEventListener('change',array_updateSensor,false); 
+position_sensor.addEventListener('change',position_updateSensor,false); 
+biometric_sensor.addEventListener('change',biometric_updateSensor,false);
+Phase_imaging_sensor.addEventListener('change',phase_image_updateSensor,false); 
+imaging_sensor.addEventListener('change',imaging_updateSensor,false); 
+bms_sensor.addEventListener('change',bms_updateSensor,false); 
+
+});
+
+</script>
+
+<script>
+  function notify_data(status,text){
+        toastr.options = {
+             "closeButton": true,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-right",
+             "preventDuplicates": false,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "5000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+           }
+           if(status == 'success'){
+              toastr.success(text); // if status success 
+           }
+           if(status != 'success'){
+              toastr.warning(text); 
+           }
+            
+  };
+</script>
+
+<script type="text/javascript">
+      
+      var user_account = document.getElementById('datauser').value; 
+      console.log(user_account);
+      var user_encode = document.getElementById('encoded_arg').value; 
+      console.log(user_encode); 
+      function encode_project_data(){
+            var  jsonString = JSON.stringify(jsonObject);
+            // Step 3: Encode the JSON string as Base64
+            var  base64String = btoa(jsonString);
+            return base64String;   // Get the base 64 return from the data encode   
+       } 
+      //Extract the project name from the settings list to get the 
+      //Using the current project data fetch input selection from the 
+      function Codegendat(){
+         window.location.href = "https://roboreactor.com/CodeGenerator/"+user_encode;
+      }
+      function dashboardsensor(){
+        window.location.href = "https://roboreactor.com/dashboard_profile/"+user_encode;
+      }  
+      function API_key_auth(){
+           window.location.href = "https://roboreactor.com/Api_keys/"+user_encode; 
+      }
+      function urdf_wizard(){
+    
+                window.location.href = "https://roboreactor.com/urdf_creator/"+user_encode;      
+      }
+      function navigation_system(){
+                
+                window.location.href = "https://roboreactor.com/navigation_systems/"+user_encode;
+      }
+      function motion_controller_dash(){
+                      
+                 window.location.href = "https://roboreactor.com/motion_controller/"+user_encode;      
+      }
+      function manufacturing_account_dash(){
+         
+                 window.location.href = "https://roboreactor.com/Manufacturing_assist/"+user_encode;  
+      }
+
+      function settings_dash(){
+                
+                 window.location.href = "https://roboreactor.com/settings/"+user_encode;
+      }
+      //Setting the cconccurentcy loop of the login session timeout or payment expire 
+      function session_timeout(){
+                //fetching the data if the timeout is begin or payment expire 
+                //Get time right now 
+                var currentDate_time = new Date();
+                //Check time session when click into any function above 
+                Fetching_data_services_control("session_timout",{"email":user_account,"time_now":currentDate_time}); 
+                //Fetching the timeout
+                
+  
+      }
+      
+      //Fetch the end-point
+      function Fetching_data_services_control(endpoint,payload){
+               // POST
+               fetch('/'+endpoint, {
+                 // Declare what type of data we're sending
+                 headers: {
+                'Content-Type': 'application/json'
+                 },
+                // Specify the method
+                method: 'POST',
+               // A JSON payload
+               body: JSON.stringify(payload)
+               }).then(function (response) { // At this point, Flask has printed our JSON
+              return response.text();
+              }).then(function (text) {
+              console.log('POST response: ');
+              // Should be 'OK' if everything was successful
+               //console.log(text);
+               var data_session_controller = JSON.parse(text);
+               return data_session_controller 
+           });   
+      } 
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-KGJLJB0CMY">
+</script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KGJLJB0CMY');
+</script>
+
+</body>
+</html>
